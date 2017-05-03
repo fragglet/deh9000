@@ -3,7 +3,8 @@ import collections
 from sounds import *
 from states import *
 
-Mobj = collections.namedtuple("Mobj", [
+# Type name matches Doom.
+mobjinfo_t = collections.namedtuple("mobjinfo_t", [
     "doomednum",
     "spawnstate",
     "spawnhealth",
@@ -59,7 +60,7 @@ MF_SKULLFLY = 0x1000000
 MF_NOTDMATCH = 0x2000000
 MF_TRANSLATION = 0xc000000
 
-MOBJ_NAMES = [
+MOBJ_TYPES = [
     "MT_PLAYER",
     "MT_POSSESSED",
     "MT_SHOTGUY",
@@ -199,12 +200,15 @@ MOBJ_NAMES = [
     "MT_MISC86",
 ]
 
-for index, name in enumerate(MOBJ_NAMES):
+for index, name in enumerate(MOBJ_TYPES):
     globals()[name] = index
 
+# To match the Doom source, but if you're really a Python programmer you
+# probably shouldn't be using this.
+NUMMOBJTYPES = len(MOBJ_TYPES)
 
 MOBJS = [
-    Mobj(		# MT_PLAYER
+    mobjinfo_t(		# MT_PLAYER
 	-1,		# doomednum
 	S_PLAY,		# spawnstate
 	100,		# spawnhealth
@@ -230,7 +234,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_POSSESSED
+    mobjinfo_t(		# MT_POSSESSED
 	3004,		# doomednum
 	S_POSS_STND,		# spawnstate
 	20,		# spawnhealth
@@ -256,7 +260,7 @@ MOBJS = [
 	S_POSS_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_SHOTGUY
+    mobjinfo_t(		# MT_SHOTGUY
 	9,		# doomednum
 	S_SPOS_STND,		# spawnstate
 	30,		# spawnhealth
@@ -282,7 +286,7 @@ MOBJS = [
 	S_SPOS_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_VILE
+    mobjinfo_t(		# MT_VILE
 	64,		# doomednum
 	S_VILE_STND,		# spawnstate
 	700,		# spawnhealth
@@ -308,7 +312,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_FIRE
+    mobjinfo_t(		# MT_FIRE
 	-1,		# doomednum
 	S_FIRE1,		# spawnstate
 	1000,		# spawnhealth
@@ -334,7 +338,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_UNDEAD
+    mobjinfo_t(		# MT_UNDEAD
 	66,		# doomednum
 	S_SKEL_STND,		# spawnstate
 	300,		# spawnhealth
@@ -360,7 +364,7 @@ MOBJS = [
 	S_SKEL_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_TRACER
+    mobjinfo_t(		# MT_TRACER
 	-1,		# doomednum
 	S_TRACER,		# spawnstate
 	1000,		# spawnhealth
@@ -386,7 +390,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_SMOKE
+    mobjinfo_t(		# MT_SMOKE
 	-1,		# doomednum
 	S_SMOKE1,		# spawnstate
 	1000,		# spawnhealth
@@ -412,7 +416,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_FATSO
+    mobjinfo_t(		# MT_FATSO
 	67,		# doomednum
 	S_FATT_STND,		# spawnstate
 	600,		# spawnhealth
@@ -438,7 +442,7 @@ MOBJS = [
 	S_FATT_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_FATSHOT
+    mobjinfo_t(		# MT_FATSHOT
 	-1,		# doomednum
 	S_FATSHOT1,		# spawnstate
 	1000,		# spawnhealth
@@ -464,7 +468,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_CHAINGUY
+    mobjinfo_t(		# MT_CHAINGUY
 	65,		# doomednum
 	S_CPOS_STND,		# spawnstate
 	70,		# spawnhealth
@@ -490,7 +494,7 @@ MOBJS = [
 	S_CPOS_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_TROOP
+    mobjinfo_t(		# MT_TROOP
 	3001,		# doomednum
 	S_TROO_STND,		# spawnstate
 	60,		# spawnhealth
@@ -516,7 +520,7 @@ MOBJS = [
 	S_TROO_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_SERGEANT
+    mobjinfo_t(		# MT_SERGEANT
 	3002,		# doomednum
 	S_SARG_STND,		# spawnstate
 	150,		# spawnhealth
@@ -542,7 +546,7 @@ MOBJS = [
 	S_SARG_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_SHADOWS
+    mobjinfo_t(		# MT_SHADOWS
 	58,		# doomednum
 	S_SARG_STND,		# spawnstate
 	150,		# spawnhealth
@@ -568,7 +572,7 @@ MOBJS = [
 	S_SARG_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_HEAD
+    mobjinfo_t(		# MT_HEAD
 	3005,		# doomednum
 	S_HEAD_STND,		# spawnstate
 	400,		# spawnhealth
@@ -594,7 +598,7 @@ MOBJS = [
 	S_HEAD_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_BRUISER
+    mobjinfo_t(		# MT_BRUISER
 	3003,		# doomednum
 	S_BOSS_STND,		# spawnstate
 	1000,		# spawnhealth
@@ -620,7 +624,7 @@ MOBJS = [
 	S_BOSS_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_BRUISERSHOT
+    mobjinfo_t(		# MT_BRUISERSHOT
 	-1,		# doomednum
 	S_BRBALL1,		# spawnstate
 	1000,		# spawnhealth
@@ -646,7 +650,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_KNIGHT
+    mobjinfo_t(		# MT_KNIGHT
 	69,		# doomednum
 	S_BOS2_STND,		# spawnstate
 	500,		# spawnhealth
@@ -672,7 +676,7 @@ MOBJS = [
 	S_BOS2_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_SKULL
+    mobjinfo_t(		# MT_SKULL
 	3006,		# doomednum
 	S_SKULL_STND,		# spawnstate
 	100,		# spawnhealth
@@ -698,7 +702,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_SPIDER
+    mobjinfo_t(		# MT_SPIDER
 	7,		# doomednum
 	S_SPID_STND,		# spawnstate
 	3000,		# spawnhealth
@@ -724,7 +728,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_BABY
+    mobjinfo_t(		# MT_BABY
 	68,		# doomednum
 	S_BSPI_STND,		# spawnstate
 	500,		# spawnhealth
@@ -750,7 +754,7 @@ MOBJS = [
 	S_BSPI_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_CYBORG
+    mobjinfo_t(		# MT_CYBORG
 	16,		# doomednum
 	S_CYBER_STND,		# spawnstate
 	4000,		# spawnhealth
@@ -776,7 +780,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_PAIN
+    mobjinfo_t(		# MT_PAIN
 	71,		# doomednum
 	S_PAIN_STND,		# spawnstate
 	400,		# spawnhealth
@@ -802,7 +806,7 @@ MOBJS = [
 	S_PAIN_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_WOLFSS
+    mobjinfo_t(		# MT_WOLFSS
 	84,		# doomednum
 	S_SSWV_STND,		# spawnstate
 	50,		# spawnhealth
@@ -828,7 +832,7 @@ MOBJS = [
 	S_SSWV_RAISE1		# raisestate
     ),
 
-    Mobj(		# MT_KEEN
+    mobjinfo_t(		# MT_KEEN
 	72,		# doomednum
 	S_KEENSTND,		# spawnstate
 	100,		# spawnhealth
@@ -854,7 +858,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_BOSSBRAIN
+    mobjinfo_t(		# MT_BOSSBRAIN
 	88,		# doomednum
 	S_BRAIN,		# spawnstate
 	250,		# spawnhealth
@@ -880,7 +884,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_BOSSSPIT
+    mobjinfo_t(		# MT_BOSSSPIT
 	89,		# doomednum
 	S_BRAINEYE,		# spawnstate
 	1000,		# spawnhealth
@@ -906,7 +910,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_BOSSTARGET
+    mobjinfo_t(		# MT_BOSSTARGET
 	87,		# doomednum
 	S_NULL,		# spawnstate
 	1000,		# spawnhealth
@@ -932,7 +936,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_SPAWNSHOT
+    mobjinfo_t(		# MT_SPAWNSHOT
 	-1,		# doomednum
 	S_SPAWN1,		# spawnstate
 	1000,		# spawnhealth
@@ -958,7 +962,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_SPAWNFIRE
+    mobjinfo_t(		# MT_SPAWNFIRE
 	-1,		# doomednum
 	S_SPAWNFIRE1,		# spawnstate
 	1000,		# spawnhealth
@@ -984,7 +988,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_BARREL
+    mobjinfo_t(		# MT_BARREL
 	2035,		# doomednum
 	S_BAR1,		# spawnstate
 	20,		# spawnhealth
@@ -1010,7 +1014,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_TROOPSHOT
+    mobjinfo_t(		# MT_TROOPSHOT
 	-1,		# doomednum
 	S_TBALL1,		# spawnstate
 	1000,		# spawnhealth
@@ -1036,7 +1040,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_HEADSHOT
+    mobjinfo_t(		# MT_HEADSHOT
 	-1,		# doomednum
 	S_RBALL1,		# spawnstate
 	1000,		# spawnhealth
@@ -1062,7 +1066,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_ROCKET
+    mobjinfo_t(		# MT_ROCKET
 	-1,		# doomednum
 	S_ROCKET,		# spawnstate
 	1000,		# spawnhealth
@@ -1088,7 +1092,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_PLASMA
+    mobjinfo_t(		# MT_PLASMA
 	-1,		# doomednum
 	S_PLASBALL,		# spawnstate
 	1000,		# spawnhealth
@@ -1114,7 +1118,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_BFG
+    mobjinfo_t(		# MT_BFG
 	-1,		# doomednum
 	S_BFGSHOT,		# spawnstate
 	1000,		# spawnhealth
@@ -1140,7 +1144,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_ARACHPLAZ
+    mobjinfo_t(		# MT_ARACHPLAZ
 	-1,		# doomednum
 	S_ARACH_PLAZ,		# spawnstate
 	1000,		# spawnhealth
@@ -1166,7 +1170,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_PUFF
+    mobjinfo_t(		# MT_PUFF
 	-1,		# doomednum
 	S_PUFF1,		# spawnstate
 	1000,		# spawnhealth
@@ -1192,7 +1196,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_BLOOD
+    mobjinfo_t(		# MT_BLOOD
 	-1,		# doomednum
 	S_BLOOD1,		# spawnstate
 	1000,		# spawnhealth
@@ -1218,7 +1222,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_TFOG
+    mobjinfo_t(		# MT_TFOG
 	-1,		# doomednum
 	S_TFOG,		# spawnstate
 	1000,		# spawnhealth
@@ -1244,7 +1248,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_IFOG
+    mobjinfo_t(		# MT_IFOG
 	-1,		# doomednum
 	S_IFOG,		# spawnstate
 	1000,		# spawnhealth
@@ -1270,7 +1274,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_TELEPORTMAN
+    mobjinfo_t(		# MT_TELEPORTMAN
 	14,		# doomednum
 	S_NULL,		# spawnstate
 	1000,		# spawnhealth
@@ -1296,7 +1300,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_EXTRABFG
+    mobjinfo_t(		# MT_EXTRABFG
 	-1,		# doomednum
 	S_BFGEXP,		# spawnstate
 	1000,		# spawnhealth
@@ -1322,7 +1326,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC0
+    mobjinfo_t(		# MT_MISC0
 	2018,		# doomednum
 	S_ARM1,		# spawnstate
 	1000,		# spawnhealth
@@ -1348,7 +1352,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC1
+    mobjinfo_t(		# MT_MISC1
 	2019,		# doomednum
 	S_ARM2,		# spawnstate
 	1000,		# spawnhealth
@@ -1374,7 +1378,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC2
+    mobjinfo_t(		# MT_MISC2
 	2014,		# doomednum
 	S_BON1,		# spawnstate
 	1000,		# spawnhealth
@@ -1400,7 +1404,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC3
+    mobjinfo_t(		# MT_MISC3
 	2015,		# doomednum
 	S_BON2,		# spawnstate
 	1000,		# spawnhealth
@@ -1426,7 +1430,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC4
+    mobjinfo_t(		# MT_MISC4
 	5,		# doomednum
 	S_BKEY,		# spawnstate
 	1000,		# spawnhealth
@@ -1452,7 +1456,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC5
+    mobjinfo_t(		# MT_MISC5
 	13,		# doomednum
 	S_RKEY,		# spawnstate
 	1000,		# spawnhealth
@@ -1478,7 +1482,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC6
+    mobjinfo_t(		# MT_MISC6
 	6,		# doomednum
 	S_YKEY,		# spawnstate
 	1000,		# spawnhealth
@@ -1504,7 +1508,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC7
+    mobjinfo_t(		# MT_MISC7
 	39,		# doomednum
 	S_YSKULL,		# spawnstate
 	1000,		# spawnhealth
@@ -1530,7 +1534,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC8
+    mobjinfo_t(		# MT_MISC8
 	38,		# doomednum
 	S_RSKULL,		# spawnstate
 	1000,		# spawnhealth
@@ -1556,7 +1560,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC9
+    mobjinfo_t(		# MT_MISC9
 	40,		# doomednum
 	S_BSKULL,		# spawnstate
 	1000,		# spawnhealth
@@ -1582,7 +1586,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC10
+    mobjinfo_t(		# MT_MISC10
 	2011,		# doomednum
 	S_STIM,		# spawnstate
 	1000,		# spawnhealth
@@ -1608,7 +1612,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC11
+    mobjinfo_t(		# MT_MISC11
 	2012,		# doomednum
 	S_MEDI,		# spawnstate
 	1000,		# spawnhealth
@@ -1634,7 +1638,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC12
+    mobjinfo_t(		# MT_MISC12
 	2013,		# doomednum
 	S_SOUL,		# spawnstate
 	1000,		# spawnhealth
@@ -1660,7 +1664,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_INV
+    mobjinfo_t(		# MT_INV
 	2022,		# doomednum
 	S_PINV,		# spawnstate
 	1000,		# spawnhealth
@@ -1686,7 +1690,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC13
+    mobjinfo_t(		# MT_MISC13
 	2023,		# doomednum
 	S_PSTR,		# spawnstate
 	1000,		# spawnhealth
@@ -1712,7 +1716,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_INS
+    mobjinfo_t(		# MT_INS
 	2024,		# doomednum
 	S_PINS,		# spawnstate
 	1000,		# spawnhealth
@@ -1738,7 +1742,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC14
+    mobjinfo_t(		# MT_MISC14
 	2025,		# doomednum
 	S_SUIT,		# spawnstate
 	1000,		# spawnhealth
@@ -1764,7 +1768,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC15
+    mobjinfo_t(		# MT_MISC15
 	2026,		# doomednum
 	S_PMAP,		# spawnstate
 	1000,		# spawnhealth
@@ -1790,7 +1794,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC16
+    mobjinfo_t(		# MT_MISC16
 	2045,		# doomednum
 	S_PVIS,		# spawnstate
 	1000,		# spawnhealth
@@ -1816,7 +1820,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MEGA
+    mobjinfo_t(		# MT_MEGA
 	83,		# doomednum
 	S_MEGA,		# spawnstate
 	1000,		# spawnhealth
@@ -1842,7 +1846,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_CLIP
+    mobjinfo_t(		# MT_CLIP
 	2007,		# doomednum
 	S_CLIP,		# spawnstate
 	1000,		# spawnhealth
@@ -1868,7 +1872,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC17
+    mobjinfo_t(		# MT_MISC17
 	2048,		# doomednum
 	S_AMMO,		# spawnstate
 	1000,		# spawnhealth
@@ -1894,7 +1898,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC18
+    mobjinfo_t(		# MT_MISC18
 	2010,		# doomednum
 	S_ROCK,		# spawnstate
 	1000,		# spawnhealth
@@ -1920,7 +1924,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC19
+    mobjinfo_t(		# MT_MISC19
 	2046,		# doomednum
 	S_BROK,		# spawnstate
 	1000,		# spawnhealth
@@ -1946,7 +1950,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC20
+    mobjinfo_t(		# MT_MISC20
 	2047,		# doomednum
 	S_CELL,		# spawnstate
 	1000,		# spawnhealth
@@ -1972,7 +1976,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC21
+    mobjinfo_t(		# MT_MISC21
 	17,		# doomednum
 	S_CELP,		# spawnstate
 	1000,		# spawnhealth
@@ -1998,7 +2002,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC22
+    mobjinfo_t(		# MT_MISC22
 	2008,		# doomednum
 	S_SHEL,		# spawnstate
 	1000,		# spawnhealth
@@ -2024,7 +2028,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC23
+    mobjinfo_t(		# MT_MISC23
 	2049,		# doomednum
 	S_SBOX,		# spawnstate
 	1000,		# spawnhealth
@@ -2050,7 +2054,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC24
+    mobjinfo_t(		# MT_MISC24
 	8,		# doomednum
 	S_BPAK,		# spawnstate
 	1000,		# spawnhealth
@@ -2076,7 +2080,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC25
+    mobjinfo_t(		# MT_MISC25
 	2006,		# doomednum
 	S_BFUG,		# spawnstate
 	1000,		# spawnhealth
@@ -2102,7 +2106,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_CHAINGUN
+    mobjinfo_t(		# MT_CHAINGUN
 	2002,		# doomednum
 	S_MGUN,		# spawnstate
 	1000,		# spawnhealth
@@ -2128,7 +2132,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC26
+    mobjinfo_t(		# MT_MISC26
 	2005,		# doomednum
 	S_CSAW,		# spawnstate
 	1000,		# spawnhealth
@@ -2154,7 +2158,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC27
+    mobjinfo_t(		# MT_MISC27
 	2003,		# doomednum
 	S_LAUN,		# spawnstate
 	1000,		# spawnhealth
@@ -2180,7 +2184,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC28
+    mobjinfo_t(		# MT_MISC28
 	2004,		# doomednum
 	S_PLAS,		# spawnstate
 	1000,		# spawnhealth
@@ -2206,7 +2210,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_SHOTGUN
+    mobjinfo_t(		# MT_SHOTGUN
 	2001,		# doomednum
 	S_SHOT,		# spawnstate
 	1000,		# spawnhealth
@@ -2232,7 +2236,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_SUPERSHOTGUN
+    mobjinfo_t(		# MT_SUPERSHOTGUN
 	82,		# doomednum
 	S_SHOT2,		# spawnstate
 	1000,		# spawnhealth
@@ -2258,7 +2262,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC29
+    mobjinfo_t(		# MT_MISC29
 	85,		# doomednum
 	S_TECHLAMP,		# spawnstate
 	1000,		# spawnhealth
@@ -2284,7 +2288,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC30
+    mobjinfo_t(		# MT_MISC30
 	86,		# doomednum
 	S_TECH2LAMP,		# spawnstate
 	1000,		# spawnhealth
@@ -2310,7 +2314,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC31
+    mobjinfo_t(		# MT_MISC31
 	2028,		# doomednum
 	S_COLU,		# spawnstate
 	1000,		# spawnhealth
@@ -2336,7 +2340,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC32
+    mobjinfo_t(		# MT_MISC32
 	30,		# doomednum
 	S_TALLGRNCOL,		# spawnstate
 	1000,		# spawnhealth
@@ -2362,7 +2366,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC33
+    mobjinfo_t(		# MT_MISC33
 	31,		# doomednum
 	S_SHRTGRNCOL,		# spawnstate
 	1000,		# spawnhealth
@@ -2388,7 +2392,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC34
+    mobjinfo_t(		# MT_MISC34
 	32,		# doomednum
 	S_TALLREDCOL,		# spawnstate
 	1000,		# spawnhealth
@@ -2414,7 +2418,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC35
+    mobjinfo_t(		# MT_MISC35
 	33,		# doomednum
 	S_SHRTREDCOL,		# spawnstate
 	1000,		# spawnhealth
@@ -2440,7 +2444,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC36
+    mobjinfo_t(		# MT_MISC36
 	37,		# doomednum
 	S_SKULLCOL,		# spawnstate
 	1000,		# spawnhealth
@@ -2466,7 +2470,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC37
+    mobjinfo_t(		# MT_MISC37
 	36,		# doomednum
 	S_HEARTCOL,		# spawnstate
 	1000,		# spawnhealth
@@ -2492,7 +2496,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC38
+    mobjinfo_t(		# MT_MISC38
 	41,		# doomednum
 	S_EVILEYE,		# spawnstate
 	1000,		# spawnhealth
@@ -2518,7 +2522,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC39
+    mobjinfo_t(		# MT_MISC39
 	42,		# doomednum
 	S_FLOATSKULL,		# spawnstate
 	1000,		# spawnhealth
@@ -2544,7 +2548,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC40
+    mobjinfo_t(		# MT_MISC40
 	43,		# doomednum
 	S_TORCHTREE,		# spawnstate
 	1000,		# spawnhealth
@@ -2570,7 +2574,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC41
+    mobjinfo_t(		# MT_MISC41
 	44,		# doomednum
 	S_BLUETORCH,		# spawnstate
 	1000,		# spawnhealth
@@ -2596,7 +2600,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC42
+    mobjinfo_t(		# MT_MISC42
 	45,		# doomednum
 	S_GREENTORCH,		# spawnstate
 	1000,		# spawnhealth
@@ -2622,7 +2626,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC43
+    mobjinfo_t(		# MT_MISC43
 	46,		# doomednum
 	S_REDTORCH,		# spawnstate
 	1000,		# spawnhealth
@@ -2648,7 +2652,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC44
+    mobjinfo_t(		# MT_MISC44
 	55,		# doomednum
 	S_BTORCHSHRT,		# spawnstate
 	1000,		# spawnhealth
@@ -2674,7 +2678,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC45
+    mobjinfo_t(		# MT_MISC45
 	56,		# doomednum
 	S_GTORCHSHRT,		# spawnstate
 	1000,		# spawnhealth
@@ -2700,7 +2704,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC46
+    mobjinfo_t(		# MT_MISC46
 	57,		# doomednum
 	S_RTORCHSHRT,		# spawnstate
 	1000,		# spawnhealth
@@ -2726,7 +2730,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC47
+    mobjinfo_t(		# MT_MISC47
 	47,		# doomednum
 	S_STALAGTITE,		# spawnstate
 	1000,		# spawnhealth
@@ -2752,7 +2756,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC48
+    mobjinfo_t(		# MT_MISC48
 	48,		# doomednum
 	S_TECHPILLAR,		# spawnstate
 	1000,		# spawnhealth
@@ -2778,7 +2782,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC49
+    mobjinfo_t(		# MT_MISC49
 	34,		# doomednum
 	S_CANDLESTIK,		# spawnstate
 	1000,		# spawnhealth
@@ -2804,7 +2808,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC50
+    mobjinfo_t(		# MT_MISC50
 	35,		# doomednum
 	S_CANDELABRA,		# spawnstate
 	1000,		# spawnhealth
@@ -2830,7 +2834,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC51
+    mobjinfo_t(		# MT_MISC51
 	49,		# doomednum
 	S_BLOODYTWITCH,		# spawnstate
 	1000,		# spawnhealth
@@ -2856,7 +2860,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC52
+    mobjinfo_t(		# MT_MISC52
 	50,		# doomednum
 	S_MEAT2,		# spawnstate
 	1000,		# spawnhealth
@@ -2882,7 +2886,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC53
+    mobjinfo_t(		# MT_MISC53
 	51,		# doomednum
 	S_MEAT3,		# spawnstate
 	1000,		# spawnhealth
@@ -2908,7 +2912,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC54
+    mobjinfo_t(		# MT_MISC54
 	52,		# doomednum
 	S_MEAT4,		# spawnstate
 	1000,		# spawnhealth
@@ -2934,7 +2938,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC55
+    mobjinfo_t(		# MT_MISC55
 	53,		# doomednum
 	S_MEAT5,		# spawnstate
 	1000,		# spawnhealth
@@ -2960,7 +2964,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC56
+    mobjinfo_t(		# MT_MISC56
 	59,		# doomednum
 	S_MEAT2,		# spawnstate
 	1000,		# spawnhealth
@@ -2986,7 +2990,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC57
+    mobjinfo_t(		# MT_MISC57
 	60,		# doomednum
 	S_MEAT4,		# spawnstate
 	1000,		# spawnhealth
@@ -3012,7 +3016,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC58
+    mobjinfo_t(		# MT_MISC58
 	61,		# doomednum
 	S_MEAT3,		# spawnstate
 	1000,		# spawnhealth
@@ -3038,7 +3042,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC59
+    mobjinfo_t(		# MT_MISC59
 	62,		# doomednum
 	S_MEAT5,		# spawnstate
 	1000,		# spawnhealth
@@ -3064,7 +3068,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC60
+    mobjinfo_t(		# MT_MISC60
 	63,		# doomednum
 	S_BLOODYTWITCH,		# spawnstate
 	1000,		# spawnhealth
@@ -3090,7 +3094,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC61
+    mobjinfo_t(		# MT_MISC61
 	22,		# doomednum
 	S_HEAD_DIE6,		# spawnstate
 	1000,		# spawnhealth
@@ -3116,7 +3120,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC62
+    mobjinfo_t(		# MT_MISC62
 	15,		# doomednum
 	S_PLAY_DIE7,		# spawnstate
 	1000,		# spawnhealth
@@ -3142,7 +3146,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC63
+    mobjinfo_t(		# MT_MISC63
 	18,		# doomednum
 	S_POSS_DIE5,		# spawnstate
 	1000,		# spawnhealth
@@ -3168,7 +3172,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC64
+    mobjinfo_t(		# MT_MISC64
 	21,		# doomednum
 	S_SARG_DIE6,		# spawnstate
 	1000,		# spawnhealth
@@ -3194,7 +3198,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC65
+    mobjinfo_t(		# MT_MISC65
 	23,		# doomednum
 	S_SKULL_DIE6,		# spawnstate
 	1000,		# spawnhealth
@@ -3220,7 +3224,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC66
+    mobjinfo_t(		# MT_MISC66
 	20,		# doomednum
 	S_TROO_DIE5,		# spawnstate
 	1000,		# spawnhealth
@@ -3246,7 +3250,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC67
+    mobjinfo_t(		# MT_MISC67
 	19,		# doomednum
 	S_SPOS_DIE5,		# spawnstate
 	1000,		# spawnhealth
@@ -3272,7 +3276,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC68
+    mobjinfo_t(		# MT_MISC68
 	10,		# doomednum
 	S_PLAY_XDIE9,		# spawnstate
 	1000,		# spawnhealth
@@ -3298,7 +3302,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC69
+    mobjinfo_t(		# MT_MISC69
 	12,		# doomednum
 	S_PLAY_XDIE9,		# spawnstate
 	1000,		# spawnhealth
@@ -3324,7 +3328,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC70
+    mobjinfo_t(		# MT_MISC70
 	28,		# doomednum
 	S_HEADSONSTICK,		# spawnstate
 	1000,		# spawnhealth
@@ -3350,7 +3354,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC71
+    mobjinfo_t(		# MT_MISC71
 	24,		# doomednum
 	S_GIBS,		# spawnstate
 	1000,		# spawnhealth
@@ -3376,7 +3380,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC72
+    mobjinfo_t(		# MT_MISC72
 	27,		# doomednum
 	S_HEADONASTICK,		# spawnstate
 	1000,		# spawnhealth
@@ -3402,7 +3406,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC73
+    mobjinfo_t(		# MT_MISC73
 	29,		# doomednum
 	S_HEADCANDLES,		# spawnstate
 	1000,		# spawnhealth
@@ -3428,7 +3432,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC74
+    mobjinfo_t(		# MT_MISC74
 	25,		# doomednum
 	S_DEADSTICK,		# spawnstate
 	1000,		# spawnhealth
@@ -3454,7 +3458,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC75
+    mobjinfo_t(		# MT_MISC75
 	26,		# doomednum
 	S_LIVESTICK,		# spawnstate
 	1000,		# spawnhealth
@@ -3480,7 +3484,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC76
+    mobjinfo_t(		# MT_MISC76
 	54,		# doomednum
 	S_BIGTREE,		# spawnstate
 	1000,		# spawnhealth
@@ -3506,7 +3510,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC77
+    mobjinfo_t(		# MT_MISC77
 	70,		# doomednum
 	S_BBAR1,		# spawnstate
 	1000,		# spawnhealth
@@ -3532,7 +3536,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC78
+    mobjinfo_t(		# MT_MISC78
 	73,		# doomednum
 	S_HANGNOGUTS,		# spawnstate
 	1000,		# spawnhealth
@@ -3558,7 +3562,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC79
+    mobjinfo_t(		# MT_MISC79
 	74,		# doomednum
 	S_HANGBNOBRAIN,		# spawnstate
 	1000,		# spawnhealth
@@ -3584,7 +3588,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC80
+    mobjinfo_t(		# MT_MISC80
 	75,		# doomednum
 	S_HANGTLOOKDN,		# spawnstate
 	1000,		# spawnhealth
@@ -3610,7 +3614,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC81
+    mobjinfo_t(		# MT_MISC81
 	76,		# doomednum
 	S_HANGTSKULL,		# spawnstate
 	1000,		# spawnhealth
@@ -3636,7 +3640,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC82
+    mobjinfo_t(		# MT_MISC82
 	77,		# doomednum
 	S_HANGTLOOKUP,		# spawnstate
 	1000,		# spawnhealth
@@ -3662,7 +3666,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC83
+    mobjinfo_t(		# MT_MISC83
 	78,		# doomednum
 	S_HANGTNOBRAIN,		# spawnstate
 	1000,		# spawnhealth
@@ -3688,7 +3692,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC84
+    mobjinfo_t(		# MT_MISC84
 	79,		# doomednum
 	S_COLONGIBS,		# spawnstate
 	1000,		# spawnhealth
@@ -3714,7 +3718,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC85
+    mobjinfo_t(		# MT_MISC85
 	80,		# doomednum
 	S_SMALLPOOL,		# spawnstate
 	1000,		# spawnhealth
@@ -3740,7 +3744,7 @@ MOBJS = [
 	S_NULL		# raisestate
     ),
 
-    Mobj(		# MT_MISC86
+    mobjinfo_t(		# MT_MISC86
 	81,		# doomednum
 	S_BRAINSTEM,		# spawnstate
 	1000,		# spawnhealth
