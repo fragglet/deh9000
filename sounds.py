@@ -1,12 +1,8 @@
 
+import base
 import collections
 
-sfxinfo_t = collections.namedtuple("sfxinfo_t", [
-    "name", "singularity", "priority", "link", "pitch",
-    "volume", "data", "usefulness", "lumpnum",
-])
-
-SOUND_NAMES = [
+SOUND_NAMES = base.Enum([
     "sfx_None",
     "sfx_pistol",
     "sfx_shotgn",
@@ -116,14 +112,18 @@ SOUND_NAMES = [
     "sfx_skesit",
     "sfx_skeatk",
     "sfx_radio",
-]
+])
 
-for index, name in enumerate(SOUND_NAMES):
-    globals()[name] = index
+SOUND_NAMES.create_globals(globals())
 
 # To match the Doom source, but if you're really a Python programmer you
 # probably shouldn't be using this.
 NUMSFX = len(SOUND_NAMES)
+
+sfxinfo_t = collections.namedtuple("sfxinfo_t", [
+    "name", "singularity", "priority", "link", "pitch",
+    "volume", "data", "usefulness", "lumpnum",
+])
 
 S_sfx = [
 	sfxinfo_t("none", 0,  0, 0, -1, -1, 0, 0, 0),

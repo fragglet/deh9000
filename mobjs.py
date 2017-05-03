@@ -1,4 +1,5 @@
 
+import base
 import collections
 from sounds import *
 from states import *
@@ -60,7 +61,7 @@ MF_SKULLFLY = 0x1000000
 MF_NOTDMATCH = 0x2000000
 MF_TRANSLATION = 0xc000000
 
-MOBJ_TYPES = [
+MOBJ_TYPES = base.Enum([
     "MT_PLAYER",
     "MT_POSSESSED",
     "MT_SHOTGUY",
@@ -198,10 +199,9 @@ MOBJ_TYPES = [
     "MT_MISC84",
     "MT_MISC85",
     "MT_MISC86",
-]
+])
 
-for index, name in enumerate(MOBJ_TYPES):
-    globals()[name] = index
+MOBJ_TYPES.create_globals(globals())
 
 # To match the Doom source, but if you're really a Python programmer you
 # probably shouldn't be using this.
