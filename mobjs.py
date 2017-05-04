@@ -4,32 +4,36 @@ import collections
 from sounds import *
 from states import *
 
-# Type name matches Doom.
-mobjinfo_t = collections.namedtuple("mobjinfo_t", [
-    "doomednum",
-    "spawnstate",
-    "spawnhealth",
-    "seestate",
-    "seesound",
-    "reactiontime",
-    "attacksound",
-    "painstate",
-    "painchance",
-    "painsound",
-    "meleestate",
-    "missilestate",
-    "deathstate",
-    "xdeathstate",
-    "deathsound",
-    "speed",
-    "radius",
-    "height",
-    "mass",
-    "damage",
-    "activesound",
-    "flags",
-    "raisestate",
+MobjBase = base.CStruct("mobjinfo_t", "Thing", [
+	("doomednum",     "ID #"),
+	("spawnstate",    "Initial frame"),
+	("spawnhealth",   "Hit points"),
+	("seestate",      "First moving frame"),
+	("seesound",      "Alert sound"),
+	("reactiontime",  "Reaction time"),
+	("attacksound",   "Attack sound"),
+	("painstate",     "Injury frame"),
+	("painchance",    "Pain chance"),
+	("painsound",     "Pain sound"),
+	("meleestate",    "Close attack frame"),
+	("missilestate",  "Far attack frame"),
+	("deathstate",    "Death frame"),
+	("xdeathstate",   "Exploding frame"),
+	("deathsound",    "Death sound"),
+	("speed",         "Speed"),
+	("radius",        "Width"),
+	("height",        "Height"),
+	("mass",          "Mass"),
+	("damage",        "Missile damage"),
+	("activesound",   "Action sound"),
+	("flags",         "Bits"),
+	("raisestate",    "Respawn frame"),
 ])
+
+class mobjinfo_t(MobjBase):
+	# Because dehacked things are indexed from 1:
+	def dehacked_header(self, array_index):
+		return "Thing %d" % (array_index + 1)
 
 FRACUNIT = 1 << 16
 
@@ -207,7 +211,7 @@ MOBJ_TYPES.create_globals(globals())
 # probably shouldn't be using this.
 NUMMOBJTYPES = len(MOBJ_TYPES)
 
-MOBJS = [
+mobjinfo = base.CStructArray(mobjinfo_t, [
     mobjinfo_t(		# MT_PLAYER
 	-1,		# doomednum
 	S_PLAY,		# spawnstate
@@ -3769,5 +3773,5 @@ MOBJS = [
 	MF_NOBLOCKMAP,		# flags
 	S_NULL		# raisestate
     )
-]
+])
 
