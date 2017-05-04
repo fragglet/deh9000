@@ -1,8 +1,8 @@
 
-import base
+import c
 import collections
 
-sfxenum_t = base.Enum([
+sfxenum_t = c.Enum([
     "sfx_None",
     "sfx_pistol",
     "sfx_shotgn",
@@ -120,7 +120,7 @@ sfxenum_t.create_globals(globals())
 # probably shouldn't be using this.
 NUMSFX = len(sfxenum_t)
 
-sfxinfo_t = base.CStruct("sfxinfo_t", "Sound", [
+sfxinfo_t = c.Struct("sfxinfo_t", "Sound", [
 	("name",          None),  # "Offset"
 	("singularity",   "Zero/One"),
 	("priority",      "Value"),
@@ -132,7 +132,7 @@ sfxinfo_t = base.CStruct("sfxinfo_t", "Sound", [
 	("lumpnum",       "Neg. One 2"),
 ])
 
-S_sfx = base.CStructArray(sfxinfo_t, [
+S_sfx = c.StructArray(sfxinfo_t, [
 	("none", 0,  0, 0, -1, -1),
 	("pistol", 0, 64, 0, -1, -1),
 	("shotgn", 0, 64, 0, -1, -1),

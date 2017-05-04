@@ -1,10 +1,10 @@
 
-import base
+import c
 import collections
 from sounds import *
 from states import *
 
-MobjBase = base.CStruct("mobjinfo_t", "Thing", [
+MobjBase = c.Struct("mobjinfo_t", "Thing", [
 	("doomednum",     "ID #"),
 	("spawnstate",    "Initial frame"),
 	("spawnhealth",   "Hit points"),
@@ -65,7 +65,7 @@ MF_SKULLFLY = 0x1000000
 MF_NOTDMATCH = 0x2000000
 MF_TRANSLATION = 0xc000000
 
-MOBJ_TYPES = base.Enum([
+MOBJ_TYPES = c.Enum([
     "MT_PLAYER",
     "MT_POSSESSED",
     "MT_SHOTGUY",
@@ -211,7 +211,7 @@ MOBJ_TYPES.create_globals(globals())
 # probably shouldn't be using this.
 NUMMOBJTYPES = len(MOBJ_TYPES)
 
-mobjinfo = base.CStructArray(mobjinfo_t, [
+mobjinfo = c.StructArray(mobjinfo_t, [
     (		# MT_PLAYER
 	-1,		# doomednum
 	S_PLAY,		# spawnstate

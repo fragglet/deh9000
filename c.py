@@ -1,3 +1,4 @@
+"""Python types which emulate C types."""
 
 import copy
 
@@ -11,7 +12,7 @@ class Enum(list):
 		for index, name in enumerate(self):
 			globals[name] = index
 
-class CStructBase(object):
+class StructBase(object):
 	"""Base class for a type that emulate a C struct.
 
 	This is similar to a collections.namedtuple except mutable and
@@ -133,7 +134,7 @@ class CStructBase(object):
 			if getattr(self, f) != getattr(other, f)
 		]
 
-def CStruct(cname, deh_name, fields):
+def Struct(cname, deh_name, fields):
 	"""Create a C-style struct type for representing dehacked values.
 
 	Args:
@@ -143,7 +144,7 @@ def CStruct(cname, deh_name, fields):
 	    C (and Python) field name
 	    Dehacked name for the field
 	"""
-	class Result(CStructBase):
+	class Result(StructBase):
 		_type_name = cname
 		_dehacked_name = deh_name
 		_field_deh_map = dict(fields)
@@ -151,10 +152,10 @@ def CStruct(cname, deh_name, fields):
 
 	return Result
 
-class CStructArray(object):
+class StructArray(object):
 	"""Class emulating a C fixed-length array.
 
-	The elements in it must all be of type CStructBase and cannot
+	The elements in it must all be of type StructBase and cannot
 	be changed after instantiation time (although the structs within
 	it can be changed).
 
@@ -162,7 +163,7 @@ class CStructArray(object):
 	on instantiation, and for convenience these can be of type list,
 	tuple or dict to initialize structs, eg.
 
-	  foo = CStructArray(MyType, [
+	  foo = c.StructArray(MyType, [
 	      MyType(x=1, y=2),
 	      (3, 4),
 	      {'x': 5, 'y': 6},
@@ -170,7 +171,7 @@ class CStructArray(object):
 	"""
 
 	def __init__(self, struct_type, elements):
-		if not isinstance(struct_type(), CStructBase):
+		if not isinstance(struct_type(), StructBase):
 			raise ValueError("%r not a struct type" % (
 				struct_type,))
 		elements = copy.copy(elements)
@@ -194,7 +195,7 @@ class CStructArray(object):
 		return self._elements[i:j]
 
 	def original(self):
-		return CStructArray([el.original() for el in self])
+		return StructArray([el.original() for el in self])
 
 	def dehacked_diff(self, other=None):
 		result = []
@@ -210,7 +211,7 @@ class CStructArray(object):
 
 
 if __name__ == '__main__':
-	Coordinate = CStruct("Coordinate", "Co-ordinate", [
+	Coordinate = Struct("Coordinate", "Co-ordinate", [
 		("x", "X Value"),
 		("y", "Y Value"),
 	])
@@ -220,7 +221,7 @@ if __name__ == '__main__':
 	print c
 	print c.dehacked_diff()
 
-	arr = CStructArray(Coordinate, [
+	arr = StructArray(Coordinate, [
 		Coordinate(0, 0),
 		Coordinate(10, 0),
 		Coordinate(0, 10),
