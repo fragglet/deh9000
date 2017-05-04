@@ -87,7 +87,7 @@ class CStructBase(object):
 			", ".join("%s=%r" % (f, getattr(self, f))
 				for f in self._field_names))
 
-	def dehacked_output(self, fields=None):
+	def dehacked_output(self, fields=None, array_index=0):
 		"""Get a description of this struct in dehacked form.
 
 		If no field names are provided then all fields are
@@ -100,15 +100,18 @@ class CStructBase(object):
 			result += "%s = %s\n" % (
 				self.field_deh_name(field),
 				getattr(self, field))
-		return result
+		header = "%s %d\n" % (self._dehacked_name, array_index)
+		return header + result
 
-	def dehacked_diff(self, other=None):
+	def dehacked_diff(self, other=None, array_index=0):
 		"""Produce dehacked format diff against another struct.
 
 		If no struct is provided then the original values used
 		when instantiating this struct are used.
 		"""
-		return self.dehacked_output(self.diff(other))
+		return self.dehacked_output(
+			fields=self.diff(other),
+			array_index=array_index)
 
 	def diff(self, other=None):
 		"""Compare this struct against another struct.
@@ -124,24 +127,69 @@ class CStructBase(object):
 			if getattr(self, f) != getattr(other, f)
 		]
 
-def CStruct(typename, fields):
+def CStruct(cname, deh_name, fields):
 	"""Create a C-style struct type for representing dehacked values.
 
 	Args:
-	  typename: Name of the struct type.
+	  cname: Name of the struct type.
+	  deh_name: Name of this type as it is referenced in dehacked files.
 	  fields: List of tuples containing:
 	    C (and Python) field name
 	    Dehacked name for the field
 	"""
 	class Result(CStructBase):
-		_type_name = typename
+		_type_name = cname
+		_dehacked_name = deh_name
 		_field_deh_map = dict(fields)
 		_field_names = [x for x, _ in fields]
 
 	return Result
 
+class CStructArray(object):
+	"""Class emulating a C fixed-length array.
+
+	The elements in it must all be of type CStructBase and cannot
+	be changed after instantiation time (although the structs within
+	it can be changed).
+	"""
+
+	def __init__(self, struct_type, elements):
+		if not isinstance(struct_type(), CStructBase):
+			raise ValueError("%r not a struct type" % (
+				struct_type,))
+		for el in elements:
+			if not isinstance(el, struct_type):
+				raise ValueError("%r not of type %r" % (
+					el, struct_type))
+		self._elements = tuple(elements)
+
+	def __iter__(self):
+		return iter(self._elements)
+	def __len__(self):
+		return len(self._elements)
+	def __getitem__(self, i):
+		return self._elements[i]
+	def __getslice__(self, i, j):
+		return self._elements[i:j]
+
+	def original(self):
+		return CStructArray([el.original() for el in self])
+
+	def dehacked_diff(self, other=None):
+		result = []
+		for i, el in enumerate(self):
+			if other is not None:
+				other_el = other[i]
+			else:
+				other_el = None
+			diff = el.dehacked_diff(other_el, array_index=i)
+			if diff:
+				result.append(diff)
+		return "\n".join(result)
+
+
 if __name__ == '__main__':
-	Coordinate = CStruct("Coordinate", [
+	Coordinate = CStruct("Coordinate", "Co-ordinate", [
 		("x", "X Value"),
 		("y", "Y Value"),
 	])
@@ -150,4 +198,14 @@ if __name__ == '__main__':
 	c.y = 99
 	print c
 	print c.dehacked_diff()
+
+	arr = CStructArray(Coordinate, [
+		Coordinate(0, 0),
+		Coordinate(10, 0),
+		Coordinate(0, 10),
+		Coordinate(10, 10),
+	])
+	for el in arr:
+		el.x += 50
+	print arr.dehacked_diff()
 
