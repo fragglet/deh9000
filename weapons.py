@@ -13,6 +13,22 @@ ammotype_t = c.Enum([
 
 ammotype_t.create_globals(globals())
 
+weapontype_t = c.Enum([
+	"wp_fist",
+	"wp_pistol",
+	"wp_shotgun",
+	"wp_chaingun",
+	"wp_missile",
+	"wp_plasma",
+	"wp_bfg",
+	"wp_chainsaw",
+	"wp_supershotgun",
+])
+
+weapontype_t.create_globals(globals())
+
+NUMWEAPONS = len(weapontype_t)
+
 weaponinfo_t = c.Struct("weaponinfo_t", "Weapon", [
 	("ammo",        "Ammo type"),
 	("upstate",     "Deselect frame"),
