@@ -87,6 +87,9 @@ class CStructBase(object):
 			", ".join("%s=%r" % (f, getattr(self, f))
 				for f in self._field_names))
 
+	def dehacked_header(self, array_index):
+		return "%s %d" % (self._dehacked_name, array_index)
+
 	def dehacked_output(self, fields=None, array_index=0):
 		"""Get a description of this struct in dehacked form.
 
@@ -95,13 +98,15 @@ class CStructBase(object):
 		"""
 		if fields is None:
 			fields = self._field_names
-		result = ""
+		results = []
 		for field in fields:
-			result += "%s = %s\n" % (
+			results.append("%s = %s" % (
 				self.field_deh_name(field),
-				getattr(self, field))
-		header = "%s %d\n" % (self._dehacked_name, array_index)
-		return header + result
+				getattr(self, field)))
+		if not results:
+			return ""
+
+		return "\n".join([self.dehacked_header(array_index)] + results)
 
 	def dehacked_diff(self, other=None, array_index=0):
 		"""Produce dehacked format diff against another struct.
@@ -185,7 +190,7 @@ class CStructArray(object):
 			diff = el.dehacked_diff(other_el, array_index=i)
 			if diff:
 				result.append(diff)
-		return "\n".join(result)
+		return "\n\n".join(result)
 
 
 if __name__ == '__main__':
