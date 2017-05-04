@@ -157,14 +157,29 @@ class CStructArray(object):
 	The elements in it must all be of type CStructBase and cannot
 	be changed after instantiation time (although the structs within
 	it can be changed).
+
+	Arrays of this type must be provided a list of initializer elements
+	on instantiation, and for convenience these can be of type list,
+	tuple or dict to initialize structs, eg.
+
+	  foo = CStructArray(MyType, [
+	      MyType(x=1, y=2),
+	      (3, 4),
+	      {'x': 5, 'y': 6},
+	  ])
 	"""
 
 	def __init__(self, struct_type, elements):
 		if not isinstance(struct_type(), CStructBase):
 			raise ValueError("%r not a struct type" % (
 				struct_type,))
-		for el in elements:
-			if not isinstance(el, struct_type):
+		elements = copy.copy(elements)
+		for i, el in enumerate(elements):
+			if isinstance(el, (list, tuple)):
+				elements[i] = struct_type(*el)
+			elif isinstance(el, dict):
+				elements[i] = struct_type(**el)
+			elif not isinstance(el, struct_type):
 				raise ValueError("%r not of type %r" % (
 					el, struct_type))
 		self._elements = tuple(elements)
