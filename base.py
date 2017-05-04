@@ -100,9 +100,10 @@ class CStructBase(object):
 			fields = self._field_names
 		results = []
 		for field in fields:
-			results.append("%s = %s" % (
-				self.field_deh_name(field),
-				getattr(self, field)))
+			deh_name = self.field_deh_name(field)
+			if deh_name:
+				results.append("%s = %s" % (
+					deh_name, getattr(self, field)))
 		if not results:
 			return ""
 
