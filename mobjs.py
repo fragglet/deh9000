@@ -65,7 +65,7 @@ MF_SKULLFLY = 0x1000000
 MF_NOTDMATCH = 0x2000000
 MF_TRANSLATION = 0xc000000
 
-MOBJ_TYPES = c.Enum([
+mobjtype_t = c.Enum([
     "MT_PLAYER",
     "MT_POSSESSED",
     "MT_SHOTGUY",
@@ -205,11 +205,11 @@ MOBJ_TYPES = c.Enum([
     "MT_MISC86",
 ])
 
-MOBJ_TYPES.create_globals(globals())
+mobjtype_t.create_globals(globals())
 
 # To match the Doom source, but if you're really a Python programmer you
 # probably shouldn't be using this.
-NUMMOBJTYPES = len(MOBJ_TYPES)
+NUMMOBJTYPES = len(mobjtype_t)
 
 mobjinfo = c.StructArray(mobjinfo_t, [
     (		# MT_PLAYER
