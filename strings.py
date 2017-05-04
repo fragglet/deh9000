@@ -1,3 +1,9 @@
+"""Constants values for Doom's in-game strings.
+
+These are the various text strings displayed in Doom (for menus, head-up
+display messages, story text, level names, etc.). In the Doom source code
+these definitions are found in d_englsh.h.
+"""
 
 class StringReplacements(dict):
 	def dehacked_diff(self, other=None):

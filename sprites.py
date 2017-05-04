@@ -1,3 +1,7 @@
+"""Constants and types for Doom's sprite names table.
+
+In the Doom source code the equivalent definitions are found in info.h.
+"""
 
 import c
 

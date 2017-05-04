@@ -1,3 +1,11 @@
+"""Doom's internal action functions.
+
+Action functions, also known as "code pointers", are callback functions that
+are associated with particular frames and invoked when a thing reaches that
+particular frame.
+
+  <https://doomwiki.org/wiki/DeHackEd#Code_pointers>
+"""
 
 class Action():
     pass
