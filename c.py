@@ -82,7 +82,7 @@ class StructBase(object):
 		args, kwargs = self._original_values
 		return type(self)(*args, **kwargs)
 
-	def __str__(self):
+	def __repr__(self):
 		return "%s(%s)" % (
 			self._type_name,
 			", ".join("%s=%r" % (f, getattr(self, f))
@@ -183,6 +183,7 @@ class StructArray(object):
 			elif not isinstance(el, struct_type):
 				raise ValueError("%r not of type %r" % (
 					el, struct_type))
+		self._struct_type = struct_type
 		self._elements = tuple(elements)
 
 	def __iter__(self):
@@ -193,6 +194,12 @@ class StructArray(object):
 		return self._elements[i]
 	def __getslice__(self, i, j):
 		return self._elements[i:j]
+
+	def __repr__(self):
+		return "c.StructArray(%s, [\n%s\n])" % (
+			self._struct_type._type_name,
+			"\n".join("\t%r," % x for x in self),
+		)
 
 	def original(self):
 		return StructArray([el.original() for el in self])
