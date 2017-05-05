@@ -1,6 +1,16 @@
 
 import strings
 
+DEHACKED_HEADER_FORMAT = """
+Patch File for DeHackEd v3.0
+
+# Note: Use the pound sign ('#') to start comment lines.
+
+Doom version = %(doom_version)s
+Patch format = %(patch_format)s
+
+"""
+
 class StringReplacements(object):
 	"""Class that wraps the functionality of dehacked string replacements.
 
@@ -107,6 +117,32 @@ class StringReplacements(object):
 			result.append(header + old + new)
 
 		return "\n\n".join(result)
+
+class DehackedFile(object):
+	def __init__(self, *parts):
+		self.parts = parts
+		self.doom_version = 19
+		self.patch_format = 6
+
+	def dehacked_header(self):
+		return DEHACKED_HEADER_FORMAT % {
+			'doom_version': self.doom_version,
+			'patch_format': self.patch_format,
+		}
+
+	def dehacked_diff(self):
+		result = []
+		for s in self.parts:
+			diff = s.dehacked_diff()
+			if diff:
+				result.append(diff)
+		if not result:
+			result.append("# No difference was found!")
+		return self.dehacked_header() + "\n\n".join(result)
+
+	def write(self, filename):
+		with open(filename, "w") as f:
+			f.write(self.dehacked_diff())
 
 if __name__ == '__main__':
 	s = StringReplacements()

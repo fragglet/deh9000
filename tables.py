@@ -8,6 +8,7 @@ modified version against the original "clean" copy.
 """
 
 import c
+from file import DehackedFile, StringReplacements
 from actions import *
 from ammo import *
 from mobjs import *
@@ -4754,4 +4755,15 @@ S_sfx = c.StructArray(sfxinfo_t, [
 	("skeatk", 0, 70, 0, -1, -1),
 	("radio", 0, 60, 0, -1, -1),
 ])
+
+strings = StringReplacements()
+
+file = DehackedFile(
+	ammodata,
+	weaponinfo,
+	states,
+	mobjinfo,
+	S_sfx,
+	strings,
+)
 
