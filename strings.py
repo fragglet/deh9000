@@ -2,24 +2,9 @@
 
 These are the various text strings displayed in Doom (for menus, head-up
 display messages, story text, level names, etc.). In the Doom source code
-these definitions are found in d_englsh.h.
+these definitions are found in d_englsh.h; in fact this file is really
+just a Python conversion of that file.
 """
-
-class StringReplacements(dict):
-	def dehacked_diff(self, other=None):
-		other = other or {}
-		result = []
-		for old, new in self:
-			# Both have the exact same replacement? No need
-			# to repeat it.
-			if other.get(old, old) == new:
-				continue
-			header = "Text %d %d\n" % (len(old), len(new))
-			result.append(header + old + new)
-
-		return "\n\n".join(result)
-
-# The rest of this file is a translation of Doom's d_englsh.h:
 
 #
 # D_Main.C
