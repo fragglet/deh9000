@@ -62,6 +62,9 @@ class StructBase(object):
 					self._type_name, field))
 			setattr(self, field, value)
 
+	def match_key(self):
+		return (StructBase, self._type_name)
+
 	@classmethod
 	def fields(cls):
 		"""Get a list of the C field names for this class."""
@@ -200,6 +203,9 @@ class StructArray(object):
 			self._struct_type._type_name,
 			"\n".join("\t%r," % x for x in self),
 		)
+
+	def match_key(self):
+		return (StructArray, self._struct_type)
 
 	def original(self):
 		return StructArray([el.original() for el in self])

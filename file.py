@@ -105,6 +105,9 @@ class StringReplacements(object):
 	def values(self):
 		return list(self.itervalues())
 
+	def match_key(self):
+		return (StringReplacements,)
+
 	def dehacked_diff(self, other=None):
 		other = other or {}
 		result = []
@@ -130,12 +133,28 @@ class DehackedFile(object):
 			'patch_format': self.patch_format,
 		}
 
-	def dehacked_diff(self):
+	def dehacked_diff(self, other=None):
 		result = []
-		for s in self.parts:
-			diff = s.dehacked_diff()
-			if diff:
-				result.append(diff)
+		# If there's no diff then we compare against original values,
+		# but if we're comparing against another file then we need to
+		# match up parts and compare them.
+		if other is None:
+			for s in self.parts:
+				diff = s.dehacked_diff()
+				if diff:
+					result.append(diff)
+		else:
+			parts_keyed = {p.match_key(): p for p in self.parts}
+			other_parts = {p.match_key(): p for p in self.parts}
+			assert parts_keyed.keys() == other_parts.keys(), (
+				"Parts for files should match: %r != %r" % (
+					parts_keyed.keys(), other_parts.keys(),
+				))
+			for key, part in parts_keyed.items():
+				other_part = other_parts[key]
+				diff = part.dehacked_diff(other=other_part)
+				if diff:
+					result.append(diff)
 		if not result:
 			result.append("# No difference was found!")
 		return self.dehacked_header() + "\n\n".join(result)
