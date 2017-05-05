@@ -9,11 +9,19 @@ modified version against the original "clean" copy.
 
 import c
 from actions import *
+from ammo import *
 from mobjs import *
 from sounds import *
 from sprites import *
 from states import *
 from weapons import *
+
+ammodata = c.StructArray(ammodata_t, [
+	(10, 200),    # am_clip
+	( 4,  50),    # am_shell
+	(20, 300),    # am_cell
+	( 1,  50),    # am_misl
+])
 
 weaponinfo = c.StructArray(weaponinfo_t, [
     (

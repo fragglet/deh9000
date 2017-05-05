@@ -7,17 +7,6 @@ d_items.h.
 
 import c
 
-ammotype_t = c.Enum([
-	"am_clip",    # Pistol / chaingun ammo.
-	"am_shell",   # Shotgun / double barreled shotgun.
-	"am_cell",    # Plasma rifle, BFG.
-	"am_misl",    # Missile launcher.
-	"NUMAMMO",
-	"am_noammo",  # Unlimited for chainsaw / fist.
-])
-
-ammotype_t.create_globals(globals())
-
 weapontype_t = c.Enum([
 	"wp_fist",
 	"wp_pistol",
