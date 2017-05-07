@@ -11,6 +11,7 @@ import c
 from file import DehackedFile, StringReplacements
 from actions import *
 from ammo import *
+from misc import *
 from mobjs import *
 from sounds import *
 from sprites import *
@@ -23,6 +24,25 @@ ammodata = c.StructArray(ammodata_t, [
 	(20, 300),    # am_cell
 	( 1,  50),    # am_misl
 ])
+
+miscdata = deh_misc_t(
+	initial_health=100,
+	initial_bullets=50,
+	max_health=200,
+	max_armor=200,
+	green_armor_class=1,
+	blue_armor_class=2,
+	max_soulsphere=200,
+	soulsphere_health=100,
+	megasphere_health=200,
+	god_mode_health=100,
+	idfa_armor=200,
+	idfa_armor_class=2,
+	idkfa_armor=200,
+	idkfa_armor_class=2,
+	bfg_cells_per_shot=40,
+	species_infighting=202,
+)
 
 weaponinfo = c.StructArray(weaponinfo_t, [
     (
