@@ -8,7 +8,7 @@ humans, but does so in a programmatic way as a demo of DEH9000.
 
 from tables import *
 
-humanoids = (MT_POSSESSED, MT_SHOTGUY, MT_CHAINGUY, MT_TROOP)
+humanoids = (MT_POSSESSED, MT_SHOTGUY, MT_TROOP, MT_CHAINGUY)
 frame_fields = ("spawnstate", "seestate", "painstate", "meleestate",
                 "missilestate", "deathstate", "xdeathstate", "raisestate")
 
