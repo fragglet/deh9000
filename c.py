@@ -75,7 +75,7 @@ class Struct(object):
 
 		# Save a copy of the original values so that we can diff
 		# later, if we want to.
-		self._original_values = copy.deepcopy((args, kwargs))
+		self._original_values = (copy.copy(args), copy.copy(kwargs))
 
 	@classmethod
 	def field_names(cls):
