@@ -8,7 +8,7 @@ particular frame.
 """
 
 class Action():
-    pass
+	pass
 
 A_Light0 = Action()
 A_WeaponReady = Action()
