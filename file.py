@@ -146,7 +146,7 @@ class DehackedFile(object):
 		self.patch_format = 6
 
 	def dehacked_header(self):
-		return DEHACKED_HEADER_FORMAT % {
+		return DEHACKED_HEADER_FORMAT.lstrip() % {
 			'doom_version': self.doom_version,
 			'patch_format': self.patch_format,
 		}
