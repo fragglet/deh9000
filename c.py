@@ -30,15 +30,17 @@ class StructField(property):
 	used when the field represents a pointer type.
 	"""
 	instance_order = 0
-	def __init__(self, deh_name):
-		def getter(self):
-			return self._fields[deh_name]
-		def setter(self, value):
-			self._fields[deh_name] = value
-		super(StructField, self).__init__(getter, setter)
-		self.deh_name = deh_name
-		self.order = StructField.instance_order
+	def __init__(prop, deh_name):
+		field_number = StructField.instance_order
 		StructField.instance_order += 1
+		prop.order = field_number
+		prop.deh_name = deh_name
+
+		def getter(self):
+			return self._fields[field_number]
+		def setter(self, value):
+			self._fields[field_number] = value
+		super(StructField, prop).__init__(getter, setter)
 
 class Struct(object):
 	"""Base class for a type that emulate a C struct.
@@ -66,7 +68,9 @@ class Struct(object):
 	"""
 	def __init__(self, *args, **kwargs):
 		# Start with all fields initialized to zero, then override.
-		self._fields = {f: 0 for f in self.field_names()}
+		self._fields = {}
+		for f in self.field_names():
+			setattr(self, f, 0)
 		self.set_values(*args, **kwargs)
 
 		# Save a copy of the original values so that we can diff
