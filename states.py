@@ -19,6 +19,50 @@ class state_t(c.Struct):
 	misc2     = c.StructField("Unknown 2")
 
 
+class CodePointers(object):
+	"""Class that generates the Code Pointers blocks.
+
+	Dehacked allows modification of the states table's 'action' field
+	but it uses a weird mechanism to do so that uses separate blocks
+	to the "Frame" blocks used for the rest of the fields.
+
+	Every state which has an action pointer set (ie. in the original
+	table) has a "pointer number" assigned to it, and only these states
+	can be modified in dehacked patches.
+	"""
+	def __init__(self, states):
+		self.states = states
+		self._pointers = []
+		self._action_to_frame = {}
+		for idx, state in enumerate(states.original()):
+			if state.action is not None:
+				self._pointers.append(idx)
+				self._action_to_frame[state.action] = idx
+
+	def match_key(self):
+		return (CodePointers,)
+
+	def diff_pointer(self, ptr_id, other=None):
+		state_id = self._pointers[ptr_id]
+		state = self.states[state_id]
+		if other is not None:
+			other_state = other[state_id]
+		else:
+			other_state = state.original()
+		if state.action == other_state.action:
+			return None
+		return "Pointer %d (Frame %d)\nCodep Frame = %d" % (
+			ptr_id, state_id,
+			self._action_to_frame[state.action])
+
+	def dehacked_diffs(self, other=None):
+		result = []
+		for ptr_id in range(len(self._pointers)):
+			diff = self.diff_pointer(ptr_id, other)
+			if diff:
+				result.append(diff)
+		return result
+
 statenum_t = c.Enum([
     "S_NULL",
     "S_LIGHTDONE",

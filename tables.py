@@ -4782,6 +4782,7 @@ file = DehackedFile(
 	ammodata,
 	weaponinfo,
 	states,
+	CodePointers(states),
 	miscdata,
 	mobjinfo,
 	S_sfx,
