@@ -19,6 +19,30 @@ class state_t(c.Struct):
 	misc2     = c.StructField("Unknown 2")
 
 
+class StateArray(c.StructArray):
+	"""Wrapper around StructArray that adds some extra methods."""
+
+	def __init__(self, states):
+		super(StateArray, self).__init__(state_t, states)
+
+	def walk(self, index):
+		"""Iterate over states in sequence starting from given index.
+
+		Each state in the states array has a "nextstate" field that
+		indicates a state that follows it. This function returns a
+		generator that yields the index of each state in the sequence,
+		ending when the NULL state (0) is reached, or when a state is
+		reached that has already been reached.
+		"""
+		previous_states = set()
+		while index != S_NULL:
+			yield index
+			previous_states.add(index)
+			index = self[index].nextstate
+			if index in previous_states:
+				return
+
+
 class CodePointers(object):
 	"""Class that generates the Code Pointers blocks.
 
@@ -62,6 +86,7 @@ class CodePointers(object):
 			if diff:
 				result.append(diff)
 		return result
+
 
 statenum_t = c.Enum([
 	"S_NULL",

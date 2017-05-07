@@ -12,22 +12,6 @@ humanoids = (MT_POSSESSED, MT_SHOTGUY, MT_CHAINGUY, MT_TROOP)
 frame_fields = ("spawnstate", "seestate", "painstate", "meleestate",
                 "missilestate", "deathstate", "xdeathstate", "raisestate")
 
-def replace_sprites(startstate, newsprite):
-	"""Update states in the given chain to change the sprite field.
-
-	Starting from the given state index, this walks along the "nextstate"
-	field setting the sprite to 'newsprite' for each in turn, until S_NULL
-	is reached, or a state loop is detected.
-	"""
-	previous_states = {startstate}
-	state = startstate
-	while state != S_NULL:
-		states[state].sprite = newsprite
-		previous_states.add(state)
-		state = states[state].nextstate
-		if state in previous_states:
-			return
-
 def update_monster(mobjtype, color=0):
 	"""Update the given mobjtype to look like a player."""
 	mobj = mobjinfo[mobjtype]
@@ -41,8 +25,12 @@ def update_monster(mobjtype, color=0):
 	mobj.deathsound = sfx_pldeth
 	mobj.activesound = sfx_None
 
+	# Check all state fields and walk animation sequences to change
+	# them all to use the player sprite:
 	for field_name in frame_fields:
-		replace_sprites(getattr(mobj, field_name), SPR_PLAY)
+		startstate = getattr(mobj, field_name)
+		for index in states.walk(startstate):
+			states[index].sprite = SPR_PLAY
 
 # Update all humanoid monsters, and give them differing colors:
 for i, mobjtype in enumerate(humanoids):
