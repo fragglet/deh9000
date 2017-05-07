@@ -49,10 +49,9 @@ for i, mobjtype in enumerate(humanoids):
 	color = i & 3
 	update_monster(mobjtype, color)
 
-# Change the imp to shoot a plasma ball instead of a fireball:
-for state in states:
-	if state.action == A_TroopAttack:
-		state.action = A_FirePlasma
+# Change the imp to shoot a plasma ball instead of a fireball (or at least,
+# we make the imp fireball look like a plasma ball).
+mobjinfo[MT_TROOPSHOT].copy_from(mobjinfo[MT_PLASMA])
 
 file.write("dmarmy.deh")
 

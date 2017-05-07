@@ -87,6 +87,20 @@ class Struct(object):
 		props = sorted(props, key=lambda x: x[1].order)
 		return [name for name, _ in props]
 
+	def copy_from(self, other):
+		"""Copy all field values from another struct.
+
+		Every field will be overwritten to be identical to the other
+		struct, which must be of the same type.
+		"""
+		assert type(self) == type(other), (
+			"Structs must be of the same type, %r != %r" % (
+				type(self), type(other),
+			))
+		for field_name in self.field_names():
+			value = getattr(other, field_name)
+			setattr(self, field_name, value)
+
 	def set_values(self, *args, **kwargs):
 		"""Set the values of all fields in the struct.
 
