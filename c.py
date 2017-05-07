@@ -61,10 +61,10 @@ class Struct(object):
 		xy = Coordinate(20, 30)
 		xy.x = 3
 		xy.y = 5
-		print xy.dehacked_diff(array_index=99)
+		print xy.dehacked_diffs(array_index=99)
 
 		xy2 = Coordinate(50, 5)
-		print xy2.dehacked_diff(xy)
+		print xy2.dehacked_diffs(xy)
 	"""
 	def __init__(self, *args, **kwargs):
 		# Start with all fields initialized to zero, then override.
@@ -156,15 +156,21 @@ class Struct(object):
 
 		return "\n".join([self.dehacked_header(array_index)] + results)
 
-	def dehacked_diff(self, other=None, array_index=0):
+	def dehacked_diffs(self, other=None, array_index=0):
 		"""Produce dehacked format diff against another struct.
 
 		If no struct is provided then the original values used
 		when instantiating this struct are used.
+
+		Returned is a list containing either one string (dehacked-
+		format list of changes) or no entries (no diff).
 		"""
-		return self.dehacked_output(
-			fields=self.diff(other),
-			array_index=array_index)
+		diff = self.dehacked_output(fields=self.diff(other),
+		                            array_index=array_index)
+		if diff:
+			return [diff]
+		else:
+			return []
 
 	def diff(self, other=None):
 		"""Compare this struct against another struct.
@@ -235,17 +241,16 @@ class StructArray(object):
 	def original(self):
 		return StructArray([el.original() for el in self])
 
-	def dehacked_diff(self, other=None):
+	def dehacked_diffs(self, other=None):
 		result = []
 		for i, el in enumerate(self):
 			if other is not None:
 				other_el = other[i]
 			else:
 				other_el = None
-			diff = el.dehacked_diff(other_el, array_index=i)
-			if diff:
-				result.append(diff)
-		return "\n\n".join(result)
+			result.extend(el.dehacked_diffs(other_el,
+			                                array_index=i))
+		return result
 
 
 if __name__ == '__main__':
@@ -257,10 +262,10 @@ if __name__ == '__main__':
 	xy = Coordinate(20, 30)
 	xy.x = 3
 	xy.y = 5
-	print xy.dehacked_diff(array_index=99)
+	print xy.dehacked_diffs(array_index=99)
 
 	xy2 = Coordinate(50, 5)
-	print xy2.dehacked_diff(xy)
+	print xy2.dehacked_diffs(xy)
 
 	arr = StructArray(Coordinate, [
 		(0, 0),
@@ -270,5 +275,5 @@ if __name__ == '__main__':
 	])
 	for el in arr:
 		el.x += 50
-	print arr.dehacked_diff()
+	print arr.dehacked_diffs()
 

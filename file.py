@@ -126,7 +126,7 @@ class StringReplacements(object):
 	def match_key(self):
 		return (StringReplacements,)
 
-	def dehacked_diff(self, other=None):
+	def dehacked_diffs(self, other=None):
 		other = other or {}
 		result = []
 		for old, new in self.iteritems():
@@ -137,7 +137,7 @@ class StringReplacements(object):
 			header = "Text %d %d\n" % (len(old), len(new))
 			result.append(header + old + new)
 
-		return "\n\n".join(result)
+		return result
 
 class DehackedFile(object):
 	def __init__(self, *parts):
@@ -146,21 +146,19 @@ class DehackedFile(object):
 		self.patch_format = 6
 
 	def dehacked_header(self):
-		return DEHACKED_HEADER_FORMAT.lstrip() % {
+		return DEHACKED_HEADER_FORMAT.strip() % {
 			'doom_version': self.doom_version,
 			'patch_format': self.patch_format,
 		}
 
-	def dehacked_diff(self, other=None):
+	def dehacked_diffs(self, other=None):
 		result = []
 		# If there's no diff then we compare against original values,
 		# but if we're comparing against another file then we need to
 		# match up parts and compare them.
 		if other is None:
 			for s in self.parts:
-				diff = s.dehacked_diff()
-				if diff:
-					result.append(diff)
+				result.extend(s.dehacked_diffs())
 		else:
 			parts_keyed = {p.match_key(): p for p in self.parts}
 			other_parts = {p.match_key(): p for p in self.parts}
@@ -170,16 +168,16 @@ class DehackedFile(object):
 				))
 			for key, part in parts_keyed.items():
 				other_part = other_parts[key]
-				diff = part.dehacked_diff(other=other_part)
-				if diff:
-					result.append(diff)
+				result.extend(part.dehacked_diffs(
+					other=other_part))
 		if not result:
 			result.append("# No difference was found!")
-		return self.dehacked_header() + "\n\n".join(result)
+		return [self.dehacked_header()] + result
 
 	def write(self, filename):
+		result_text = "\n\n".join(self.dehacked_diffs())
 		with open(filename, "w") as f:
-			f.write(self.dehacked_diff())
+			f.write(result_text)
 
 if __name__ == '__main__':
 	s = StringReplacements()
@@ -187,5 +185,5 @@ if __name__ == '__main__':
 	s.HUSTR_E1M1 = "E1M1: Another boring level"
 	print s[strings.HUSTR_E1M1]
 
-	print s.dehacked_diff()
+	print s.dehacked_diffs()
 
