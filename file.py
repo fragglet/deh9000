@@ -34,19 +34,37 @@ class StringReplacements(object):
 
 	  s.GOTREDSKULL = "Picked up a pink skull key."
 	"""
-	def __init__(self, strings_module=strings):
+	def __init__(self, strings_module=None, base_strings_module=strings):
 		self._extras = {}
-
-		# Copy all string properties from the strings module to
-		# be properties of this object. But we also store a
-		# reverse mapping of string back to property name.
+		# Build a reverse mapping from original string back
+		# to property name.
+		self._properties = set()
 		self._reverse_map = {}
-		for propname in dir(strings_module):
+		for propname in dir(base_strings_module):
+			value = getattr(base_strings_module, propname)
+			if isinstance(value, str):
+				self._reverse_map[value] = propname
+				self._properties.add(propname)
+		# Load strings from base_strings_module (strings.py) and then
+		# (optionally) overwrite with strings from a modified version
+		# if one has been provided.
+		self.load_from_module(base_strings_module)
+		if strings_module is not None:
+			self.load_from_module(strings_module)
+
+	def load_from_module(self, strings_module):
+		"""Load strings from the given module.
+
+		It is assumed that the given module is a modified version of
+		the strings.py module.
+		"""
+		# We only overwrite properties that were originally defined
+		# in base_strings_module at instantiation time; others are
+		# ignored.
+		for propname in set(dir(strings_module)) & self._properties:
 			value = getattr(strings_module, propname)
-			if not isinstance(value, str):
-				continue
-			setattr(self, propname, value)
-			self._reverse_map[value] = propname
+			if isinstance(value, str):
+				setattr(self, propname, value)
 
 	def __contains__(self, s):
 		return s in self._reverse_map or s in self._extras

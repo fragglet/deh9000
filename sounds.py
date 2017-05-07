@@ -124,15 +124,16 @@ sfxenum_t.create_globals(globals())
 # probably shouldn't be using this.
 NUMSFX = len(sfxenum_t)
 
-sfxinfo_t = c.Struct("sfxinfo_t", "Sound", [
-	("name",          None),  # "Offset"
-	("singularity",   "Zero/One"),
-	("priority",      "Value"),
-	("link",          None),  # "Zero 1"
-	("pitch",         "Zero 2"),
-	("volume",        "Zero 3"),
-	("data",          "Zero 4"),
-	("usefulness",    "Neg. One 1"),
-	("lumpnum",       "Neg. One 2"),
-])
+class sfxinfo_t(c.Struct):
+	DEHACKED_NAME = "Sound"
+
+	name        = c.StructField(None)  # "Offset"
+	singularity = c.StructField("Zero/One")
+	priority    = c.StructField("Value")
+	link        = c.StructField(None)  # "Zero 1"
+	pitch       = c.StructField("Zero 2")
+	volume      = c.StructField("Zero 3")
+	data        = c.StructField("Zero 4")
+	usefulness  = c.StructField("Neg. One 1")
+	lumpnum     = c.StructField("Neg. One 2")
 

@@ -983,13 +983,14 @@ statenum_t.create_globals(globals())
 # probably shouldn't be using this.
 NUMSTATES = len(statenum_t)
 
-state_t = c.Struct("state_t", "Frame", [
-	("sprite",       "Sprite number"),
-	("frame",        "Sprite subnumber"),
-	("tics",         "Duration"),
-	("action",       None),
-	("nextstate",    "Next frame"),
-	("misc1",        "Unknown 1"),
-	("misc2",        "Unknown 2"),
-])
+class state_t(c.Struct):
+	DEHACKED_NAME = "Frame"
+
+	sprite    = c.StructField("Sprite number")
+	frame     = c.StructField("Sprite subnumber")
+	tics      = c.StructField("Duration")
+	action    = c.StructField(None)
+	nextstate = c.StructField("Next frame")
+	misc1     = c.StructField("Unknown 1")
+	misc2     = c.StructField("Unknown 2")
 

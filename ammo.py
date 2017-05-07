@@ -22,8 +22,8 @@ ammotype_t.create_globals(globals())
 # really just two separate arrays (clipammo and maxammo). But for
 # Dehacked's purposes it's convenient to treat them as one, since it
 # treats them as one thing.
-ammodata_t = c.Struct("ammodata_t", "Ammo", [
-	("clipammo", "Per ammo"),
-	("maxammo",  "Max ammo"),
-])
+class ammodata_t(c.Struct):
+	DEHACKED_NAME = "Ammo"
+	clipammo = c.StructField("Per ammo")
+	maxammo  = c.StructField("Max ammo")
 

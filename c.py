@@ -12,30 +12,76 @@ class Enum(list):
 		for index, name in enumerate(self):
 			globals[name] = index
 
-class StructBase(object):
+class StructField(property):
+	"""Helper wrapper around property() for declaring C struct fields.
+
+	This is used with Struct() (see below). Fields are declared in the
+	following way:
+
+		class MyStruct(c.Struct):
+			DEHACKED_NAME = "My Struct Type"
+			field1 = c.StructField("First Field")
+			action = c.StructField(None)
+
+	The dehacked name for the field must be provided (which usually differs
+	to the property name used in the Doom source). Providing a value of
+	"None" indicates that although a value can be stored for that field,
+	no output should be ever produced to represent it. This is commonly
+	used when the field represents a pointer type.
+	"""
+	instance_order = 0
+	def __init__(self, deh_name):
+		def getter(self):
+			return self._fields[deh_name]
+		def setter(self, value):
+			self._fields[deh_name] = value
+		super(StructField, self).__init__(getter, setter)
+		self.deh_name = deh_name
+		self.order = StructField.instance_order
+		StructField.instance_order += 1
+
+class Struct(object):
 	"""Base class for a type that emulate a C struct.
 
-	This is similar to a collections.namedtuple except mutable and
-	tailored specifically to the dehacked use case. The original
-	values are saved so that they can be diffed against later if
-	they are changed, and we support dual C / dehacked names for
-	fields.
+	Fields are declared using the StructField type; the order in which
+	they are declared is preserved when initialization is performed; this
+	allows objects to be instantiated similar to C struct initializers.
+	Original values used when instantiating an object of this class are
+	also remembered, so that they can be diffed against later when
+	changes are made.
 
-	Also unlike named tuples, objects of this type can be
-	initialized automatically like how C structs can be - not all
-	fields need to be provided. Unspecified fields default to zero.
+	Example:
+		class Coordinate(c.Struct):
+			DEHACKED_NAME = "Co-ordinate"
+			x = c.StructField("X Value")
+			y = c.StructField("Y Value")
+
+		xy = Coordinate(20, 30)
+		xy.x = 3
+		xy.y = 5
+		print xy.dehacked_diff(array_index=99)
+
+		xy2 = Coordinate(50, 5)
+		print xy2.dehacked_diff(xy)
 	"""
 	def __init__(self, *args, **kwargs):
-		# Fill in unspecified fields with 0, as C does:
-		for i in range(len(args), len(self._field_names)):
-			field = self._field_names[i]
-			setattr(self, field, 0)
-
+		# Start with all fields initialized to zero, then override.
+		self._fields = {f: 0 for f in self.field_names()}
 		self.set_values(*args, **kwargs)
 
 		# Save a copy of the original values so that we can diff
 		# later, if we want to.
 		self._original_values = copy.deepcopy((args, kwargs))
+
+	@classmethod
+	def field_names(cls):
+		props = []
+		for f in dir(cls):
+			value = getattr(cls, f)
+			if isinstance(value, StructField):
+				props.append((f, value))
+		props = sorted(props, key=lambda x: x[1].order)
+		return [name for name, _ in props]
 
 	def set_values(self, *args, **kwargs):
 		"""Set the values of all fields in the struct.
@@ -48,32 +94,25 @@ class StructBase(object):
 		c.set_values(5, y=99)
 		"""
 		# Assign from args list:
-		if len(args) > len(self._field_names):
+		field_names = self.field_names()
+		if len(args) > len(field_names):
 			raise ValueError("%r only has %d fields" % (
-				self._type_name, len(self._field_names)))
+				type(self).__name__, len(field_names)))
 		for i, value in enumerate(args):
-			field = self._field_names[i]
-			setattr(self, field, value)
+			setattr(self, field_names[i], value)
 
 		# Override with kwargs:
 		for field, value in kwargs.items():
-			if field not in self._field_names:
+			if field not in field_names:
 				raise ValueError("%r has no field %r" % (
-					self._type_name, field))
+					type(self).__name__, field))
 			setattr(self, field, value)
-
-	def match_key(self):
-		return (StructBase, self._type_name)
-
-	@classmethod
-	def fields(cls):
-		"""Get a list of the C field names for this class."""
-		return list(cls._field_names)
 
 	@classmethod
 	def field_deh_name(cls, field):
 		"""For the given C field name, get the dehacked name."""
-		return cls._field_deh_map[field]
+		prop = getattr(cls, field)
+		return prop.deh_name
 
 	def original(self):
 		"""Returns an object of the same type with the original values.
@@ -87,12 +126,12 @@ class StructBase(object):
 
 	def __repr__(self):
 		return "%s(%s)" % (
-			self._type_name,
+			type(self).__name__,
 			", ".join("%s=%r" % (f, getattr(self, f))
-				for f in self._field_names))
+				for f in self.field_names()))
 
 	def dehacked_header(self, array_index):
-		return "%s %d" % (self._dehacked_name, array_index)
+		return "%s %d" % (self.DEHACKED_NAME, array_index)
 
 	def dehacked_output(self, fields=None, array_index=0):
 		"""Get a description of this struct in dehacked form.
@@ -101,7 +140,7 @@ class StructBase(object):
 		included in the description.
 		"""
 		if fields is None:
-			fields = self._field_names
+			fields = self.field_names()
 		results = []
 		for field in fields:
 			deh_name = self.field_deh_name(field)
@@ -133,32 +172,14 @@ class StructBase(object):
 		if other is None:
 			other = self.original()
 		return [
-			f for f in self._field_names
+			f for f in self.field_names()
 			if getattr(self, f) != getattr(other, f)
 		]
-
-def Struct(cname, deh_name, fields):
-	"""Create a C-style struct type for representing dehacked values.
-
-	Args:
-	  cname: Name of the struct type.
-	  deh_name: Name of this type as it is referenced in dehacked files.
-	  fields: List of tuples containing:
-	    C (and Python) field name
-	    Dehacked name for the field
-	"""
-	class Result(StructBase):
-		_type_name = cname
-		_dehacked_name = deh_name
-		_field_deh_map = dict(fields)
-		_field_names = [x for x, _ in fields]
-
-	return Result
 
 class StructArray(object):
 	"""Class emulating a C fixed-length array.
 
-	The elements in it must all be of type StructBase and cannot
+	The elements in it must all be of type Struct and cannot
 	be changed after instantiation time (although the structs within
 	it can be changed).
 
@@ -174,7 +195,7 @@ class StructArray(object):
 	"""
 
 	def __init__(self, struct_type, elements):
-		if not isinstance(struct_type(), StructBase):
+		if not isinstance(struct_type(), Struct):
 			raise ValueError("%r not a struct type" % (
 				struct_type,))
 		elements = copy.copy(elements)
@@ -200,7 +221,7 @@ class StructArray(object):
 
 	def __repr__(self):
 		return "c.StructArray(%s, [\n%s\n])" % (
-			self._struct_type._type_name,
+			self._struct_type.__name__,
 			"\n".join("\t%r," % x for x in self),
 		)
 
@@ -224,21 +245,24 @@ class StructArray(object):
 
 
 if __name__ == '__main__':
-	Coordinate = Struct("Coordinate", "Co-ordinate", [
-		("x", "X Value"),
-		("y", "Y Value"),
-	])
+	class Coordinate(Struct):
+		DEHACKED_NAME = "Co-ordinate"
+		x = StructField("X Value")
+		y = StructField("Y Value")
 
-	c = Coordinate(3, 4)
-	c.y = 99
-	print c
-	print c.dehacked_diff()
+	xy = Coordinate(20, 30)
+	xy.x = 3
+	xy.y = 5
+	print xy.dehacked_diff(array_index=99)
+
+	xy2 = Coordinate(50, 5)
+	print xy2.dehacked_diff(xy)
 
 	arr = StructArray(Coordinate, [
-		Coordinate(0, 0),
-		Coordinate(10, 0),
-		Coordinate(0, 10),
-		Coordinate(10, 10),
+		(0, 0),
+		(10, 0),
+		(0, 10),
+		(10, 10),
 	])
 	for el in arr:
 		el.x += 50

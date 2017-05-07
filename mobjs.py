@@ -7,33 +7,33 @@ definitions are found in info.h.
 
 import c
 
-MobjBase = c.Struct("mobjinfo_t", "Thing", [
-	("doomednum",     "ID #"),
-	("spawnstate",    "Initial frame"),
-	("spawnhealth",   "Hit points"),
-	("seestate",      "First moving frame"),
-	("seesound",      "Alert sound"),
-	("reactiontime",  "Reaction time"),
-	("attacksound",   "Attack sound"),
-	("painstate",     "Injury frame"),
-	("painchance",    "Pain chance"),
-	("painsound",     "Pain sound"),
-	("meleestate",    "Close attack frame"),
-	("missilestate",  "Far attack frame"),
-	("deathstate",    "Death frame"),
-	("xdeathstate",   "Exploding frame"),
-	("deathsound",    "Death sound"),
-	("speed",         "Speed"),
-	("radius",        "Width"),
-	("height",        "Height"),
-	("mass",          "Mass"),
-	("damage",        "Missile damage"),
-	("activesound",   "Action sound"),
-	("flags",         "Bits"),
-	("raisestate",    "Respawn frame"),
-])
+class mobjinfo_t(c.Struct):
+	DEHACKED_NAME = "Thing"
 
-class mobjinfo_t(MobjBase):
+	doomednum    = c.StructField("ID #")
+	spawnstate   = c.StructField("Initial frame")
+	spawnhealth  = c.StructField("Hit points")
+	seestate     = c.StructField("First moving frame")
+	seesound     = c.StructField("Alert sound")
+	reactiontime = c.StructField("Reaction time")
+	attacksound  = c.StructField("Attack sound")
+	painstate    = c.StructField("Injury frame")
+	painchance   = c.StructField("Pain chance")
+	painsound    = c.StructField("Pain sound")
+	meleestate   = c.StructField("Close attack frame")
+	missilestate = c.StructField("Far attack frame")
+	deathstate   = c.StructField("Death frame")
+	xdeathstate  = c.StructField("Exploding frame")
+	deathsound   = c.StructField("Death sound")
+	speed        = c.StructField("Speed")
+	radius       = c.StructField("Width")
+	height       = c.StructField("Height")
+	mass         = c.StructField("Mass")
+	damage       = c.StructField("Missile damage")
+	activesound  = c.StructField("Action sound")
+	flags        = c.StructField("Bits")
+	raisestate   = c.StructField("Respawn frame")
+
 	# Because dehacked things are indexed from 1:
 	def dehacked_header(self, array_index):
 		return "Thing %d" % (array_index + 1)

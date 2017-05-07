@@ -23,12 +23,13 @@ weapontype_t.create_globals(globals())
 
 NUMWEAPONS = len(weapontype_t)
 
-weaponinfo_t = c.Struct("weaponinfo_t", "Weapon", [
-	("ammo",        "Ammo type"),
-	("upstate",     "Deselect frame"),
-	("downstate",   "Select frame"),
-	("readystate",  "Bobbing frame"),
-	("atkstate",    "Shooting frame"),
-	("flashstate",  "Firing frame"),
-])
+class weaponinfo_t(c.Struct):
+	DEHACKED_NAME = "Weapon"
+
+	ammo       = c.StructField("Ammo type")
+	upstate    = c.StructField("Deselect frame")
+	downstate  = c.StructField("Select frame")
+	readystate = c.StructField("Bobbing frame")
+	atkstate   = c.StructField("Shooting frame")
+	flashstate = c.StructField("Firing frame")
 
