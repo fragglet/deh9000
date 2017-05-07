@@ -7,6 +7,18 @@ found in info.h.
 
 import c
 
+class state_t(c.Struct):
+	DEHACKED_NAME = "Frame"
+
+	sprite    = c.StructField("Sprite number")
+	frame     = c.StructField("Sprite subnumber")
+	tics      = c.StructField("Duration")
+	action    = c.StructField(None)
+	nextstate = c.StructField("Next frame")
+	misc1     = c.StructField("Unknown 1")
+	misc2     = c.StructField("Unknown 2")
+
+
 statenum_t = c.Enum([
     "S_NULL",
     "S_LIGHTDONE",
@@ -982,15 +994,4 @@ statenum_t.create_globals(globals())
 # To match the Doom source, but if you're really a Python programmer you
 # probably shouldn't be using this.
 NUMSTATES = len(statenum_t)
-
-class state_t(c.Struct):
-	DEHACKED_NAME = "Frame"
-
-	sprite    = c.StructField("Sprite number")
-	frame     = c.StructField("Sprite subnumber")
-	tics      = c.StructField("Duration")
-	action    = c.StructField(None)
-	nextstate = c.StructField("Next frame")
-	misc1     = c.StructField("Unknown 1")
-	misc2     = c.StructField("Unknown 2")
 

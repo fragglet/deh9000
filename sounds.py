@@ -6,6 +6,20 @@ In the Doom source code the equivalent definitions are found in sounds.h.
 
 import c
 
+class sfxinfo_t(c.Struct):
+	DEHACKED_NAME = "Sound"
+
+	name        = c.StructField(None)  # "Offset"
+	singularity = c.StructField("Zero/One")
+	priority    = c.StructField("Value")
+	link        = c.StructField(None)  # "Zero 1"
+	pitch       = c.StructField("Zero 2")
+	volume      = c.StructField("Zero 3")
+	data        = c.StructField("Zero 4")
+	usefulness  = c.StructField("Neg. One 1")
+	lumpnum     = c.StructField("Neg. One 2")
+
+
 sfxenum_t = c.Enum([
     "sfx_None",
     "sfx_pistol",
@@ -123,17 +137,4 @@ sfxenum_t.create_globals(globals())
 # To match the Doom source, but if you're really a Python programmer you
 # probably shouldn't be using this.
 NUMSFX = len(sfxenum_t)
-
-class sfxinfo_t(c.Struct):
-	DEHACKED_NAME = "Sound"
-
-	name        = c.StructField(None)  # "Offset"
-	singularity = c.StructField("Zero/One")
-	priority    = c.StructField("Value")
-	link        = c.StructField(None)  # "Zero 1"
-	pitch       = c.StructField("Zero 2")
-	volume      = c.StructField("Zero 3")
-	data        = c.StructField("Zero 4")
-	usefulness  = c.StructField("Neg. One 1")
-	lumpnum     = c.StructField("Neg. One 2")
 

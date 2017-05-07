@@ -7,6 +7,17 @@ d_items.h.
 
 import c
 
+class weaponinfo_t(c.Struct):
+	DEHACKED_NAME = "Weapon"
+
+	ammo       = c.StructField("Ammo type")
+	upstate    = c.StructField("Deselect frame")
+	downstate  = c.StructField("Select frame")
+	readystate = c.StructField("Bobbing frame")
+	atkstate   = c.StructField("Shooting frame")
+	flashstate = c.StructField("Firing frame")
+
+
 weapontype_t = c.Enum([
 	"wp_fist",
 	"wp_pistol",
@@ -22,14 +33,4 @@ weapontype_t = c.Enum([
 weapontype_t.create_globals(globals())
 
 NUMWEAPONS = len(weapontype_t)
-
-class weaponinfo_t(c.Struct):
-	DEHACKED_NAME = "Weapon"
-
-	ammo       = c.StructField("Ammo type")
-	upstate    = c.StructField("Deselect frame")
-	downstate  = c.StructField("Select frame")
-	readystate = c.StructField("Bobbing frame")
-	atkstate   = c.StructField("Shooting frame")
-	flashstate = c.StructField("Firing frame")
 

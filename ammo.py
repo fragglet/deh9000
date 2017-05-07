@@ -7,6 +7,16 @@ in doomdef.h.
 
 import c
 
+# No such type "ammodata_t" really exists in the Doom source; this is
+# really just two separate arrays (clipammo and maxammo). But for
+# Dehacked's purposes it's convenient to treat them as one, since it
+# treats them as one thing.
+class ammodata_t(c.Struct):
+	DEHACKED_NAME = "Ammo"
+	clipammo = c.StructField("Per ammo")
+	maxammo  = c.StructField("Max ammo")
+
+
 ammotype_t = c.Enum([
 	"am_clip",    # Pistol / chaingun ammo.
 	"am_shell",   # Shotgun / double barreled shotgun.
@@ -17,13 +27,4 @@ ammotype_t = c.Enum([
 ])
 
 ammotype_t.create_globals(globals())
-
-# No such type "ammodata_t" really exists in the Doom source; this is
-# really just two separate arrays (clipammo and maxammo). But for
-# Dehacked's purposes it's convenient to treat them as one, since it
-# treats them as one thing.
-class ammodata_t(c.Struct):
-	DEHACKED_NAME = "Ammo"
-	clipammo = c.StructField("Per ammo")
-	maxammo  = c.StructField("Max ammo")
 
