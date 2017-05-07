@@ -239,7 +239,8 @@ class StructArray(object):
 		return (StructArray, self._struct_type)
 
 	def original(self):
-		return StructArray([el.original() for el in self])
+		return StructArray(self._struct_type,
+		                   [el.original() for el in self])
 
 	def dehacked_diffs(self, other=None):
 		result = []
