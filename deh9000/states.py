@@ -55,6 +55,7 @@ class CodePointers(object):
 	can be modified in dehacked patches.
 	"""
 	def __init__(self, states):
+		self.lax_mode = False
 		self.states = states
 		self._state_to_pointer = {}
 		self._action_to_state = {}
@@ -78,7 +79,23 @@ class CodePointers(object):
 			ptr_id, state_id,
 			self._action_to_state[state.action])
 
+	def _sanity_check_pointers(self):
+		if self.lax_mode:
+			return
+		for state_id, state in enumerate(self.states):
+			assert (state.action is None
+			     or state_id in self._state_to_pointer), (
+				"State %d has an action pointer, but it isn't "
+				"valid to set a pointer on this state in a "
+				"Vanilla Dehacked patch. Either use a "
+				"different state, or turn on lax mode with "
+				"strings.lax_mode = True" % (
+					state_id,
+				)
+			)
+
 	def dehacked_diffs(self, other=None):
+		self._sanity_check_pointers()
 		result = []
 		for state_id, state in enumerate(self.states):
 			if other is not None:
