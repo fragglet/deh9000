@@ -56,35 +56,44 @@ class CodePointers(object):
 	"""
 	def __init__(self, states):
 		self.states = states
-		self._pointers = []
-		self._action_to_frame = {}
-		for idx, state in enumerate(states.original()):
+		self._state_to_pointer = {}
+		self._action_to_state = {}
+		for state_id, state in enumerate(states.original()):
 			if state.action is not None:
-				self._pointers.append(idx)
-				self._action_to_frame[state.action] = idx
+				ptr_id = len(self._state_to_pointer)
+				self._state_to_pointer[state_id] = ptr_id
+				self._action_to_state[state.action] = state_id
+			elif None not in self._action_to_state:
+				# We want _action_to_state to contain at least
+				# one entry for 'None', so we can null out
+				# action pointers if desired.
+				self._action_to_state[None] = state_id
 
 	def match_key(self):
 		return (CodePointers,)
 
-	def diff_pointer(self, ptr_id, other=None):
-		state_id = self._pointers[ptr_id]
+	def _format_diff(self, ptr_id, state_id):
 		state = self.states[state_id]
-		if other is not None:
-			other_state = other[state_id]
-		else:
-			other_state = state.original()
-		if state.action == other_state.action:
-			return None
 		return "Pointer %d (Frame %d)\nCodep Frame = %d" % (
 			ptr_id, state_id,
-			self._action_to_frame[state.action])
+			self._action_to_state[state.action])
 
 	def dehacked_diffs(self, other=None):
 		result = []
-		for ptr_id in range(len(self._pointers)):
-			diff = self.diff_pointer(ptr_id, other)
-			if diff:
-				result.append(diff)
+		for state_id, state in enumerate(self.states):
+			if other is not None:
+				other_state = other[state_id]
+			else:
+				other_state = state.original()
+			# We need to look up the pointer ID for this state_id.
+			# But Vanilla Dehacked (and certain source ports) only
+			# allows action pointers to be changed in states that
+			# originally had an action pointer. In this case
+			# we just generate a fake pointer ID.
+			if state.action != other_state.action:
+				ptr_id = self._state_to_pointer.get(
+					state_id, 100000 + state_id)
+				result.append(_format_diff(ptr_id, state_id))
 		return result
 
 
