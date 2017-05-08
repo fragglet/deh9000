@@ -6,7 +6,7 @@ of the monsters; this is a more limited version that just changes the former
 humans, but does so in a programmatic way as a demo of DEH9000.
 """
 
-from tables import *
+from deh9000 import *
 
 humanoids = (MT_POSSESSED, MT_SHOTGUY, MT_TROOP, MT_CHAINGUY)
 frame_fields = ("spawnstate", "seestate", "painstate", "meleestate",

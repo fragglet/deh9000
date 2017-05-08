@@ -4,7 +4,7 @@ This classic patch included with Dehacked upgrades the player's weapons to be
 as powerful as they possibly can be.
 """
 
-from tables import *
+from deh9000 import *
 
 ignore_actions = (A_BFGsound, A_GunFlash)
 
