@@ -1,5 +1,9 @@
 
+import c
 import strings
+from mobjs import mobjinfo_t
+from states import state_t
+from weapons import weaponinfo_t
 
 DEHACKED_HEADER_FORMAT = """
 Patch File for DeHackEd v3.0
@@ -150,6 +154,39 @@ class DehackedFile(object):
 			'doom_version': self.doom_version,
 			'patch_format': self.patch_format,
 		}
+
+	def array_for_type(self, t):
+		for part in self.parts:
+			if (isinstance(part, c.StructArray)
+			    and isinstance(part[0], t)):
+				return part
+		raise LookupError("StructArray with type %r not found" % (t,))
+
+	def free_states(self):
+		# Use the mobjinfo and weaponinfo tables as roots.
+		to_process = set()
+		for mobj in self.array_for_type(mobjinfo_t):
+			for field in mobjinfo_t.state_fields:
+				to_process.add(getattr(mobj, field))
+		for weap in self.array_for_type(weaponinfo_t):
+			for field in weaponinfo_t.state_fields:
+				to_process.add(getattr(weap, field))
+		# Some states are hard-coded in the source code.
+		for state_id in state_t.hardcoded_states:
+			to_process.add(state_id)
+		# Follow all nextstate pointers and mark everything that
+		# we reach.
+		states = self.array_for_type(state_t)
+		marked = {0}  # Include S_NULL
+		while to_process:
+			state_id = to_process.pop()
+			marked.add(state_id)
+			nextstate_id = states[state_id].nextstate
+			if nextstate_id not in marked:
+				to_process.add(nextstate_id)
+		# Set with all state numbers. What's not marked?
+		allstates = set(range(len(states)))
+		return allstates.difference(marked)
 
 	def dehacked_diffs(self, other=None):
 		result = []

@@ -34,9 +34,15 @@ class mobjinfo_t(c.Struct):
 	flags        = c.StructField("Bits")
 	raisestate   = c.StructField("Respawn frame")
 
+	# Which fields are references to entries in the states table?
+	state_fields = ("spawnstate", "seestate", "painstate", "meleestate",
+	                "missilestate", "deathstate", "xdeathstate",
+	                "raisestate")
+
 	# Because dehacked things are indexed from 1:
 	def dehacked_header(self, array_index):
 		return "Thing %d" % (array_index + 1)
+
 
 FRACUNIT = 1 << 16
 

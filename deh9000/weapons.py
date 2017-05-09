@@ -17,6 +17,9 @@ class weaponinfo_t(c.Struct):
 	atkstate   = c.StructField("Shooting frame")
 	flashstate = c.StructField("Firing frame")
 
+	state_fields = ("upstate", "downstate", "readystate", "atkstate",
+	                "flashstate")
+
 
 weapontype_t = c.Enum([
 	"wp_fist",
