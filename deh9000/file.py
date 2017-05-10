@@ -1,6 +1,7 @@
 
 import c
 import strings
+from actions import A_FireCGun, A_FirePlasma
 from mobjs import mobjinfo_t
 from states import state_t
 from weapons import weaponinfo_t
@@ -162,29 +163,53 @@ class DehackedFile(object):
 				return part
 		raise LookupError("StructArray with type %r not found" % (t,))
 
-	def free_states(self):
-		# Use the mobjinfo and weaponinfo tables as roots.
-		to_process = set()
-		for mobj in self.array_for_type(mobjinfo_t):
-			for field in mobjinfo_t.state_fields:
-				to_process.add(getattr(mobj, field))
-		for weap in self.array_for_type(weaponinfo_t):
-			for field in weaponinfo_t.state_fields:
-				to_process.add(getattr(weap, field))
-		# Some states are hard-coded in the source code.
-		for state_id in state_t.hardcoded_states:
-			to_process.add(state_id)
-		# Follow all nextstate pointers and mark everything that
-		# we reach.
+	def mobj_states(self, mobj_id):
+		"""Returns a set of all states used by the given mobj."""
 		states = self.array_for_type(state_t)
-		marked = {0}  # Include S_NULL
-		while to_process:
-			state_id = to_process.pop()
-			marked.add(state_id)
-			nextstate_id = states[state_id].nextstate
-			if nextstate_id not in marked:
-				to_process.add(nextstate_id)
-		# Set with all state numbers. What's not marked?
+		mobjinfo = self.array_for_type(mobjinfo_t)
+		mobj = mobjinfo[mobj_id]
+		result = set()
+		for field in mobjinfo_t.state_fields:
+			state_id = getattr(mobj, field)
+			result |= set(states.walk(state_id))
+		return result
+
+	def weapon_states(self, weapon_id):
+		"""Returns a set of all states used by the given weapon."""
+		states = self.array_for_type(state_t)
+		weaponinfo = self.array_for_type(weaponinfo_t)
+		weapon = weaponinfo[weapon_id]
+		result = set()
+		for field in weaponinfo_t.state_fields:
+			state_id = getattr(weapon, field)
+			result |= set(states.walk(state_id))
+		return result
+
+	def free_states(self):
+		"""Returns a set of the indexes of all unreferenced states."""
+		marked = {0}
+		states = self.array_for_type(state_t)
+		# Mark all chains beginning from the hard-coded states. These
+		# are states which are referenced directly in the source code.
+		for state_id in set(state_t.hardcoded_states):
+			marked |= set(states.walk(state_id))
+		# Add all states used by mobjs (referenced from mobjinfo).
+		for mobj_id in range(len(self.array_for_type(mobjinfo_t))):
+			marked |= self.mobj_states(mobj_id)
+		# Add all weapon states (referenced from weaponinfo).
+		weaponinfo = self.array_for_type(weaponinfo_t)
+		for weapon_id, weapon in enumerate(weaponinfo):
+			weaponstates = self.weapon_states(weapon_id)
+			marked |= weaponstates
+			# There is a special case - if any of the states used
+			# by this weapon invoke A_FirePlasma or A_FireCGun,
+			# they can jump to weapon.flashstate+1, so we must mark
+			# this state any others that follow it.
+			actions = {states[sid].action for sid in weaponstates}
+			if A_FirePlasma in actions or A_FireCGun in actions:
+				second_state_id = weapon.flashstate + 1
+				marked |= set(states.walk(second_state_id))
+		# Make a set with all state numbers. What's not marked?
 		allstates = set(range(len(states)))
 		return allstates.difference(marked)
 
