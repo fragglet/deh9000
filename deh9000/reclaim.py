@@ -31,7 +31,7 @@ def static_tech_lamps(file):
 	"""Makes tech lamps static instead of animated."""
 	states = file.array_for_type(state_t)
 	states[S_TECHLAMP].nextstate = S_TECHLAMP
-	states[S_TECHLAMP2].nextstate = S_TECHLAMP2
+	states[S_TECH2LAMP].nextstate = S_TECH2LAMP
 
 def simpler_bfg_hit(file):
 	"""Removes the last two frames of the BFG ball hit animation."""
