@@ -1,5 +1,6 @@
 
 import c
+import reclaim
 import strings
 from actions import A_FireCGun, A_FirePlasma
 from mobjs import mobjinfo_t
@@ -184,6 +185,23 @@ class DehackedFile(object):
 			state_id = getattr(weapon, field)
 			result |= set(states.walk(state_id))
 		return result
+
+	def reclaim_states(self, count):
+		"""Tries to reclaim the given number of states.
+
+		This is achieved using reclaim strategies found in reclaim.py
+		to modify the mobjinfo and state tables in subtle ways. The
+		more states requested, the more invasive the changes become.
+		"""
+		for strategy in reclaim.strategies:
+			free_states = self.free_states()
+			if len(free_states) >= count:
+				return free_states
+			strategy(self)
+		else:
+			raise OverflowError(
+				"Couldn't reclaim %d states." % count)
+
 
 	def free_states(self):
 		"""Returns a set of the indexes of all unreferenced states."""
