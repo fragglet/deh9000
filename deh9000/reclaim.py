@@ -110,6 +110,45 @@ def no_blinking(file):
 		states[state].frame = 32769
 		states[state].nextstate = state
 
+def squash_resurrect_animations(file):
+	"""Reduces the number of frames in monster resurrection animations."""
+	mobjinfo = file.array_for_type(mobjinfo_t)
+	states = file.array_for_type(state_t)
+	monsters = {
+		MT_POSSESSED: 8,  # POSSI0
+		MT_SHOTGUY: 8,    # SPOSI0
+		MT_UNDEAD: 13,    # SKELN0
+		MT_FATSO: 14,     # FATTO0
+		MT_CHAINGUY: 7,   # CPOSH0
+		MT_TROOP: 9,      # TROOJ0
+		MT_SERGEANT: 10,  # SARGK0
+		MT_SHADOWS: 10,   # SARGK0
+		MT_HEAD: 8,       # HEADI0
+		MT_BRUISER: 9,    # BOSSJ0
+		MT_KNIGHT: 9,     # BOS2J0
+		MT_BABY: 9,       # BSPIJ0
+		MT_WOLFSS: 9,     # SSWVJ0
+	}
+	for mobjtype, frame in monsters.items():
+		mobj = mobjinfo[mobjtype]
+		# Count total tics for the resurrection animation:
+		total_tics = 0
+		terminal = set(states.walk(mobj.seestate))
+		for state_id in states.walk(mobj.raisestate):
+			state = states[state_id]
+			total_tics += state.tics
+			# Only walk until we reach a normal state.
+			if state.nextstate in terminal:
+				break
+		else:
+			raise ValueError("monster %s didn't reach seestate" % (
+				mobjtype_t[mobjtype]))
+
+		# Replace the whole animation with a single frame:
+		states[mobj.raisestate].frame = frame
+		states[mobj.raisestate].tics = total_tics
+		states[mobj.raisestate].nextstate = mobj.seestate
+
 def no_ss_nazi_resurrection(file):
 	"""Makes the SS Nazi impossible for an Archvile to resurrect."""
 	mobjinfo = file.array_for_type(mobjinfo_t)
@@ -136,7 +175,6 @@ def hell_knight_identical_to_baron(file):
 	for field in mobjinfo_t.state_fields:
 		setattr(knight, field, getattr(baron, field))
 
-
 strategies = [
 	clear_unused_resurrections,
 	simpler_boss_brain_death,
@@ -150,9 +188,30 @@ strategies = [
 	static_evil_eye,
 	simpler_powerups,
 	no_blinking,
+	squash_resurrect_animations,
 	no_ss_nazi_resurrection,
 	blue_arachnotron_plasma_balls,
 	no_ss_nazi,
 	hell_knight_identical_to_baron,
 ]
+
+if __name__ == "__main__":
+	import tables
+	try:
+		tables.file.reclaim_states(999)
+	except:
+		pass
+	freed = tables.file.free_states()
+	print "Reclaim strategies get a maximum of %d states:" % len(freed)
+	w = 0
+	for state_id in freed:
+		s = statenum_t[state_id]
+		if w == 0:
+			print "    ",
+		print "%s," % s,
+		w += len(s) + 2
+		if w >= 65:
+			print
+			w = 0
+	tables.file.write("simple.deh")
 
