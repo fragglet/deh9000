@@ -147,6 +147,7 @@ strategies = [
 	all_red_torches,
 	all_green_pillars,
 	static_gore_decorations,
+	static_evil_eye,
 	simpler_powerups,
 	no_blinking,
 	no_ss_nazi_resurrection,
@@ -154,3 +155,4 @@ strategies = [
 	no_ss_nazi,
 	hell_knight_identical_to_baron,
 ]
+
