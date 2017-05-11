@@ -36,7 +36,7 @@ def static_tech_lamps(file):
 def simpler_bfg_hit(file):
 	"""Removes the last two frames of the BFG ball hit animation."""
 	states = file.array_for_type(state_t)
-	states[S_BFGLAND4].nextstate = S_NULL
+	states[S_BFGLAND5].nextstate = S_NULL
 
 def teleport_fog_item_respawn(file):
 	"""Replaces the item respawn fog with teleport fog."""
