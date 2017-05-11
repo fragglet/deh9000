@@ -204,14 +204,14 @@ if __name__ == "__main__":
 	freed = tables.file.free_states()
 	print "Reclaim strategies get a maximum of %d states:" % len(freed)
 	w = 0
-	for state_id in freed:
+	for state_id in sorted(freed):
 		s = statenum_t[state_id]
+		if w + len(s) + 2 >= 76:
+			print
+			w = 0
 		if w == 0:
 			print "    ",
 		print "%s," % s,
 		w += len(s) + 2
-		if w >= 65:
-			print
-			w = 0
 	tables.file.write("simple.deh")
 
