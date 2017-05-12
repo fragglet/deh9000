@@ -186,14 +186,17 @@ class DehackedFile(object):
 			result |= set(states.walk(state_id))
 		return result
 
-	def reclaim_states(self, count):
+	def reclaim_states(self, count, strategies=reclaim.strategies,
+	                   avoid_strategies=()):
 		"""Tries to reclaim the given number of states.
 
 		This is achieved using reclaim strategies found in reclaim.py
 		to modify the mobjinfo and state tables in subtle ways. The
 		more states requested, the more invasive the changes become.
 		"""
-		for strategy in reclaim.strategies:
+		for strategy in strategies:
+			if strategy in avoid_strategies:
+				continue
 			free_states = self.free_states()
 			if len(free_states) >= count:
 				return free_states
