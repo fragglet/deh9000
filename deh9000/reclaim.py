@@ -102,13 +102,15 @@ def simpler_powerups(file, state_id):
 	"""Simplifies the animation of powerups."""
 	states = file.array_for_type(state_t)
 
-	# S_PMAP: 5 frames from automap
-	# S_SOUL6: 2 frames from soulsphere
-	# S_MEGA: 2 frames from megasphere
-	# S_PINV: 1 frame from invuln
-	# S_PINS: 1 frame from invis
-	# S_PVIS: 1 frame from lite-amp
-	states[state_id].nextstate = state_id
+	new_nextstate = {
+		S_PMAP: S_PMAP,     # 5 frames from automap
+		S_SOUL3: S_SOUL6,   # 2 frames from soulsphere
+		S_MEGA2: S_MEGA,    # 2 frames from megasphere
+		S_PINV3: S_PINV,    # 1 frame from invuln
+		S_PINS3: S_PINS,    # 1 frame from invis
+		S_PVIS: S_PVIS,     # 1 frame from lite-amp
+	}
+	states[state_id].nextstate = new_nextstate[state_id]
 
 def no_blinking(file, state_id):
 	"""Makes keys and armor vests static and stop blinking."""
@@ -203,10 +205,10 @@ strategies = [
 	(simpler_bonus,                   S_BON1),
 	(simpler_bonus,                   S_BON2),
 	(simpler_powerups,                S_PMAP),
-	(simpler_powerups,                S_SOUL6),
-	(simpler_powerups,                S_MEGA),
-	(simpler_powerups,                S_PINV),
-	(simpler_powerups,                S_PINS),
+	(simpler_powerups,                S_SOUL3),
+	(simpler_powerups,                S_MEGA2),
+	(simpler_powerups,                S_PINV3),
+	(simpler_powerups,                S_PINS3),
 	(simpler_powerups,                S_PVIS),
 	(no_blinking,                     S_RKEY),
 	(no_blinking,                     S_BKEY),
