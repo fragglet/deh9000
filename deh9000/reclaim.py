@@ -182,7 +182,6 @@ def hell_knight_identical_to_baron(file):
 		setattr(knight, field, getattr(baron, field))
 
 strategies = [
-	(clear_unused_resurrections,      MT_SKULL),
 	(clear_unused_resurrections,      MT_PAIN),
 	simpler_boss_brain_death,
 	(static_tech_lamps,               S_TECHLAMP),
