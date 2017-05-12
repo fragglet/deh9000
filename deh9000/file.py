@@ -187,7 +187,7 @@ class DehackedFile(object):
 		return result
 
 	def reclaim_states(self, count, strategies=reclaim.strategies,
-	                   avoid_strategies=()):
+	                   avoid_strategies=(), debug=False):
 		"""Tries to reclaim the given number of states.
 
 		This is achieved using reclaim strategies found in reclaim.py
@@ -195,16 +195,28 @@ class DehackedFile(object):
 		more states requested, the more invasive the changes become.
 		"""
 		for strategy in strategies:
-			if strategy in avoid_strategies:
-				continue
 			free_states = self.free_states()
 			if len(free_states) >= count:
 				return free_states
-			strategy(self)
+			# User can list strategies to avoid:
+			if strategy in avoid_strategies:
+				continue
+			# Strategies in the list can be bare functions to
+			# call, or a tuple of function and arguments.
+			if isinstance(strategy, tuple):
+				func, args = strategy[0], strategy[1:]
+			else:
+				func, args = strategy, []
+			# Allow strategy to avoid specified as function:
+			if func in avoid_strategies:
+				continue
+			func(self, *args)
+			if debug:
+				print "After %s(%s), %d states free" % (
+					func, args, len(self.free_states()))
 		else:
 			raise OverflowError(
 				"Couldn't reclaim %d states." % count)
-
 
 	def free_states(self):
 		"""Returns a set of the indexes of all unreferenced states."""

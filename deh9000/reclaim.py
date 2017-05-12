@@ -9,7 +9,7 @@ and hard to notice ways - so that states are freed up for other purposes.
 from mobjs import *
 from states import *
 
-def clear_unused_resurrections(file):
+def clear_unused_resurrections(file, mobjtype):
 	"""Clears the resurrect sequences for the Lost Soul/Pain Elemental.
 
 	These monsters have animation sequences for the Archvile to
@@ -17,8 +17,7 @@ def clear_unused_resurrections(file):
 	happen.
 	"""
 	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_SKULL].raisestate = S_NULL
-	mobjinfo[MT_PAIN].raisestate = S_NULL
+	mobjinfo[mobjtype].raisestate = S_NULL
 
 def simpler_boss_brain_death(file):
 	"""Removes two frames from the boss brain death animation."""
@@ -27,11 +26,10 @@ def simpler_boss_brain_death(file):
 		states[S_BRAIN_DIE2].tics + states[S_BRAIN_DIE3].tics)
 	states[S_BRAIN_DIE1].nextstate = S_BRAIN_DIE4
 
-def static_tech_lamps(file):
+def static_tech_lamps(file, state_id):
 	"""Makes tech lamps static instead of animated."""
 	states = file.array_for_type(state_t)
-	states[S_TECHLAMP].nextstate = S_TECHLAMP
-	states[S_TECH2LAMP].nextstate = S_TECH2LAMP
+	states[state_id].nextstate = state_id
 
 def simpler_bfg_hit(file):
 	"""Removes the last two frames of the BFG ball hit animation."""
@@ -49,32 +47,42 @@ def simpler_teleport_fog(file):
 	states[S_TFOG2].nextstate = S_TFOG4  # Skip TFOGC
 	states[S_TFOG6].nextstate = S_NULL   # Short ending
 
-def all_red_torches(file):
+def all_red_torches(file, mobjtype):
 	"""Makes all torches into red torches (no green/red)."""
+	new_sprite = {
+		MT_MISC41: S_REDTORCH,
+		MT_MISC42: S_REDTORCH,
+		MT_MISC44: S_RTORCHSHRT,
+		MT_MISC45: S_RTORCHSHRT,
+	}
 	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_MISC41].spawnstate = S_REDTORCH
-	mobjinfo[MT_MISC42].spawnstate = S_REDTORCH
-	mobjinfo[MT_MISC44].spawnstate = S_RTORCHSHRT
-	mobjinfo[MT_MISC45].spawnstate = S_RTORCHSHRT
+	if mobjtype in new_sprite:
+		mobjinfo[mobjtype].spawnstate = new_sprite[mobjtype]
 
-def all_green_pillars(file):
+def all_green_pillars(file, mobjtype):
 	"""Makes red marble pillars into green pillars."""
+	new_sprite = {
+		MT_MISC34: S_TALLGRNCOL,
+		MT_MISC35: S_SHRTGRNCOL,
+	}
 	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_MISC34].spawnstate = S_TALLGRNCOL
-	mobjinfo[MT_MISC35].spawnstate = S_SHRTGRNCOL
+	if mobjtype in new_sprite:
+		mobjinfo[mobjtype].spawnstate = new_sprite[mobjtype]
 
-def static_gore_decorations(file):
+def static_gore_decorations(file, mobjtype):
 	"""Makes gore/corpse decorations static instead of animated."""
 	mobjinfo = file.array_for_type(mobjinfo_t)
 	states = file.array_for_type(state_t)
+
 	# Twitching impaled body uses non-twitching frame (2 frames):
-	mobjinfo[MT_MISC75].spawnstate = S_DEADSTICK
-	# Skull pile doesn't flicker (1 frame)
-	states[S_HEADCANDLES].nextstate = S_HEADCANDLES
-	# Beating heart column doesn't beat: 1 frame
-	states[S_HEARTCOL].nextstate = S_HEARTCOL
-	# Hanging dude becomes static (3 frames):
-	states[S_BLOODYTWITCH].nextstate = S_BLOODYTWITCH
+	if mobjtype == MT_MISC75:
+		mobjinfo[MT_MISC75].spawnstate = S_DEADSTICK
+	else:
+		state_id = mobjinfo[mobjtype].spawnstate
+		# S_HEADCANDLES: Skull pile doesn't flicker (1 frame)
+		# S_HEARTCOL: Beating heart column doesn't beat: 1 frame
+		# S_BLOODYTWITCH: Hanging dude becomes static (3 frames):
+		states[state_id].nextstate = state_id
 
 def static_evil_eye(file):
 	"""Makes the floating "evil" eye static instead of animated."""
@@ -82,35 +90,33 @@ def static_evil_eye(file):
 	# Saves 3 frames:
 	states[S_EVILEYE].nextstate = S_EVILEYE
 
-def simpler_powerups(file):
+def simpler_bonus(file, state_id):
+	"""Removes the animation on health bottles/armor helmets."""
+	states = file.array_for_type(state_t)
+	# Health bottle / armor helmet are static (5 frames each). But
+	# we show frame #3 as this looks good when static.
+	states[state_id].nextstate = state_id
+	states[state_id].frame = 3
+
+def simpler_powerups(file, state_id):
 	"""Simplifies the animation of powerups."""
 	states = file.array_for_type(state_t)
 
-	# Health bottle / armor helmet are static (5 frames each)
-	states[S_BON1].nextstate = S_BON1
-	states[S_BON1].frame = 3
-	states[S_BON2].nextstate = S_BON2
-	states[S_BON2].frame = 3
+	# S_PMAP: 5 frames from automap
+	# S_SOUL6: 2 frames from soulsphere
+	# S_MEGA: 2 frames from megasphere
+	# S_PINV: 1 frame from invuln
+	# S_PINS: 1 frame from invis
+	# S_PVIS: 1 frame from lite-amp
+	states[state_id].nextstate = state_id
 
-	states[S_PMAP].nextstate = S_PMAP    # 5 frames from automap
-	states[S_SOUL3].nextstate = S_SOUL6  # 2 frames from soulsphere
-	states[S_MEGA2].nextstate = S_MEGA   # 2 frames from megasphere
-	states[S_PINV3].nextstate = S_PINV   # 1 frame from invuln
-	states[S_PINS3].nextstate = S_PINS   # 1 frame from invis
-	states[S_PVIS].nextstate = S_PVIS    # 1 frame from lite-amp
-
-def no_blinking(file):
+def no_blinking(file, state_id):
 	"""Makes keys and armor vests static and stop blinking."""
 	states = file.array_for_type(state_t)
-	blinkers = (
-		S_RKEY, S_BKEY, S_YKEY, S_RSKULL, S_BSKULL, S_YSKULL,
-		S_ARM1, S_ARM2,
-	)
-	for state in blinkers:
-		states[state].frame = 32769
-		states[state].nextstate = state
+	states[state_id].frame = 32769
+	states[state_id].nextstate = state_id
 
-def squash_resurrect_animations(file):
+def squash_resurrect_animations(file, mobjtype):
 	"""Reduces the number of frames in monster resurrection animations."""
 	mobjinfo = file.array_for_type(mobjinfo_t)
 	states = file.array_for_type(state_t)
@@ -129,25 +135,25 @@ def squash_resurrect_animations(file):
 		MT_BABY: 9,       # BSPIJ0
 		MT_WOLFSS: 9,     # SSWVJ0
 	}
-	for mobjtype, frame in monsters.items():
-		mobj = mobjinfo[mobjtype]
-		# Count total tics for the resurrection animation:
-		total_tics = 0
-		terminal = set(states.walk(mobj.seestate))
-		for state_id in states.walk(mobj.raisestate):
-			state = states[state_id]
-			total_tics += state.tics
-			# Only walk until we reach a normal state.
-			if state.nextstate in terminal:
-				break
-		else:
-			raise ValueError("monster %s didn't reach seestate" % (
-				mobjtype_t[mobjtype]))
+	frame = monsters[mobjtype]
+	mobj = mobjinfo[mobjtype]
+	# Count total tics for the resurrection animation:
+	total_tics = 0
+	terminal = set(states.walk(mobj.seestate))
+	for state_id in states.walk(mobj.raisestate):
+		state = states[state_id]
+		total_tics += state.tics
+		# Only walk until we reach a normal state.
+		if state.nextstate in terminal:
+			break
+	else:
+		raise ValueError("monster %s didn't reach seestate" % (
+			mobjtype_t[mobjtype]))
 
-		# Replace the whole animation with a single frame:
-		states[mobj.raisestate].frame = frame
-		states[mobj.raisestate].tics = total_tics
-		states[mobj.raisestate].nextstate = mobj.seestate
+	# Replace the whole animation with a single frame:
+	states[mobj.raisestate].frame = frame
+	states[mobj.raisestate].tics = total_tics
+	states[mobj.raisestate].nextstate = mobj.seestate
 
 def no_ss_nazi_resurrection(file):
 	"""Makes the SS Nazi impossible for an Archvile to resurrect."""
@@ -176,19 +182,54 @@ def hell_knight_identical_to_baron(file):
 		setattr(knight, field, getattr(baron, field))
 
 strategies = [
-	clear_unused_resurrections,
+	(clear_unused_resurrections,      MT_SKULL),
+	(clear_unused_resurrections,      MT_PAIN),
 	simpler_boss_brain_death,
-	static_tech_lamps,
+	(static_tech_lamps,               S_TECHLAMP),
+	(static_tech_lamps,               S_TECH2LAMP),
 	simpler_bfg_hit,
 	teleport_fog_item_respawn,
 	simpler_teleport_fog,
-	all_red_torches,
-	all_green_pillars,
-	static_gore_decorations,
+	(all_red_torches,                 MT_MISC41),
+	(all_red_torches,                 MT_MISC42),
+	(all_red_torches,                 MT_MISC44),
+	(all_red_torches,                 MT_MISC45),
+	(all_green_pillars,               MT_MISC34),
+	(all_green_pillars,               MT_MISC35),
+	(static_gore_decorations,         MT_MISC75),
+	(static_gore_decorations,         MT_MISC73),
+	(static_gore_decorations,         MT_MISC37),
+	(static_gore_decorations,         MT_MISC51),
 	static_evil_eye,
-	simpler_powerups,
-	no_blinking,
-	squash_resurrect_animations,
+	(simpler_bonus,                   S_BON1),
+	(simpler_bonus,                   S_BON2),
+	(simpler_powerups,                S_PMAP),
+	(simpler_powerups,                S_SOUL6),
+	(simpler_powerups,                S_MEGA),
+	(simpler_powerups,                S_PINV),
+	(simpler_powerups,                S_PINS),
+	(simpler_powerups,                S_PVIS),
+	(no_blinking,                     S_RKEY),
+	(no_blinking,                     S_BKEY),
+	(no_blinking,                     S_YKEY),
+	(no_blinking,                     S_RSKULL),
+	(no_blinking,                     S_BSKULL),
+	(no_blinking,                     S_YSKULL),
+	(no_blinking,                     S_ARM1),
+	(no_blinking,                     S_ARM2),
+	(squash_resurrect_animations,     MT_WOLFSS),
+	(squash_resurrect_animations,     MT_BABY),
+	(squash_resurrect_animations,     MT_KNIGHT),
+	(squash_resurrect_animations,     MT_BRUISER),
+	(squash_resurrect_animations,     MT_HEAD),
+	(squash_resurrect_animations,     MT_SHADOWS),
+	(squash_resurrect_animations,     MT_SERGEANT),
+	(squash_resurrect_animations,     MT_TROOP),
+	(squash_resurrect_animations,     MT_CHAINGUY),
+	(squash_resurrect_animations,     MT_FATSO),
+	(squash_resurrect_animations,     MT_UNDEAD),
+	(squash_resurrect_animations,     MT_SHOTGUY),
+	(squash_resurrect_animations,     MT_POSSESSED),
 	no_ss_nazi_resurrection,
 	blue_arachnotron_plasma_balls,
 	no_ss_nazi,
@@ -198,9 +239,9 @@ strategies = [
 if __name__ == "__main__":
 	import tables
 	try:
-		tables.file.reclaim_states(999)
-	except:
-		pass
+		tables.file.reclaim_states(999, debug=True)
+	except Exception as e:
+		print e
 	freed = tables.file.free_states()
 	print "Reclaim strategies get a maximum of %d states:" % len(freed)
 	w = 0
