@@ -1,4 +1,6 @@
 
+![DEH 9000 logo](deh9000-sm.png)
+
 # DEH 9000
 
 DEH 9000 is a "programmer's [Dehacked](https://doomwiki.org/wiki/Dehacked)".
