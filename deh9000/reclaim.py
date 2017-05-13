@@ -156,7 +156,7 @@ def squash_resurrect_animations(file, mobjtype):
 		total_tics += state.tics
 		# Only walk until we reach a normal state.
 		if state.nextstate in terminal:
-			break
+			final_state_id = state.nextstate
 	else:
 		raise ValueError("monster %s didn't reach seestate" % (
 			mobjtype_t[mobjtype]))
@@ -164,7 +164,7 @@ def squash_resurrect_animations(file, mobjtype):
 	# Replace the whole animation with a single frame:
 	states[mobj.raisestate].frame = frame
 	states[mobj.raisestate].tics = total_tics
-	states[mobj.raisestate].nextstate = mobj.seestate
+	states[mobj.raisestate].nextstate = final_state_id
 
 def no_ss_nazi_resurrection(file):
 	"""Makes the SS Nazi impossible for an Archvile to resurrect."""
