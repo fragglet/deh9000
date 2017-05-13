@@ -9,22 +9,28 @@ and hard to notice ways - so that states are freed up for other purposes.
 from mobjs import *
 from states import *
 
-def clear_unused_resurrections(file, mobjtype):
-	"""Clears the resurrect sequences for the Lost Soul/Pain Elemental.
+def changed(struct):
+	"""Returns true if the given struct has changed."""
+	return len(struct.dehacked_diffs()) > 0
 
-	These monsters have animation sequences for the Archvile to
-	resurrect them, but they disappear when they die so this can never
+def clear_pain_elemental_resurrections(file):
+	"""Clears the resurrect sequences for the Pain Elemental.
+
+	The Pain Elemental has an animation sequence for the Archvile to
+	resurrect it, but it disappears when it dies so this can never
 	happen.
 	"""
 	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[mobjtype].raisestate = S_NULL
+	mobjinfo[MT_PAIN].raisestate = S_NULL
 
 def simpler_boss_brain_death(file):
 	"""Removes two frames from the boss brain death animation."""
 	states = file.array_for_type(state_t)
-	states[S_BRAIN_DIE1].tics += (
-		states[S_BRAIN_DIE2].tics + states[S_BRAIN_DIE3].tics)
-	states[S_BRAIN_DIE1].nextstate = S_BRAIN_DIE4
+	state = states[S_BRAIN_DIE1]
+	if not changed(state):
+		state.tics += (
+			states[S_BRAIN_DIE2].tics + states[S_BRAIN_DIE3].tics)
+		state.nextstate = S_BRAIN_DIE4
 
 def static_tech_lamps(file, state_id):
 	"""Makes tech lamps static instead of animated."""
@@ -139,6 +145,9 @@ def squash_resurrect_animations(file, mobjtype):
 	}
 	frame = monsters[mobjtype]
 	mobj = mobjinfo[mobjtype]
+	# Have we squashed this sequence already?
+	if changed(states[mobj.raisestate]):
+		return
 	# Count total tics for the resurrection animation:
 	total_tics = 0
 	terminal = set(states.walk(mobj.seestate))
@@ -184,7 +193,7 @@ def hell_knight_identical_to_baron(file):
 		setattr(knight, field, getattr(baron, field))
 
 strategies = [
-	(clear_unused_resurrections,      MT_PAIN),
+	clear_pain_elemental_resurrections,
 	simpler_boss_brain_death,
 	(static_tech_lamps,               S_TECHLAMP),
 	(static_tech_lamps,               S_TECH2LAMP),
