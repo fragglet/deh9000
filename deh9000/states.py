@@ -1030,13 +1030,16 @@ class StateArray(c.StructArray):
 		Each state in the states array has a "nextstate" field that
 		indicates a state that follows it. This function returns a
 		generator that yields the index of each state in the sequence,
-		ending when the NULL state (0) is reached, or when a state is
-		reached that has already been reached.
+		ending when the NULL state (0) is reached, a state is reached
+		that never ends (tics < 0), or when a state is reached that
+		has already been reached.
 		"""
 		previous_states = set()
 		while index != S_NULL:
 			yield index
 			previous_states.add(index)
+			if self[index].tics < 0:
+				return
 			index = self[index].nextstate
 			if index in previous_states:
 				return
