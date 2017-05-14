@@ -75,6 +75,27 @@ def reuse_imp_ball_explosion(file, mobjtype):
 	mobjinfo = file.array_for_type(mobjinfo_t)
 	mobjinfo[mobjtype].deathstate = S_TBALLX1
 
+def reuse_trooper_gib_animation(file, state_id):
+	"""Reuse the the trooper's gib animation for other monsters too.
+
+	The Sergeant (SPOS), Player (PLAY) and Imp (TROO) all have very
+	similar gib animations to the Former Human Trooper (POSS). They're
+	similar enough that after the first frame it's possible to jump to
+	the trooper gib animation without it being particularly noticeable.
+	"""
+	# These are carefully chosen to ensure that the new sequences still
+	# call the A_XScream and A_Fall action pointers as intended.
+	new_nextstate = {
+		S_SPOS_XDIE1: S_POSS_XDIE2,
+		S_PLAY_XDIE1: S_POSS_XDIE2,
+		S_TROO_XDIE4: S_POSS_XDIE5,
+		S_CPOS_XDIE3: S_POSS_XDIE5,
+		S_SSWV_XDIE1: S_POSS_XDIE2,
+	}
+	states = file.array_for_type(state_t)
+	if state_id in new_nextstate:
+		states[state_id].nextstate = new_nextstate[state_id]
+
 def all_green_torches(file, mobjtype):
 	"""Makes all torches green torches.
 
@@ -246,6 +267,11 @@ strategies = [
 	teleport_fog_item_respawn,
 	simpler_teleport_fog,
 	(reuse_imp_ball_explosion,        MT_TRACER),
+	(reuse_trooper_gib_animation,     S_SSWV_XDIE1),
+	(reuse_trooper_gib_animation,     S_PLAY_XDIE1),
+	(reuse_trooper_gib_animation,     S_SPOS_XDIE1),
+	(reuse_trooper_gib_animation,     S_TROO_XDIE4),
+	(reuse_trooper_gib_animation,     S_CPOS_XDIE3),
 	(all_green_torches,               MT_MISC41),
 	(all_green_torches,               MT_MISC43),
 	(all_green_torches,               MT_MISC44),
