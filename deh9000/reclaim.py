@@ -178,6 +178,11 @@ def blue_arachnotron_plasma_balls(file):
 	mobjinfo[MT_ARACHPLAZ].spawnstate = S_PLASBALL
 	mobjinfo[MT_ARACHPLAZ].deathstate = S_PLASEXP
 
+def no_ss_nazi_slop(file):
+	"""Removes SS Nazi xdeathstate animation."""
+	mobjinfo = file.array_for_type(mobjinfo_t)
+	mobjinfo[MT_WOLFSS].xdeathstate = S_NULL
+
 def no_ss_nazi(file):
 	"""Replaces the SS Nazi with the Zombieman."""
 	mobjinfo = file.array_for_type(mobjinfo_t)
@@ -242,6 +247,7 @@ strategies = [
 	(squash_resurrect_animations,     MT_SHOTGUY),
 	(squash_resurrect_animations,     MT_POSSESSED),
 	no_ss_nazi_resurrection,
+	no_ss_nazi_slop,
 	blue_arachnotron_plasma_balls,
 	no_ss_nazi,
 	hell_knight_identical_to_baron,
