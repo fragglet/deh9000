@@ -1112,7 +1112,8 @@ class CodePointers(object):
 			if state.action != other_state.action:
 				ptr_id = self._state_to_pointer.get(
 					state_id, 100000 + state_id)
-				result.append(_format_diff(ptr_id, state_id))
+				result.append(
+					self._format_diff(ptr_id, state_id))
 		return result
 
 
