@@ -62,7 +62,7 @@ def simpler_bfg_hit(file):
 def teleport_fog_item_respawn(file):
 	"""Replaces the item respawn fog with teleport fog."""
 	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_IFOG].spawnstate = S_TFOG
+	mobjinfo[MT_IFOG].spawnstate = S_TFOG4
 
 def simpler_teleport_fog(file):
 	"""Simplifies the teleport fog animation by removing 5 frames."""
