@@ -157,6 +157,7 @@ def squash_resurrect_animations(file, mobjtype):
 		# Only walk until we reach a normal state.
 		if state.nextstate in terminal:
 			final_state_id = state.nextstate
+			break
 	else:
 		raise ValueError("monster %s didn't reach seestate" % (
 			mobjtype_t[mobjtype]))
@@ -271,7 +272,7 @@ if __name__ == "__main__":
 		for i, state_id in enumerate(sorted(freed)):
 			if (i % 10) == 0:
 				f.write("# ")
-			f.write("% 3d," % (state_id + 1))
+			f.write("% 4d," % (state_id + 1))
 			if (i % 10) == 9:
 				f.write("\n")
 		f.write("\n\n")
