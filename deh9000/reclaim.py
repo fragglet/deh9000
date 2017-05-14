@@ -75,17 +75,29 @@ def reuse_imp_ball_explosion(file, mobjtype):
 	mobjinfo = file.array_for_type(mobjinfo_t)
 	mobjinfo[mobjtype].deathstate = S_TBALLX1
 
-def all_red_torches(file, mobjtype):
-	"""Makes all torches into red torches (no green/red)."""
+def all_green_torches(file, mobjtype):
+	"""Makes all torches green torches.
+
+	By using the green torch frames we can use color translation bits
+	to shift into different palette ranges; this frees up frames while
+	keeping different-colored torches looking distinctive, which is
+	important on levels like TNT.WAD MAP30.
+	"""
 	new_sprite = {
-		MT_MISC41: S_REDTORCH,
-		MT_MISC42: S_REDTORCH,
-		MT_MISC44: S_RTORCHSHRT,
-		MT_MISC45: S_RTORCHSHRT,
+		MT_MISC41: (1, S_GREENTORCH),  # Blue torch -> Indigo
+		MT_MISC42: (0, S_GREENTORCH),  # Green torch
+		MT_MISC43: (3, S_GREENTORCH),  # Red torch -> Red
+		MT_MISC44: (1, S_GTORCHSHRT),  # Short blue torch -> Indigo
+		MT_MISC45: (0, S_GTORCHSHRT),  # Short green torch
+		MT_MISC46: (3, S_GTORCHSHRT),  # Short red torch -> Red
 	}
 	mobjinfo = file.array_for_type(mobjinfo_t)
 	if mobjtype in new_sprite:
-		mobjinfo[mobjtype].spawnstate = new_sprite[mobjtype]
+		color, state_id = new_sprite[mobjtype]
+		mobjinfo[mobjtype].spawnstate = state_id
+		mobjinfo[mobjtype].flags = (
+			(mobjinfo[mobjtype].flags & ~MF_TRANSLATION) |
+			(color << MF_TRANSSHIFT))
 
 def all_green_pillars(file, mobjtype):
 	"""Makes red marble pillars into green pillars."""
@@ -96,6 +108,9 @@ def all_green_pillars(file, mobjtype):
 	mobjinfo = file.array_for_type(mobjinfo_t)
 	if mobjtype in new_sprite:
 		mobjinfo[mobjtype].spawnstate = new_sprite[mobjtype]
+		# We can't reuse the trick that we use above for the
+		# torches since the pillars aren't the right shade of
+		# green to be in the right palette range.
 
 def static_gore_decorations(file, mobjtype):
 	"""Makes gore/corpse decorations static instead of animated."""
@@ -231,10 +246,10 @@ strategies = [
 	teleport_fog_item_respawn,
 	simpler_teleport_fog,
 	(reuse_imp_ball_explosion,        MT_TRACER),
-	(all_red_torches,                 MT_MISC41),
-	(all_red_torches,                 MT_MISC42),
-	(all_red_torches,                 MT_MISC44),
-	(all_red_torches,                 MT_MISC45),
+	(all_green_torches,               MT_MISC41),
+	(all_green_torches,               MT_MISC43),
+	(all_green_torches,               MT_MISC44),
+	(all_green_torches,               MT_MISC46),
 	(all_green_pillars,               MT_MISC34),
 	(all_green_pillars,               MT_MISC35),
 	(static_gore_decorations,         MT_MISC75),
