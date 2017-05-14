@@ -24,12 +24,21 @@ def clear_pain_elemental_resurrections(file):
 	mobjinfo[MT_PAIN].raisestate = S_NULL
 
 def mancubus_shot_rocket_explosion(file):
-	"""Use rocket explosion frames for mancubus shot explosion.
+	"""Use rocket explosion states for mancubus shot explosion.
 
-	These frames are literally identical. Reclaims two frames.
+	These states are literally identical. Reclaims two states.
 	"""
 	states = file.array_for_type(state_t)
 	states[S_FATSHOTX1].nextstate = S_EXPLODE2
+
+def combine_revenant_smoke_puff(file):
+	"""Combine revenant smoke animation with bullet puff.
+
+	These states are literally identical. Reclaims three states.
+	"""
+	states = file.array_for_type(state_t)
+	# S_PUFF2,3,4 are identical to S_SMOKE3,4,5:
+	states[S_SMOKE2].nextstate = S_PUFF2
 
 def simpler_boss_brain_death(file):
 	"""Removes two frames from the boss brain death animation."""
@@ -214,6 +223,7 @@ def hell_knight_identical_to_baron(file):
 strategies = [
 	clear_pain_elemental_resurrections,
 	mancubus_shot_rocket_explosion,
+	combine_revenant_smoke_puff,
 	simpler_boss_brain_death,
 	(static_tech_lamps,               S_TECHLAMP),
 	(static_tech_lamps,               S_TECH2LAMP),
