@@ -7,6 +7,7 @@ and hard to notice ways - so that states are freed up for other purposes.
 """
 
 from mobjs import *
+from sprites import *
 from states import *
 
 def changed(struct):
@@ -114,6 +115,17 @@ def reuse_trooper_gib_animation(file, state_id):
 	if state_id == S_PLAY_XDIE1:
 		mobjinfo[MT_MISC68].spawnstate = S_POSS_XDIE9
 		mobjinfo[MT_MISC69].spawnstate = S_POSS_XDIE9
+
+def combine_blood_pools(file, mobjtype):
+	"""Reuse the same state for all pool-of-blood decorations.
+
+	Doom has several of these and most people probably won't notice if we
+	just use the same image for all of them.
+	"""
+	mobjinfo = file.array_for_type(mobjinfo_t)
+	# We use S_GIBS since this is hard-coded and used for corpses squashed
+	# under doors.
+	mobjinfo[mobjtype].spawnstate = S_GIBS
 
 def all_green_torches(file, mobjtype):
 	"""Makes all torches green torches.
@@ -292,6 +304,9 @@ strategies = [
 	(reuse_trooper_gib_animation,     S_SPOS_XDIE1),
 	(reuse_trooper_gib_animation,     S_TROO_XDIE4),
 	(reuse_trooper_gib_animation,     S_CPOS_XDIE3),
+	(combine_blood_pools,             MT_MISC84),
+	(combine_blood_pools,             MT_MISC85),
+	(combine_blood_pools,             MT_MISC86),
 	(all_green_torches,               MT_MISC41),
 	(all_green_torches,               MT_MISC43),
 	(all_green_torches,               MT_MISC44),
