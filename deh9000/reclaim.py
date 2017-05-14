@@ -23,6 +23,14 @@ def clear_pain_elemental_resurrections(file):
 	mobjinfo = file.array_for_type(mobjinfo_t)
 	mobjinfo[MT_PAIN].raisestate = S_NULL
 
+def mancubus_shot_rocket_explosion(file):
+	"""Use rocket explosion frames for mancubus shot explosion.
+
+	These frames are literally identical. Reclaims two frames.
+	"""
+	states = file.array_for_type(state_t)
+	states[S_FATSHOTX1].nextstate = S_EXPLODE2
+
 def simpler_boss_brain_death(file):
 	"""Removes two frames from the boss brain death animation."""
 	states = file.array_for_type(state_t)
@@ -52,6 +60,11 @@ def simpler_teleport_fog(file):
 	states = file.array_for_type(state_t)
 	states[S_TFOG2].nextstate = S_TFOG4  # Skip TFOGC
 	states[S_TFOG6].nextstate = S_NULL   # Short ending
+
+def reuse_imp_ball_explosion(file, mobjtype):
+	"""Reuse the imp ball explosion for revenant/caco explosions."""
+	mobjinfo = file.array_for_type(mobjinfo_t)
+	mobjinfo[mobjtype].deathstate = S_TBALLX1
 
 def all_red_torches(file, mobjtype):
 	"""Makes all torches into red torches (no green/red)."""
@@ -200,12 +213,14 @@ def hell_knight_identical_to_baron(file):
 
 strategies = [
 	clear_pain_elemental_resurrections,
+	mancubus_shot_rocket_explosion,
 	simpler_boss_brain_death,
 	(static_tech_lamps,               S_TECHLAMP),
 	(static_tech_lamps,               S_TECH2LAMP),
 	simpler_bfg_hit,
 	teleport_fog_item_respawn,
 	simpler_teleport_fog,
+	(reuse_imp_ball_explosion,        MT_TRACER),
 	(all_red_torches,                 MT_MISC41),
 	(all_red_torches,                 MT_MISC42),
 	(all_red_torches,                 MT_MISC44),
@@ -217,6 +232,7 @@ strategies = [
 	(static_gore_decorations,         MT_MISC37),
 	(static_gore_decorations,         MT_MISC51),
 	static_evil_eye,
+	(reuse_imp_ball_explosion,        MT_HEADSHOT),
 	(simpler_bonus,                   S_BON1),
 	(simpler_bonus,                   S_BON2),
 	(simpler_powerups,                S_PMAP),
