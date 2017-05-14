@@ -92,9 +92,17 @@ def reuse_trooper_gib_animation(file, state_id):
 		S_CPOS_XDIE3: S_POSS_XDIE5,
 		S_SSWV_XDIE1: S_POSS_XDIE2,
 	}
+	mobjinfo = file.array_for_type(mobjinfo_t)
 	states = file.array_for_type(state_t)
 	if state_id in new_nextstate:
 		states[state_id].nextstate = new_nextstate[state_id]
+
+	# There are a couple of decorations which place an exploded player
+	# corpse. When we merge the player's death animation, combine these
+	# with the trooper frame as well, for consistency.
+	if state_id == S_PLAY_XDIE1:
+		mobjinfo[MT_MISC68].spawnstate = S_POSS_XDIE9
+		mobjinfo[MT_MISC69].spawnstate = S_POSS_XDIE9
 
 def all_green_torches(file, mobjtype):
 	"""Makes all torches green torches.
