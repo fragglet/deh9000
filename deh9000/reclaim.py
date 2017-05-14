@@ -266,3 +266,14 @@ if __name__ == "__main__":
 		w += len(s) + 2
 	tables.file.write("simple.deh")
 
+	with open("simple.deh", "a") as f:
+		f.write("\n\n\n# Free frames:\n")
+		for i, state_id in enumerate(sorted(freed)):
+			if (i % 10) == 0:
+				f.write("# ")
+			f.write("% 3d," % (state_id + 1))
+			if (i % 10) == 9:
+				f.write("\n")
+		f.write("\n\n")
+
+
