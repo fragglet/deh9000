@@ -49,6 +49,17 @@ def simpler_boss_brain_death(file):
 			states[S_BRAIN_DIE2].tics + states[S_BRAIN_DIE3].tics)
 		state.nextstate = S_BRAIN_DIE4
 
+def pain_elemental_death_last_frame(file):
+	"""Combine one frame of Pain Elemental death and rocket explosion.
+
+	The sprites for the last two frames of the Pain Elemental death
+	animation and the rocket explosion animation appear to be visually
+	identical. One of the states calls A_PainDie() but we can combine
+	the last state.
+	"""
+	states = file.array_for_type(state_t)
+	states[S_PAIN_DIE5].nextstate = S_EXPLODE3
+
 def static_tech_lamps(file, state_id):
 	"""Makes tech lamps static instead of animated."""
 	states = file.array_for_type(state_t)
@@ -269,6 +280,7 @@ strategies = [
 	mancubus_shot_rocket_explosion,
 	combine_revenant_smoke_puff,
 	simpler_boss_brain_death,
+	pain_elemental_death_last_frame,
 	(static_tech_lamps,               S_TECHLAMP),
 	(static_tech_lamps,               S_TECH2LAMP),
 	simpler_bfg_hit,
