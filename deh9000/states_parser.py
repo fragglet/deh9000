@@ -232,6 +232,9 @@ class Parser(object):
 			    not self.parse_goto() and
 			    not self.parse_stop()):
 				self.exception("Parse error")
+		if self.previous_state_id != -1:
+			self.exception("sequence should end in stop, loop, "
+			               "or goto")
 		self.apply_gotos()
 
 if __name__ == '__main__':
