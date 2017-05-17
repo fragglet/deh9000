@@ -45,6 +45,8 @@ STOP_STATEMENT_RE = re.compile(r"\s*Stop\s*$")
 class StatesParseException(Exception):
 	pass
 
+class StateRemapException(Exception):
+	pass
 
 def sprite_for_name(name):
 	try:
@@ -80,10 +82,9 @@ def construct_states(params):
 		)
 
 
-class Parser(object):
-	def __init__(self, states, free_states):
-		self.states = states
-		self.free_states = free_states
+class _Parser(object):
+	def __init__(self):
+		self.states = [state_t()]
 		self.state_labels = {}
 		self.previous_state_id = -1
 		self.loop_start_id = -1
@@ -132,13 +133,18 @@ class Parser(object):
 		# label defined before a loop statement.
 		self.loop_start_id = state_id
 
+	def alloc_new_state(self):
+		result = len(self.states)
+		self.states.append(state_t())
+		return result
+
 	def parse_frame_def(self):
 		labels = self.parse_labels()
 		m = self.matches_regexp(FRAME_DEF_RE)
 		if not m:
 			return False
 		for state in construct_states(m.groupdict()):
-			state_id = self.free_states.pop()
+			state_id = self.alloc_new_state()
 			self.states[state_id].copy_from(state)
 
 			# Link in states in a chain:
@@ -207,16 +213,17 @@ class Parser(object):
 			self.exception("Goto to unknown label %r" % (label),
 			               line_number=line_number)
 
-		start_state_id = self.state_labels[label]
-		sequence = list(self.states.walk(start_state_id))
-		if len(sequence) <= offset:
-			self.exception(
-				"Goto offset %r + %d is longer than animation "
-				"sequence (only %d states)" % (
-					label, offset,
-					len(sequence)),
-				line_number=line_number)
-		return sequence[offset]
+		state_id = self.state_labels[label]
+		for _ in range(offset):
+			next_state_id = self.states[state_id].nextstate
+			if next_state_id == -1:
+				self.exception(
+					"Goto offset %r + %d is longer than "
+					"animation sequence" % (
+						label, offset),
+					line_number=line_number)
+			state_id = next_state_id
+		return state_id
 
 	def apply_gotos(self):
 		for line_number, state_id, label, offset in self.saved_gotos:
@@ -237,11 +244,59 @@ class Parser(object):
 			               "or goto")
 		self.apply_gotos()
 
+def parse(defstr):
+	"""Parses a string in DECORATE-style States {} syntax.
+
+	Returned is a tuple containing two values:
+	 - A list of state_t instances corresponding to the states described in
+	   the string. The references in 'nextstate' are indexed relative to
+	   the list itself; these can be copied and remapped into another
+	   states list using remap_states().
+	 - A dictionary mapping from label names defined in the string to
+	   indexes in the states list to the states they represent.
+	"""
+	p = _Parser()
+	p.parse(defstr)
+	return p.states, p.state_labels
+
+def remap_states(old, new, free_states):
+	"""Copy all states from old into new, remapping state IDs.
+
+	free_states is a collection (list or set) of indexes into "new" which
+	can be used to store the states copied from "old". Values are removed
+	from this collection (via .pop()) that are consumed remapping states.
+
+	The first state (old[0]) is not copied; it's assumed that state ID 0
+	is a special value meaning NULL (S_NULL).
+	"""
+	if len(old) - 1 > len(free_states):
+		raise StateRemapException(
+			"Can't remap %d states from old: only have %d free "
+			"states to work with." % (
+				len(old) - 1, len(free_states)))
+
+	# Allocate a state ID for all the states to copy, and build a mapping
+	# table from old[] state ID to new[] state ID.
+	old_to_new = [0]
+	for _ in range(len(old) - 1):
+		# TODO: Logic is needed here to assign appropriate IDs for
+		# states that need action pointers, since not all states can
+		# have action pointers changed by dehacked.
+		old_to_new.append(free_states.pop())
+
+	# Copy over all states.
+	for old_id in range(1, len(old)):
+		new_id = old_to_new[old_id]
+		new[new_id].copy_from(old[old_id])
+		nextstate = new[new_id].nextstate
+		# Update nextstate references:
+		if nextstate != -1:
+			new[new_id].nextstate = old_to_new[nextstate]
+
+	return old_to_new
+
 if __name__ == '__main__':
-	import tables
-	free_states = range(100, 200)  # fake
-	p = Parser(tables.states, free_states)
-	p.parse("""
+	states, labels = parse("""
 	Spawn:
 		TROO AB 10 A_Look
 		Loop
@@ -276,7 +331,13 @@ if __name__ == '__main__':
 		TROO MLKJI 8
 		Goto See
 	""")
-	for label, start_id in p.state_labels.items():
+
+	# Copy parsed states into table.
+	import tables
+	free_states = range(100, 200)
+	old_to_new = remap_states(states, tables.states, free_states)
+	labels = {name: old_to_new[i] for name, i in labels.items()}
+	for label, start_id in labels.items():
 		print "Label %r:" % label
 		for state_id in tables.states.walk(start_id):
 			print "\t%d: %s" % (state_id, tables.states[state_id])
