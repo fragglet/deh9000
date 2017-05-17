@@ -65,7 +65,7 @@ def action_pointer_for_name(name):
 def construct_states(params):
 	sprite_num = sprite_for_name(params["sprname"])
 	tics = int(params["tics"])
-	is_bright = params.get("bright", "") != ""
+	is_bright = params.get("bright") != None
 	action = action_pointer_for_name(params.get("action"))
 
 	for fr in params["frame"]:
