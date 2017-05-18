@@ -33,19 +33,21 @@ class StatesArray(c.StructArray):
 			if index in previous_states:
 				return
 
-	def parse(self, free_states, defstr):
+	def parse(self, alloc_states, defstr):
 		"""Parse list of states in DECORATE format, copying into array.
 
 		In order to copy the states into the array, a collection of
 		states to allocate must be provided (indexes into the array).
-		States which are used will be removed from free_states.
+		States which are used will be removed from alloc_states.
+		DehackedFile.free_states and DehackedFile.reclaim_states are
+		useful functions to generate a list of states to use.
 
 		Returned is a dictionary mapping from label name to index of
 		state representing that label.
 		"""
 		states, labels = states_parser.parse(defstr)
 		old_to_new = states_parser.remap_states(states, self,
-		                                        free_states)
+		                                        alloc_states)
 		return {label: old_to_new[state_id]
 		        for label, state_id in labels.items()}
 

@@ -259,30 +259,58 @@ def parse(defstr):
 	p.parse(defstr)
 	return p.states, p.state_labels
 
-def remap_states(old, new, free_states):
+def _generate_old_to_new(old, new, alloc_states):
+	"""Generate old ID -> new ID mapping table.
+
+	It's assumed that state 0 is always NULL.
+	"""
+	if len(old) - 1 > len(alloc_states):
+		raise StateRemapException(
+			"Can't remap %d states from old: only have %d free "
+			"states to work with." % (
+				len(old) - 1, len(alloc_states)))
+
+	# Categorize states by whether they can have an action pointer:
+	alloc_action = set()
+	alloc_non_action = set()
+	for state_id in alloc_states:
+		if new[state_id].original().action is not None:
+			alloc_action.add(state_id)
+		else:
+			alloc_non_action.add(state_id)
+
+	# Build old->new map, allocating from alloc_action for states which
+	# need an action, and from alloc_non_action for states which don't.
+	old_to_new = [0] * len(old)
+	for old_id in range(1, len(old)):
+		if old[old_id].action is not None:
+			if len(alloc_action) > 0:
+				new_id = alloc_action.pop()
+			else:
+				# Won't work, unless BEX codeptrs are used:
+				new_id = alloc_non_action.pop()
+		else:
+			if len(alloc_non_action) > 0:
+				new_id = alloc_non_action.pop()
+			else:
+				# This is "wasteful" but there are no others:
+				new_id = alloc_action.pop()
+		old_to_new[old_id] = new_id
+		alloc_states.remove(new_id)
+
+	return old_to_new
+
+def remap_states(old, new, alloc_states):
 	"""Copy all states from old into new, remapping state IDs.
 
-	free_states is a collection (list or set) of indexes into "new" which
+	alloc_states is a collection (list or set) of indexes into "new" which
 	can be used to store the states copied from "old". Values are removed
 	from this collection (via .pop()) that are consumed remapping states.
 
 	The first state (old[0]) is not copied; it's assumed that state ID 0
 	is a special value meaning NULL (S_NULL).
 	"""
-	if len(old) - 1 > len(free_states):
-		raise StateRemapException(
-			"Can't remap %d states from old: only have %d free "
-			"states to work with." % (
-				len(old) - 1, len(free_states)))
-
-	# Allocate a state ID for all the states to copy, and build a mapping
-	# table from old[] state ID to new[] state ID.
-	old_to_new = [0]
-	for _ in range(len(old) - 1):
-		# TODO: Logic is needed here to assign appropriate IDs for
-		# states that need action pointers, since not all states can
-		# have action pointers changed by dehacked.
-		old_to_new.append(free_states.pop())
+	old_to_new = _generate_old_to_new(old, new, alloc_states)
 
 	# Copy over all states.
 	for old_id in range(1, len(old)):
