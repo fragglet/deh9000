@@ -41,6 +41,25 @@ LOOP_STATEMENT_RE = re.compile(r"\s*Loop\s*$")
 # End of sequence
 STOP_STATEMENT_RE = re.compile(r"\s*Stop\s*$")
 
+# What the *state fields are called in DECORATE:
+DECORATE_NAMES = {
+	# mobj_t fields:
+	"see":     "seestate",
+	"spawn":   "spawnstate",
+	"pain":    "painstate",
+	"melee":   "meleestate",
+	"missile": "missilestate",
+	"death":   "deathstate",
+	"xdeath":  "xdeathstate",
+	"raise":   "raisestate",
+
+	# weaponinfo_t fields:
+	"select":   "upstate",
+	"deselect": "downstate",
+	"ready":    "readystate",
+	"fire":     "atkstate",
+	"flash":    "flashstate",
+}
 
 class StatesParseException(Exception):
 	pass
@@ -132,6 +151,11 @@ class _Parser(object):
 		# We also set loop_start_id so we know which is the last
 		# label defined before a loop statement.
 		self.loop_start_id = state_id
+
+		# Also see if there's a Doom equivalent name:
+		doom_name = DECORATE_NAMES.get(name.lower())
+		if doom_name and doom_name not in self.state_labels:
+			self.state_labels[doom_name] = state_id
 
 	def alloc_new_state(self):
 		result = len(self.states)
