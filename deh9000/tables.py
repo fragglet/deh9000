@@ -16,6 +16,7 @@ from mobjs import *
 from sounds import *
 from sprites import *
 from states import *
+from states_array import CodePointers, StatesArray
 from weapons import *
 
 ammodata = c.StructArray(ammodata_t, [
@@ -128,7 +129,7 @@ weaponinfo = c.StructArray(weaponinfo_t, [
 	),
 ])
 
-states = StateArray([
+states = StatesArray([
 	(SPR_TROO,0,-1,None,S_NULL,0,0),	# S_NULL
 	(SPR_SHTG,4,0,A_Light0,S_NULL,0,0),	# S_LIGHTDONE
 	(SPR_PUNG,0,1,A_WeaponReady,S_PUNCH,0,0),	# S_PUNCH

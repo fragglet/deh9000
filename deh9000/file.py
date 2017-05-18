@@ -1,6 +1,7 @@
 
 import c
 import reclaim
+import states_parser
 import strings
 from actions import A_FireCGun, A_FirePlasma
 from mobjs import mobjinfo_t
