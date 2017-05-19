@@ -7,7 +7,7 @@ converting such animations from DECORATE format to Dehacked.
 
 import actions
 from sprites import spritenum_t
-from states import state_t
+from states import state_t, statenum_t
 import re
 
 # eg. "Spawn:"
@@ -36,10 +36,10 @@ GOTO_STATEMENT_RE = re.compile(r"\s*Goto"
                                r"\s*$", re.I)
 
 # Jump back to last labeled state:
-LOOP_STATEMENT_RE = re.compile(r"\s*Loop\s*$")
+LOOP_STATEMENT_RE = re.compile(r"\s*Loop\s*$", re.I)
 
 # End of sequence
-STOP_STATEMENT_RE = re.compile(r"\s*Stop\s*$")
+STOP_STATEMENT_RE = re.compile(r"\s*Stop\s*$", re.I)
 
 # What the *state fields are called in DECORATE:
 DECORATE_NAMES = {
@@ -99,7 +99,6 @@ def construct_states(params):
 			tics=tics,
 			action=action,
 		)
-
 
 class _Parser(object):
 	def __init__(self):
@@ -212,22 +211,48 @@ class _Parser(object):
 		self.loop_start_id = -1
 		return True
 
+	def parse_state_number(self, s):
+		"""Returns state number if 's' describes a specific state."""
+		try:
+			return statenum_t.index(s)
+		except ValueError:
+			pass
+		try:
+			state_id = int(s)
+			if 0 <= state_id < len(statenum_t):
+				return state_id
+		except ValueError:
+			pass
+		return None
+
 	def parse_goto(self):
 		m = self.matches_regexp(GOTO_STATEMENT_RE)
 		if not m:
 			return False
 		if self.previous_state_id == -1:
 			self.exception("Goto without a previous state")
-		# We can't "apply" this goto statement yet since it may refer
-		# to a label that we haven't parsed yet. So we save it for
-		# later.
 		params = m.groupdict()
-		self.saved_gotos.append((
-			self.line_number,
-			self.previous_state_id,
-			params["label"],
-			int(params.get("offset") or "0"),
-		))
+		label = params["label"]
+
+		# Try to parse as an absolute state ID, ie. S_* enum name or
+		# just an absolute state number. If so we set the nextstate
+		# field directly and flag it so that we don't remap it later.
+		goto_id = self.parse_state_number(label)
+		if goto_id is not None:
+			state = self.states[self.previous_state_id]
+			state.nextstate = goto_id
+			state.no_remap_nextstate = True
+		else:
+			# We can't "apply" this goto statement yet since it
+			# may refer to a label that we haven't parsed yet. So
+			# we save it for later.
+			self.saved_gotos.append((
+				self.line_number,
+				self.previous_state_id,
+				label,
+				int(params.get("offset") or "0"),
+			))
+
 		self.previous_state_id = -1
 		self.loop_start_id = -1
 		return True
@@ -341,8 +366,11 @@ def remap_states(old, new, alloc_states):
 		new_id = old_to_new[old_id]
 		new[new_id].copy_from(old[old_id])
 		nextstate = new[new_id].nextstate
-		# Update nextstate references:
-		if nextstate != -1:
+		# Remap the nextstate reference for the new array, unless it's
+		# the "none" value of -1, or this state has been flagged to
+		# reference an absolute state number and shouldn't be remapped.
+		if (nextstate != -1 and
+		    not getattr(old[old_id], "no_remap_nextstate", False)):
 			new[new_id].nextstate = old_to_new[nextstate]
 
 	return old_to_new
@@ -354,16 +382,16 @@ if __name__ == '__main__':
 		Loop
 	See:
 		TROO AABBCCDD 3 A_Chase
-		Loop
+		loop
 	Melee:
 	Missile:
 		TROO EF 8 A_FaceTarget
 		TROO G 6 A_TroopAttack
-		Goto See
+		goto S_CYBER_RUN3
 	Pain:
 		TROO H 2
 		TROO H 2 A_Pain
-		Goto See
+		Goto 456
 	Death:
 		TROO I 8
 		TROO J 8 A_Scream
