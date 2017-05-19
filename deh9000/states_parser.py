@@ -50,11 +50,26 @@ specific entries in the states[] table. For example:
     TROO N 5
     Goto S_CYBER_RUN3
 
+The "Loop" statement jumps back to the last label that was defined, eg.
+
+  See:
+    TROO OP 5
+    Loop       # Keep on showing these two frames.
+
+While the "Stop" statement jumps to the null state (S_NULL). This causes the
+object to be deleted in-game:
+
+  See:
+    TROO A 35
+    Stop       # We just show one frame for a second and disappear.
+
+All sequences must end in a Goto, Loop or Stop statement.
+
 Finally, it is sometimes important when dehacking for Vanilla Doom to use a
 specific state ID that is hard-coded into the Doom source code. This can be
 achieved using Pin() labels, for example:
 
-  Pin(S_BFGEXP):
+  Pin(S_BRAINEXPLODE1):  # A_BrainScream uses this state!
     TROO N 5
   Pin(456):
     TROO P 5
