@@ -13,6 +13,11 @@ import re
 # eg. "Spawn:"
 GOTO_LABEL_RE = re.compile(r"\s*(?P<label>\w+)\s*:\s*")
 
+# eg. "Pin(123):"
+PIN_STATE_RE = re.compile(r"\s*Pin\s*"
+                          r"\(\s*(?P<statenum>\w+)\s*\)"
+                          r"\s*:\s*", re.I)
+
 # Examples:
 # BSPI A 20
 # BSPI A 3 A_BabyMetal
@@ -137,6 +142,17 @@ class _Parser(object):
 			labels.add(m.groupdict()["label"])
 		return labels
 
+	def parse_pin(self):
+		m = self.matches_regexp(PIN_STATE_RE)
+		if not m:
+			return None
+		statenum = m.groupdict()["statenum"]
+		result = self.parse_state_number(statenum)
+		if result is None:
+			self.exception("State ID %r for pin() unknown." % (
+				statenum))
+		return result
+
 	def exception(self, s, line_number=None):
 		if line_number is None:
 			line_number = self.line_number
@@ -163,6 +179,7 @@ class _Parser(object):
 
 	def parse_frame_def(self):
 		labels = self.parse_labels()
+		pin_id = self.parse_pin()
 		m = self.matches_regexp(FRAME_DEF_RE)
 		if not m:
 			return False
@@ -181,7 +198,11 @@ class _Parser(object):
 			# be stored and pointed to the first stated in seq:
 			for label in labels:
 				self.set_label(label, state_id)
+			if pin_id is not None:
+				self.states[state_id].pin_state_id = pin_id
+			# Only the first in sequence:
 			labels = set()
+			pin_id = None
 		return True
 
 	def parse_loop(self):
@@ -319,6 +340,22 @@ def _generate_old_to_new(old, new, alloc_states):
 			"states to work with." % (
 				len(old) - 1, len(alloc_states)))
 
+	# When parsing above we can flag states to be "pinned" to particular
+	# state IDs when we copy into the state table. So assign these first
+	# before we do any other logic.
+	old_to_new = [0] * len(old)
+	for old_id in range(1, len(old)):
+		pin_id = getattr(old[old_id], "pin_state_id", -1)
+		if pin_id == -1:
+			continue
+		if pin_id not in alloc_states:
+			raise StateRemapException(
+				"Can't pin parsed state to state #%d (%s); it "
+				"is not found in alloc_states collection." % (
+					pin_id, statenum_t[pin_id]))
+		alloc_states.remove(pin_id)
+		old_to_new[old_id] = pin_id
+
 	# Categorize states by whether they can have an action pointer:
 	alloc_action = set()
 	alloc_non_action = set()
@@ -330,8 +367,9 @@ def _generate_old_to_new(old, new, alloc_states):
 
 	# Build old->new map, allocating from alloc_action for states which
 	# need an action, and from alloc_non_action for states which don't.
-	old_to_new = [0] * len(old)
 	for old_id in range(1, len(old)):
+		if hasattr(old[old_id], "pin_state_id"):
+			continue
 		if old[old_id].action is not None:
 			if len(alloc_action) > 0:
 				new_id = alloc_action.pop()
@@ -395,7 +433,9 @@ if __name__ == '__main__':
 	Death:
 		TROO I 8
 		TROO J 8 A_Scream
+	Pin(S_BFGEXP):
 		TROO K 6
+	Pin(199):
 		TROO L 6 A_Fall
 		TROO M -1
 		Stop
