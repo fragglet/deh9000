@@ -6,6 +6,7 @@ converting such animations from DECORATE format to Dehacked.
 
 Basic syntax looks like:
 
+  # This is a comment.
   BOSF A 3 BRIGHT A_SpawnSound
 
 These are, in order:
@@ -22,7 +23,7 @@ Multiple frames can be specified at once, for example this:
 
 is equivalent to this:
 
-  BOSF B 3 BRIGHT A_SpawnFly
+  BOSF B 3 BRIGHT A_SpawnFly  # This is tedious ...
   BOSF C 3 BRIGHT A_SpawnFly
   BOSF D 3 BRIGHT A_SpawnFly
 
@@ -37,7 +38,7 @@ It is possible to attach labels to frames and use "Goto" to jump to them; the
   See:
   Tweedledee:
     TROO N 5
-    Goto Tweedledum+1
+    Goto Tweedledum+1  # Jump to the A_XScream state
 
 Unlike in DECORATE it isn't possible to jump to a label in another monster's
 sequence, outside of the string being parsed. But Goto statements can jump to
@@ -103,6 +104,9 @@ LOOP_STATEMENT_RE = re.compile(r"\s*Loop\s*$", re.I)
 
 # End of sequence
 STOP_STATEMENT_RE = re.compile(r"\s*Stop\s*$", re.I)
+
+# Comments:
+COMMENT_RE = re.compile(r"#.*")
 
 # What the *state fields are called in DECORATE:
 DECORATE_NAMES = {
@@ -359,8 +363,10 @@ class _Parser(object):
 				self.resolve_goto(line_number, label, offset))
 
 	def parse(self, defstr):
+		# Split string into lines and remove comments:
+		self.lines = [COMMENT_RE.sub("", line)
+		              for line in defstr.split("\n")]
 		self.line_number = 1
-		self.lines = defstr.split("\n")
 		while self.more_lines():
 			if (not self.parse_frame_def() and
 			    not self.parse_loop() and
@@ -473,6 +479,7 @@ def remap_states(old, new, alloc_states):
 
 if __name__ == '__main__':
 	states, labels = parse("""
+	# This is the spawn state:
 	Spawn:
 		TROO AB 10 A_Look
 		Loop
@@ -484,6 +491,7 @@ if __name__ == '__main__':
 		TROO EF 8 A_FaceTarget
 		TROO G 6 A_TroopAttack
 		goto S_CYBER_RUN3
+	# Ouch! That hurt!
 	Pain:
 		TROO H 2
 		TROO H 2 A_Pain
