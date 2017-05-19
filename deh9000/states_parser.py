@@ -3,6 +3,64 @@
 The DECORATE syntax for defining states makes for a very clean way of defining
 actor states and animations. In particular it's probably convenient for
 converting such animations from DECORATE format to Dehacked.
+
+Basic syntax looks like:
+
+  BOSF A 3 BRIGHT A_SpawnSound
+
+These are, in order:
+ * Sprite name (must be one of the Vanilla Doom sprite names (unlike DECORATE,
+   new sprite names are not possible). See sprites.py.
+ * Frame number as alphabet character (A-Z); this matches the WAD lump names.
+ * Number of tics for this frame of animation to be shown (-1 = forever)
+ * [optional] "BRIGHT" to always show the sprite at full brightness.
+ * [optional] Action pointer name; see actions.py.
+
+Multiple frames can be specified at once, for example this:
+
+  BOSF BCD 3 BRIGHT A_SpawnFly
+
+is equivalent to this:
+
+  BOSF B 3 BRIGHT A_SpawnFly
+  BOSF C 3 BRIGHT A_SpawnFly
+  BOSF D 3 BRIGHT A_SpawnFly
+
+It is possible to attach labels to frames and use "Goto" to jump to them; the
+"+" syntax allows jumping ahead in a sequence. For example:
+
+  Tweedledum:
+    TROO M 4
+    TROO O 5 A_XScream
+    TROO P 5
+    Goto Tweedledee
+  See:
+  Tweedledee:
+    TROO N 5
+    Goto Tweedledum+1
+
+Unlike in DECORATE it isn't possible to jump to a label in another monster's
+sequence, outside of the string being parsed. But Goto statements can jump to
+specific entries in the states[] table. For example:
+
+    TROO P 5
+    Goto 123
+  Tweedledee:
+    TROO N 5
+    Goto S_CYBER_RUN3
+
+Finally, it is sometimes important when dehacking for Vanilla Doom to use a
+specific state ID that is hard-coded into the Doom source code. This can be
+achieved using Pin() labels, for example:
+
+  Pin(S_BFGEXP):
+    TROO N 5
+  Pin(456):
+    TROO P 5
+
+When remapping it is important that any pinned states are included in the
+alloc_states collection provided, otherwise it is not possible to apply the
+pins.
 """
 
 import actions
