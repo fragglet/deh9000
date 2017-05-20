@@ -41,5 +41,5 @@ for i, mobjtype in enumerate(humanoids):
 # we make the imp fireball look like a plasma ball).
 mobjinfo[MT_TROOPSHOT].copy_from(mobjinfo[MT_PLASMA])
 
-file.write("dmarmy.deh")
+dehfile.write("dmarmy.deh")
 

@@ -6,6 +6,8 @@ import strings
 from actions import A_FireCGun, A_FirePlasma
 from mobjs import mobjinfo_t
 from states import state_t
+from states_array import CodePointers
+import tables
 from weapons import weaponinfo_t
 
 DEHACKED_HEADER_FORMAT = """
@@ -147,8 +149,19 @@ class StringReplacements(object):
 		return result
 
 class DehackedFile(object):
-	def __init__(self, *parts):
-		self.parts = parts
+	def __init__(self, base_module=tables):
+		self.parts = []
+		for name in ("ammodata", "miscdata", "mobjinfo",
+		             "states", "S_sfx", "weaponinfo"):
+			obj = getattr(base_module, name)
+			self.parts.append(obj)
+			setattr(self, name, obj)
+
+		self.strings = StringReplacements()
+
+		self.parts.append(CodePointers(self.states))
+		self.parts.append(self.strings)
+
 		self.doom_version = 19
 		self.patch_format = 6
 

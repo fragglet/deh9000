@@ -356,12 +356,13 @@ strategies = [
 ]
 
 if __name__ == "__main__":
-	import tables
+	import file
+	dehfile = file.DehackedFile()
 	try:
-		tables.file.reclaim_states(999, debug=True)
+		dehfile.reclaim_states(999, debug=True)
 	except Exception as e:
 		print e
-	freed = tables.file.free_states()
+	freed = dehfile.free_states()
 	print "Reclaim strategies get a maximum of %d states:" % len(freed)
 	w = 0
 	for state_id in sorted(freed):
@@ -373,7 +374,7 @@ if __name__ == "__main__":
 			print "    ",
 		print "%s," % s,
 		w += len(s) + 2
-	tables.file.write("simple.deh")
+	dehfile.write("simple.deh")
 
 	with open("simple.deh", "a") as f:
 		f.write("\n\n\n# Free frames:\n")
@@ -384,5 +385,4 @@ if __name__ == "__main__":
 			if (i % 10) == 9:
 				f.write("\n")
 		f.write("\n\n")
-
 
