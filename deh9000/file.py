@@ -5,13 +5,17 @@ import copy
 import c
 import reclaim
 import states_parser
+import tables
+
 from actions import A_FireCGun, A_FirePlasma
+from ammo import am_noammo
 from mobjs import mobjinfo_t
-from states import state_t
+from states import state_t, S_PISTOL2, S_PISTOL4
 from states_array import CodePointers, StatesArray
 from string_repls import StringReplacements
-import tables
-from weapons import weaponinfo_t
+from weapons import weaponinfo_t, wp_pistol
+from weapons import wp_pistol
+
 
 DEHACKED_HEADER_FORMAT = """
 Patch File for DeHackEd v3.0
@@ -205,4 +209,17 @@ class DehackedFile(object):
 		result_text = "\n\n".join(self.dehacked_diffs())
 		with open(filename, "w") as f:
 			f.write(result_text)
+
+
+if __name__ == "__main__":
+	f = DehackedFile()
+	f.ammodata[0].maxammo *= 2
+	f.miscdata.initial_health = 15
+	f.mobjinfo[1].spawnhealth *= 10
+	f.states[S_PISTOL2].tics = 0
+	f.states[S_PISTOL2].nextstate = S_PISTOL4
+	f.strings.HUSTR_E1M1 = "First level"
+	f.S_sfx[1].priority = 32
+	f.weaponinfo[wp_pistol].ammo = am_noammo
+	f.save("test.deh")
 
