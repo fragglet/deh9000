@@ -171,17 +171,10 @@ class DehackedFile(object):
 			'patch_format': self.patch_format,
 		}
 
-	def array_for_type(self, t):
-		for part in self.parts:
-			if (isinstance(part, c.StructArray)
-			    and isinstance(part[0], t)):
-				return part
-		raise LookupError("StructArray with type %r not found" % (t,))
-
 	def mobj_states(self, mobj_id):
 		"""Returns a set of all states used by the given mobj."""
-		states = self.array_for_type(state_t)
-		mobjinfo = self.array_for_type(mobjinfo_t)
+		states = self.states
+		mobjinfo = self.mobjinfo
 		mobj = mobjinfo[mobj_id]
 		result = set()
 		for field in mobjinfo_t.state_fields:
@@ -191,8 +184,8 @@ class DehackedFile(object):
 
 	def weapon_states(self, weapon_id):
 		"""Returns a set of all states used by the given weapon."""
-		states = self.array_for_type(state_t)
-		weaponinfo = self.array_for_type(weaponinfo_t)
+		states = self.states
+		weaponinfo = self.weaponinfo
 		weapon = weaponinfo[weapon_id]
 		result = set()
 		for field in weaponinfo_t.state_fields:
@@ -235,16 +228,16 @@ class DehackedFile(object):
 	def free_states(self):
 		"""Returns a set of the indexes of all unreferenced states."""
 		marked = {0}
-		states = self.array_for_type(state_t)
+		states = self.states
 		# Mark all chains beginning from the hard-coded states. These
 		# are states which are referenced directly in the source code.
 		for state_id in set(state_t.hardcoded_states):
 			marked |= set(states.walk(state_id))
 		# Add all states used by mobjs (referenced from mobjinfo).
-		for mobj_id in range(len(self.array_for_type(mobjinfo_t))):
+		for mobj_id in range(len(self.mobjinfo)):
 			marked |= self.mobj_states(mobj_id)
 		# Add all weapon states (referenced from weaponinfo).
-		weaponinfo = self.array_for_type(weaponinfo_t)
+		weaponinfo = self.weaponinfo
 		for weapon_id, weapon in enumerate(weaponinfo):
 			weaponstates = self.weapon_states(weapon_id)
 			marked |= weaponstates

@@ -21,29 +21,26 @@ def clear_pain_elemental_resurrections(file):
 	resurrect it, but it disappears when it dies so this can never
 	happen.
 	"""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_PAIN].raisestate = S_NULL
+	file.mobjinfo[MT_PAIN].raisestate = S_NULL
 
 def mancubus_shot_rocket_explosion(file):
 	"""Use rocket explosion states for mancubus shot explosion.
 
 	These states are literally identical. Reclaims two states.
 	"""
-	states = file.array_for_type(state_t)
-	states[S_FATSHOTX1].nextstate = S_EXPLODE2
+	file.states[S_FATSHOTX1].nextstate = S_EXPLODE2
 
 def combine_revenant_smoke_puff(file):
 	"""Combine revenant smoke animation with bullet puff.
 
 	These states are literally identical. Reclaims three states.
 	"""
-	states = file.array_for_type(state_t)
 	# S_PUFF2,3,4 are identical to S_SMOKE3,4,5:
-	states[S_SMOKE2].nextstate = S_PUFF2
+	file.states[S_SMOKE2].nextstate = S_PUFF2
 
 def simpler_boss_brain_death(file):
 	"""Removes two frames from the boss brain death animation."""
-	states = file.array_for_type(state_t)
+	states = file.states
 	state = states[S_BRAIN_DIE1]
 	if not changed(state):
 		state.tics += (
@@ -58,34 +55,28 @@ def pain_elemental_death_last_frame(file):
 	identical. One of the states calls A_PainDie() but we can combine
 	the last state.
 	"""
-	states = file.array_for_type(state_t)
-	states[S_PAIN_DIE5].nextstate = S_EXPLODE3
+	file.states[S_PAIN_DIE5].nextstate = S_EXPLODE3
 
 def static_tech_lamps(file, state_id):
 	"""Makes tech lamps static instead of animated."""
-	states = file.array_for_type(state_t)
-	states[state_id].tics = -1
+	file.states[state_id].tics = -1
 
 def simpler_bfg_hit(file):
 	"""Removes the last two frames of the BFG ball hit animation."""
-	states = file.array_for_type(state_t)
-	states[S_BFGLAND5].nextstate = S_NULL
+	file.states[S_BFGLAND5].nextstate = S_NULL
 
 def teleport_fog_item_respawn(file):
 	"""Replaces the item respawn fog with teleport fog."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_IFOG].spawnstate = S_TFOG4
+	file.mobjinfo[MT_IFOG].spawnstate = S_TFOG4
 
 def simpler_teleport_fog(file):
 	"""Simplifies the teleport fog animation by removing 5 frames."""
-	states = file.array_for_type(state_t)
-	states[S_TFOG2].nextstate = S_TFOG4  # Skip TFOGC
-	states[S_TFOG6].nextstate = S_NULL   # Short ending
+	file.states[S_TFOG2].nextstate = S_TFOG4  # Skip TFOGC
+	file.states[S_TFOG6].nextstate = S_NULL   # Short ending
 
 def reuse_imp_ball_explosion(file, mobjtype):
 	"""Reuse the imp ball explosion for revenant/caco explosions."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[mobjtype].deathstate = S_TBALLX1
+	file.mobjinfo[mobjtype].deathstate = S_TBALLX1
 
 def reuse_trooper_gib_animation(file, state_id):
 	"""Reuse the the trooper's gib animation for other monsters too.
@@ -104,17 +95,15 @@ def reuse_trooper_gib_animation(file, state_id):
 		S_CPOS_XDIE3: S_POSS_XDIE5,
 		S_SSWV_XDIE1: S_POSS_XDIE2,
 	}
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	states = file.array_for_type(state_t)
 	if state_id in new_nextstate:
-		states[state_id].nextstate = new_nextstate[state_id]
+		file.states[state_id].nextstate = new_nextstate[state_id]
 
 	# There are a couple of decorations which place an exploded player
 	# corpse. When we merge the player's death animation, combine these
 	# with the trooper frame as well, for consistency.
 	if state_id == S_PLAY_XDIE1:
-		mobjinfo[MT_MISC68].spawnstate = S_POSS_XDIE9
-		mobjinfo[MT_MISC69].spawnstate = S_POSS_XDIE9
+		file.mobjinfo[MT_MISC68].spawnstate = S_POSS_XDIE9
+		file.mobjinfo[MT_MISC69].spawnstate = S_POSS_XDIE9
 
 def combine_blood_pools(file, mobjtype):
 	"""Reuse the same state for all pool-of-blood decorations.
@@ -122,10 +111,9 @@ def combine_blood_pools(file, mobjtype):
 	Doom has several of these and most people probably won't notice if we
 	just use the same image for all of them.
 	"""
-	mobjinfo = file.array_for_type(mobjinfo_t)
 	# We use S_GIBS since this is hard-coded and used for corpses squashed
 	# under doors.
-	mobjinfo[mobjtype].spawnstate = S_GIBS
+	file.mobjinfo[mobjtype].spawnstate = S_GIBS
 
 def all_green_torches(file, mobjtype):
 	"""Makes all torches green torches.
@@ -143,12 +131,12 @@ def all_green_torches(file, mobjtype):
 		MT_MISC45: (0, S_GTORCHSHRT),  # Short green torch
 		MT_MISC46: (3, S_GTORCHSHRT),  # Short red torch -> Red
 	}
-	mobjinfo = file.array_for_type(mobjinfo_t)
 	if mobjtype in new_sprite:
 		color, state_id = new_sprite[mobjtype]
-		mobjinfo[mobjtype].spawnstate = state_id
-		mobjinfo[mobjtype].flags = (
-			(mobjinfo[mobjtype].flags & ~MF_TRANSLATION) |
+		mobj = file.mobjinfo[mobjtype]
+		mobj.spawnstate = state_id
+		mobj.flags = (
+			(mobj.flags & ~MF_TRANSLATION) |
 			(color << MF_TRANSSHIFT))
 
 def all_green_pillars(file, mobjtype):
@@ -157,46 +145,38 @@ def all_green_pillars(file, mobjtype):
 		MT_MISC34: S_TALLGRNCOL,
 		MT_MISC35: S_SHRTGRNCOL,
 	}
-	mobjinfo = file.array_for_type(mobjinfo_t)
 	if mobjtype in new_sprite:
-		mobjinfo[mobjtype].spawnstate = new_sprite[mobjtype]
+		file.mobjinfo[mobjtype].spawnstate = new_sprite[mobjtype]
 		# We can't reuse the trick that we use above for the
 		# torches since the pillars aren't the right shade of
 		# green to be in the right palette range.
 
 def static_gore_decorations(file, mobjtype):
 	"""Makes gore/corpse decorations static instead of animated."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	states = file.array_for_type(state_t)
-
 	# Twitching impaled body uses non-twitching frame (2 frames):
 	if mobjtype == MT_MISC75:
-		mobjinfo[MT_MISC75].spawnstate = S_DEADSTICK
+		file.mobjinfo[MT_MISC75].spawnstate = S_DEADSTICK
 	else:
-		state_id = mobjinfo[mobjtype].spawnstate
+		state_id = file.mobjinfo[mobjtype].spawnstate
 		# S_HEADCANDLES: Skull pile doesn't flicker (1 frame)
 		# S_HEARTCOL: Beating heart column doesn't beat: 1 frame
 		# S_BLOODYTWITCH: Hanging dude becomes static (3 frames):
-		states[state_id].tics = -1
+		file.states[state_id].tics = -1
 
 def static_evil_eye(file):
 	"""Makes the floating "evil" eye static instead of animated."""
-	states = file.array_for_type(state_t)
 	# Saves 3 frames:
-	states[S_EVILEYE].tics = -1
+	file.states[S_EVILEYE].tics = -1
 
 def simpler_bonus(file, state_id):
 	"""Removes the animation on health bottles/armor helmets."""
-	states = file.array_for_type(state_t)
 	# Health bottle / armor helmet are static (5 frames each). But
 	# we show frame #3 as this looks good when static.
-	states[state_id].tics = -1
-	states[state_id].frame = 3
+	file.states[state_id].tics = -1
+	file.states[state_id].frame = 3
 
 def simpler_powerups(file, state_id):
 	"""Simplifies the animation of powerups."""
-	states = file.array_for_type(state_t)
-
 	new_nextstate = {
 		S_PMAP: S_PMAP,     # 5 frames from automap
 		S_SOUL3: S_SOUL6,   # 2 frames from soulsphere
@@ -205,18 +185,17 @@ def simpler_powerups(file, state_id):
 		S_PINS3: S_PINS,    # 1 frame from invis
 		S_PVIS: S_PVIS,     # 1 frame from lite-amp
 	}
-	states[state_id].nextstate = new_nextstate[state_id]
+	file.states[state_id].nextstate = new_nextstate[state_id]
 
 def no_blinking(file, state_id):
 	"""Makes keys and armor vests static and stop blinking."""
-	states = file.array_for_type(state_t)
-	states[state_id].frame = 32769
-	states[state_id].tics = -1
+	file.states[state_id].frame = 32769
+	file.states[state_id].tics = -1
 
 def squash_resurrect_animations(file, mobjtype):
 	"""Reduces the number of frames in monster resurrection animations."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	states = file.array_for_type(state_t)
+	mobjinfo = file.mobjinfo
+	states = file.states
 	monsters = {
 		MT_POSSESSED: 8,  # POSSI0
 		MT_SHOTGUY: 8,    # SPOSI0
@@ -258,32 +237,28 @@ def squash_resurrect_animations(file, mobjtype):
 
 def no_ss_nazi_resurrection(file):
 	"""Makes the SS Nazi impossible for an Archvile to resurrect."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_WOLFSS].raisestate = S_NULL
+	file.mobjinfo[MT_WOLFSS].raisestate = S_NULL
 
 def blue_arachnotron_plasma_balls(file):
 	"""Makes Arachnotron plasma balls blue like the player's."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_ARACHPLAZ].spawnstate = S_PLASBALL
-	mobjinfo[MT_ARACHPLAZ].deathstate = S_PLASEXP
+	file.mobjinfo[MT_ARACHPLAZ].spawnstate = S_PLASBALL
+	file.mobjinfo[MT_ARACHPLAZ].deathstate = S_PLASEXP
 
 def no_ss_nazi_slop(file):
 	"""Removes SS Nazi xdeathstate animation."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	mobjinfo[MT_WOLFSS].xdeathstate = S_NULL
+	file.mobjinfo[MT_WOLFSS].xdeathstate = S_NULL
 
 def no_ss_nazi(file):
 	"""Replaces the SS Nazi with the Zombieman."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
+	mobjinfo = file.mobjinfo
 	doomednum = mobjinfo[MT_WOLFSS].doomednum
 	mobjinfo[MT_WOLFSS].copy_from(mobjinfo[MT_POSSESSED])
 	mobjinfo[MT_WOLFSS].doomednum = doomednum
 
 def hell_knight_identical_to_baron(file):
 	"""Makes the Hell Knight look identical to the Baron."""
-	mobjinfo = file.array_for_type(mobjinfo_t)
-	knight = mobjinfo[MT_KNIGHT]
-	baron = mobjinfo[MT_BRUISER]
+	knight = file.mobjinfo[MT_KNIGHT]
+	baron = file.mobjinfo[MT_BRUISER]
 	for field in mobjinfo_t.state_fields:
 		setattr(knight, field, getattr(baron, field))
 
