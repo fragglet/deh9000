@@ -40,5 +40,5 @@ for a in range(NUMAMMO):
 	ammodata[a].clipammo = 100000
 	ammodata[a].maxammo = 100000
 
-dehfile.write("suprwep.deh")
+dehfile.save("suprwep.deh")
 

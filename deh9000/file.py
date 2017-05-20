@@ -201,7 +201,7 @@ class DehackedFile(object):
 			result.append("# No difference was found!")
 		return [self.dehacked_header()] + result
 
-	def write(self, filename):
+	def save(self, filename):
 		result_text = "\n\n".join(self.dehacked_diffs())
 		with open(filename, "w") as f:
 			f.write(result_text)

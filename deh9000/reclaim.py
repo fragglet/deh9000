@@ -349,7 +349,7 @@ if __name__ == "__main__":
 			print "    ",
 		print "%s," % s,
 		w += len(s) + 2
-	dehfile.write("simple.deh")
+	dehfile.save("simple.deh")
 
 	with open("simple.deh", "a") as f:
 		f.write("\n\n\n# Free frames:\n")
