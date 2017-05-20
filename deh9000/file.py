@@ -1,4 +1,6 @@
 
+import copy
+
 import c
 import reclaim
 import states_parser
@@ -149,11 +151,17 @@ class StringReplacements(object):
 		return result
 
 class DehackedFile(object):
+	MODULE_VARS = ("ammodata", "miscdata", "mobjinfo", "states",
+	               "S_sfx", "weaponinfo")
+
 	def __init__(self, base_module=tables):
+		# Build up a list of "parts", by copying the tables from
+		# tables.py to use as a base. We make copies of the tables so
+		# that each DehackedFile has its own independently mutable
+		# version.
 		self.parts = []
-		for name in ("ammodata", "miscdata", "mobjinfo",
-		             "states", "S_sfx", "weaponinfo"):
-			obj = getattr(base_module, name)
+		for name in DehackedFile.MODULE_VARS:
+			obj = copy.copy(getattr(base_module, name))
 			self.parts.append(obj)
 			setattr(self, name, obj)
 

@@ -142,6 +142,11 @@ class Struct(object):
 		args, kwargs = self._original_values
 		return type(self)(*args, **kwargs)
 
+	def __copy__(self):
+		result = self.original()
+		result.copy_from(self)
+		return result
+
 	def __repr__(self):
 		return "%s(%s)" % (
 			type(self).__name__,
@@ -242,6 +247,23 @@ class StructArray(object):
 		return self._elements[i]
 	def __getslice__(self, i, j):
 		return self._elements[i:j]
+
+	def copy_from(self, other):
+		assert self._struct_type == other._struct_type, (
+			"Arrays must be of the same type, %r != %r" % (
+				self._struct_type, other._struct_type,
+			))
+		assert len(self) == len(other), (
+			"Arrays must be equal length, %d != %d" % (
+				len(self), len(other),
+			))
+		for i, obj in enumerate(self):
+			obj.copy_from(other[i])
+
+	def __copy__(self):
+		result = self.original()
+		result.copy_from(self)
+		return result
 
 	def __repr__(self):
 		return "c.StructArray(%s, [\n%s\n])" % (
