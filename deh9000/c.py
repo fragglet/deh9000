@@ -236,7 +236,7 @@ class StructArray(object):
 			elif isinstance(el, dict):
 				el = struct_type(**el)
 			elif isinstance(el, struct_type):
-				el = struct_type(el)
+				el = copy.copy(el)
 			else:
 				raise ValueError("%r not of type %r" % (
 					el, struct_type))
