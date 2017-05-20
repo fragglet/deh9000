@@ -151,27 +151,70 @@ class StringReplacements(object):
 		return result
 
 class DehackedFile(object):
-	MODULE_VARS = ("ammodata", "miscdata", "mobjinfo", "states",
-	               "S_sfx", "weaponinfo")
+	"""Class that represents an entire dehacked file.
 
-	def __init__(self, base_module=tables):
+	Each instance of a DehackedFile has a complete copy of all the tables
+	that can be modified in a dehacked file. These are named to match the
+	Doom source code where appropriate:
+
+	  ammodata:   Ammo table              (Dehacked's "Ammo" section)
+	  miscdata:   Miscellaneous variables (Dehacked's "Misc" section)
+	  mobjinfo:   Map objects table       (Dehacked's "Thing" section)
+	  states:     Animations frames       (Dehacked's "Frame" section)
+	  strings:    String replacements     (Dehacked's "Text" section)
+	  S_sfx:      Sound FX table          (Dehacked's "Sound" section)
+	  weaponinfo: Weapons table           (Dehacked's "Weapon" section)
+
+	These can be accessed via properties on DehackedFile and changed, for
+	example:
+
+	  file = deh9000.DehackedFile()
+	  file.strings.HUSTR_1 = "Level 1"
+	  file.mobjinfo[deh9000.MT_POSSESSED].spawnhealth *= 2
+
+	If it is more convenient, it is possible to make a modified version of
+	tables.py and load values from it, eg.
+
+	  import modified_tables
+	  file = deh9000.DehackedFile()
+	  file.load_from_module(modified_tables)
+
+	"""
+	TABLE_MODULE_VARS = ("ammodata", "miscdata", "mobjinfo", "states",
+	                    "S_sfx", "weaponinfo")
+
+	def __init__(self, module=None, base_module=tables):
 		# Build up a list of "parts", by copying the tables from
 		# tables.py to use as a base. We make copies of the tables so
 		# that each DehackedFile has its own independently mutable
 		# version.
 		self.parts = []
-		for name in DehackedFile.MODULE_VARS:
+		for name in DehackedFile.TABLE_MODULE_VARS:
 			obj = copy.copy(getattr(base_module, name))
 			self.parts.append(obj)
 			setattr(self, name, obj)
 
 		self.strings = StringReplacements()
 
+		if module is not None:
+			self.load_from_module(module)
+
 		self.parts.append(CodePointers(self.states))
 		self.parts.append(self.strings)
 
 		self.doom_version = 19
 		self.patch_format = 6
+
+	def load_from_module(self, module):
+		"""Load tables from the given module.
+
+		It is assumed that the given module is a modified version of
+		the tables.py module.
+		"""
+		for name in DehackedFile.TABLE_MODULE_VARS:
+			part = getattr(self, name)
+			table = getattr(module, name)
+			part.copy_from(table)
 
 	def dehacked_header(self):
 		return DEHACKED_HEADER_FORMAT.strip() % {
