@@ -227,17 +227,22 @@ class StructArray(object):
 		if not isinstance(struct_type(), Struct):
 			raise ValueError("%r not a struct type" % (
 				struct_type,))
-		elements = copy.copy(elements)
+		self._struct_type = struct_type
+
+		copied_elements = []
 		for i, el in enumerate(elements):
 			if isinstance(el, (list, tuple)):
-				elements[i] = struct_type(*el)
+				el = struct_type(*el)
 			elif isinstance(el, dict):
-				elements[i] = struct_type(**el)
-			elif not isinstance(el, struct_type):
+				el = struct_type(**el)
+			elif isinstance(el, struct_type):
+				el = struct_type(el)
+			else:
 				raise ValueError("%r not of type %r" % (
 					el, struct_type))
-		self._struct_type = struct_type
-		self._elements = tuple(elements)
+			copied_elements.append(el)
+
+		self._elements = tuple(copied_elements)
 
 	def __iter__(self):
 		return iter(self._elements)

@@ -8,7 +8,7 @@ import strings
 from actions import A_FireCGun, A_FirePlasma
 from mobjs import mobjinfo_t
 from states import state_t
-from states_array import CodePointers
+from states_array import CodePointers, StatesArray
 import tables
 from weapons import weaponinfo_t
 
@@ -282,7 +282,7 @@ class DehackedFile(object):
 		states = self.states
 		# Mark all chains beginning from the hard-coded states. These
 		# are states which are referenced directly in the source code.
-		for state_id in set(state_t.hardcoded_states):
+		for state_id in set(StatesArray.HARDCODED_STATES):
 			marked |= set(states.walk(state_id))
 		# Add all states used by mobjs (referenced from mobjinfo).
 		for mobj_id in range(len(self.mobjinfo)):

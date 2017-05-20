@@ -5,13 +5,38 @@ import dependency.
 """
 import c
 import states_parser
-from states import state_t, S_NULL
+from states import *
 
 class StatesArray(c.StructArray):
 	"""Wrapper around StructArray that adds some extra methods."""
 
+	# These states are hard-coded into the Doom source code - bits
+	# of code jump to these states.
+	HARDCODED_STATES = [
+		# p_enemy.c:A_VileChase
+		S_VILE_HEAL1,
+		# p_enemy.c:A_BrainScream/A_BrainExplode
+		S_BRAINEXPLODE1,
+		# p_map.c:PIT_ChangeSector (crushing bodies under doors)
+		S_GIBS,
+		# p_mobj.c:P_XYMovement; also p_pspr.c
+		S_PLAY,
+		# p_mobj.c:P_SpawnPuff
+		S_PUFF3,
+		# p_mobj.c:P_SpawnBlood
+		S_BLOOD2,
+		S_BLOOD3,
+		# p_pspr.c:(various)
+		S_PLAY_ATK1,
+		S_PLAY_ATK2,
+		S_PLAY_RUN1,
+	]
+
 	def __init__(self, states):
 		super(StatesArray, self).__init__(state_t, states)
+
+	def __copy__(self):
+		return StatesArray(states=self)
 
 	def walk(self, index):
 		"""Iterate over states in sequence starting from given index.

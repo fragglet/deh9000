@@ -7,6 +7,18 @@ found in info.h.
 
 import c
 
+class state_t(c.Struct):
+	DEHACKED_NAME = "Frame"
+
+	sprite    = c.StructField("Sprite number")
+	frame     = c.StructField("Sprite subnumber")
+	tics      = c.StructField("Duration")
+	action    = c.StructField(None)
+	nextstate = c.StructField("Next frame")
+	misc1     = c.StructField("Unknown 1")
+	misc2     = c.StructField("Unknown 2")
+
+
 statenum_t = c.Enum([
 	"S_NULL",
 	"S_LIGHTDONE",
@@ -982,39 +994,4 @@ statenum_t.create_globals(globals())
 # To match the Doom source, but if you're really a Python programmer you
 # probably shouldn't be using this.
 NUMSTATES = len(statenum_t)
-
-
-class state_t(c.Struct):
-	DEHACKED_NAME = "Frame"
-
-	sprite    = c.StructField("Sprite number")
-	frame     = c.StructField("Sprite subnumber")
-	tics      = c.StructField("Duration")
-	action    = c.StructField(None)
-	nextstate = c.StructField("Next frame")
-	misc1     = c.StructField("Unknown 1")
-	misc2     = c.StructField("Unknown 2")
-
-	# These states are hard-coded into the Doom source code - bits
-	# of code jump to these states.
-	hardcoded_states = [
-		# p_enemy.c:A_VileChase
-		S_VILE_HEAL1,
-		# p_enemy.c:A_BrainScream/A_BrainExplode
-		S_BRAINEXPLODE1,
-		# p_map.c:PIT_ChangeSector (crushing bodies under doors)
-		S_GIBS,
-		# p_mobj.c:P_XYMovement; also p_pspr.c
-		S_PLAY,
-		# p_mobj.c:P_SpawnPuff
-		S_PUFF3,
-		# p_mobj.c:P_SpawnBlood
-		S_BLOOD2,
-		S_BLOOD3,
-		# p_pspr.c:(various)
-		S_PLAY_ATK1,
-		S_PLAY_ATK2,
-		S_PLAY_RUN1,
-	]
-
 
