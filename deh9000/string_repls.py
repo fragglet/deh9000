@@ -24,35 +24,35 @@ class StringReplacements(object):
 
 	  s.GOTREDSKULL = "Picked up a pink skull key."
 	"""
-	def __init__(self, strings_module=None, base_strings_module=strings):
+	def __init__(self, module=None, base_module=strings):
 		self._extras = {}
 		# Build a reverse mapping from original string back
 		# to property name.
 		self._properties = set()
 		self._reverse_map = {}
-		for propname in dir(base_strings_module):
-			value = getattr(base_strings_module, propname)
+		for propname in dir(base_module):
+			value = getattr(base_module, propname)
 			if isinstance(value, str):
 				self._reverse_map[value] = propname
 				self._properties.add(propname)
-		# Load strings from base_strings_module (strings.py) and then
+		# Load strings from base_module (strings.py) and then
 		# (optionally) overwrite with strings from a modified version
 		# if one has been provided.
-		self.load_from_module(base_strings_module)
-		if strings_module is not None:
-			self.load_from_module(strings_module)
+		self.load_from_module(base_module)
+		if module is not None:
+			self.load_from_module(module)
 
-	def load_from_module(self, strings_module):
+	def load_from_module(self, module):
 		"""Load strings from the given module.
 
 		It is assumed that the given module is a modified version of
 		the strings.py module.
 		"""
 		# We only overwrite properties that were originally defined
-		# in base_strings_module at instantiation time; others are
+		# in base_module at instantiation time; others are
 		# ignored.
-		for propname in set(dir(strings_module)) & self._properties:
-			value = getattr(strings_module, propname)
+		for propname in set(dir(module)) & self._properties:
+			value = getattr(module, propname)
 			if isinstance(value, str):
 				setattr(self, propname, value)
 
