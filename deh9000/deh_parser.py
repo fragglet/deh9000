@@ -55,8 +55,8 @@ class DehackedInputStream(object):
 		return line
 
 	def exception(self, message):
-		raise DehackedInputStream("%s:%d: %s" % (
-			self.stream.name(),
+		raise DehackedParseException("%s:%d: %s" % (
+			self.stream.name,
 			self.lineno,
 			message,
 		))
@@ -97,7 +97,7 @@ def _parse_line(sections, stream, line):
 			obj.parse_section(stream, **params)
 			break
 	else:
-		stream.exception("syntax not recognized")
+		stream.exception("syntax not recognized: %r" % line)
 
 def parse_dehacked_file(filename, objects):
 	"""Load a dehacked file from the given filename.
