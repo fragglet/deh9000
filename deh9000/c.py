@@ -1,5 +1,6 @@
 """Python types which emulate C types."""
 
+from __future__ import print_function
 import copy
 import re
 
@@ -68,10 +69,10 @@ class Struct(object):
 		xy = Coordinate(20, 30)
 		xy.x = 3
 		xy.y = 5
-		print xy.dehacked_diffs(array_index=99)
+		print(xy.dehacked_diffs(array_index=99))
 
 		xy2 = Coordinate(50, 5)
-		print xy2.dehacked_diffs(xy)
+		print(xy2.dehacked_diffs(xy))
 	"""
 	def __init__(self, *args, **kwargs):
 		# Start with all fields initialized to zero, then override.
@@ -359,10 +360,10 @@ if __name__ == '__main__':
 	xy = Coordinate(20, 30)
 	xy.x = 3
 	xy.y = 5
-	print xy.dehacked_diffs(array_index=99)
+	print(xy.dehacked_diffs(array_index=99))
 
 	xy2 = Coordinate(50, 5)
-	print xy2.dehacked_diffs(xy)
+	print(xy2.dehacked_diffs(xy))
 
 	arr = StructArray(Coordinate, [
 		(0, 0),
@@ -372,5 +373,5 @@ if __name__ == '__main__':
 	])
 	for el in arr:
 		el.x += 50
-	print arr.dehacked_diffs()
+	print(arr.dehacked_diffs())
 

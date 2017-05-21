@@ -6,6 +6,9 @@ in this file are designed to change Doom's states table - usually in subtle
 and hard to notice ways - so that states are freed up for other purposes.
 """
 
+from __future__ import print_function
+import sys
+
 from mobjs import *
 from sprites import *
 from states import *
@@ -336,19 +339,20 @@ if __name__ == "__main__":
 	try:
 		dehfile.reclaim_states(999, debug=True)
 	except Exception as e:
-		print e
+		print(e, file=sys.stderr)
 	freed = dehfile.free_states()
-	print "Reclaim strategies get a maximum of %d states:" % len(freed)
+	print("Reclaim strategies get a maximum of %d states:" % len(freed))
 	w = 0
 	for state_id in sorted(freed):
 		s = statenum_t[state_id]
 		if w + len(s) + 2 >= 76:
-			print
+			print()
 			w = 0
 		if w == 0:
-			print "    ",
-		print "%s," % s,
+			print("    ", end="")
+		print("%s, " % s, end="")
 		w += len(s) + 2
+	print()
 	dehfile.save("simple.deh")
 
 	with open("simple.deh", "a") as f:

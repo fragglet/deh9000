@@ -15,6 +15,7 @@ methods it implements. Furthermore, any values from named capture groups
 matched by the header regexp are passed to the function as named parameters.
 """
 
+from __future__ import print_function
 import re
 import sys
 
@@ -120,9 +121,9 @@ def _parse_stream(sections, stream, strict_mode):
 			warnings.append(e.message)
 
 	if not strict_mode and warnings:
-		sys.stderr.write("Warnings loading dehacked file:\n")
+		print("Warnings loading dehacked file:\n", file=sys.stderr)
 		for w in warnings:
-			sys.stderr.write("%s\n" % w)
+			print("%s\n" % w, file=sys.stderr)
 
 def parse_dehacked_file(filename, objects, strict_mode=False):
 	"""Load a dehacked file from the given filename.

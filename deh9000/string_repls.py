@@ -1,5 +1,7 @@
 
+from __future__ import print_function
 import re
+
 import strings
 
 # Regexp that matches the start of Text sections.
@@ -150,7 +152,7 @@ if __name__ == '__main__':
 	s = StringReplacements()
 	s["hello world"] = "goodbye world"
 	s.HUSTR_E1M1 = "E1M1: Another boring level"
-	print s[strings.HUSTR_E1M1]
+	print(s[strings.HUSTR_E1M1])
 
-	print s.dehacked_diffs()
+	print(s.dehacked_diffs())
 

@@ -79,10 +79,12 @@ alloc_states collection provided, otherwise it is not possible to apply the
 pins.
 """
 
+from __future__ import print_function
+import re
+
 import actions
 from sprites import spritenum_t
 from states import state_t, statenum_t
-import re
 
 # eg. "Spawn:"
 GOTO_LABEL_RE = re.compile(r"\s*(?P<label>\w+)\s*:\s*")
@@ -199,14 +201,14 @@ class _Parser(object):
 	def next_line(self):
 		if not self.more_lines():
 			return ""
-		#print "next line: %r" % self.lines[0]
+		#print("next line: %r" % self.lines[0])
 		return self.lines[0]
 
 	def matches_regexp(self, regexp):
 		line = self.next_line()
 		m = regexp.match(line)
 		if m:
-			#print "%r matches %r" % (line, regexp)
+			#print("%r matches %r" % (line, regexp))
 			self.lines[0] = line[m.end():]
 			return m
 
@@ -539,7 +541,7 @@ if __name__ == '__main__':
 	old_to_new = remap_states(states, tables.states, free_states)
 	labels = {name: old_to_new[i] for name, i in labels.items()}
 	for label, start_id in labels.items():
-		print "Label %r:" % label
+		print("Label %r:" % label)
 		for state_id in tables.states.walk(start_id):
-			print "\t%d: %s" % (state_id, tables.states[state_id])
+			print("\t%d: %s" % (state_id, tables.states[state_id]))
 

@@ -1,5 +1,6 @@
 """Class that represents an entire Dehacked file."""
 
+from __future__ import print_function
 import copy
 
 import c
@@ -150,8 +151,9 @@ class DehackedFile(object):
 				continue
 			func(self, *args)
 			if debug:
-				print "After %s(%s), %d states free" % (
-					func, args, len(self.free_states()))
+				print("After %s(%s), %d states free" % (
+					func, args,
+					len(self.free_states())))
 		else:
 			raise OverflowError(
 				"Couldn't reclaim %d states." % count)
