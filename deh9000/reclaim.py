@@ -356,7 +356,7 @@ if __name__ == "__main__":
 		for i, state_id in enumerate(sorted(freed)):
 			if (i % 10) == 0:
 				f.write("# ")
-			f.write("% 4d," % (state_id + 1))
+			f.write("% 4d," % state_id)
 			if (i % 10) == 9:
 				f.write("\n")
 		f.write("\n\n")
