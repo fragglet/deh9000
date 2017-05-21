@@ -3,6 +3,7 @@
 import copy
 
 import c
+import interactive
 import reclaim
 import states_parser
 import tables
@@ -229,6 +230,9 @@ class DehackedFile(object):
 				if line == "":
 					break
 				self._parse_line(headers, f, line)
+
+	def interactive(self, level=None, args=()):
+		interactive.start_interactive(self, level=level, args=args)
 
 
 if __name__ == "__main__":
