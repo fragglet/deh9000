@@ -169,8 +169,7 @@ class CodePointers(object):
 				to_state = self.states[state_id]
 				break
 		else:
-			# TODO: more specific exception:
-			raise Exception("invalid pointer ID %d" % index)
+			stream.exception("invalid pointer ID %d" % index)
 
 		while True:
 			line = stream.readline()
@@ -178,9 +177,7 @@ class CodePointers(object):
 				break
 			m = POINTER_ASSIGN_RE.match(line)
 			if not m:
-				# TODO: more specific exception:
-				raise Exception("invalid syntax: %r" % (
-					line))
+				stream.exception("invalid syntax: %r" % line)
 			from_id = int(m.groupdict()["frame_num"])
 			to_state.action = self.states[from_id].action
 

@@ -99,13 +99,12 @@ class Struct(object):
 		props = sorted(props, key=lambda x: x[1].order)
 		return [name for name, _ in props]
 
-	def _apply_assignment(self, deh_name, value):
+	def _apply_assignment(self, stream, deh_name, value):
 		try:
 			field = self.deh_field_name(deh_name)
 			setattr(self, field, int(value))
 		except KeyError:
-			# TODO: more specific exception type:
-			raise Exception("parse error: unknown field %r" % (
+			stream.exception("parse error: unknown field %r" % (
 				deh_name))
 
 	def parse_section(self, stream, index="0"):
@@ -121,9 +120,8 @@ class Struct(object):
 				break
 			m = FIELD_ASSIGNMENT_RE.match(line)
 			if not m:
-				# TODO: more specific exception type:
-				raise Exception("parse error: %r" % line)
-			self._apply_assignment(**m.groupdict())
+				stream.exception("parse error: %r" % line)
+			self._apply_assignment(stream, **m.groupdict())
 
 	def copy_from(self, other):
 		"""Copy all field values from another struct.
@@ -329,9 +327,8 @@ class StructArray(object):
 	def parse_section(self, stream, index):
 		index = int(index)
 		if index < 0 or index >= len(self):
-			# TODO: more specific exception type:
-			raise Exception("assignment out of range: %d must be "
-			                "in range 0-%d" % (index, len(self)))
+			stream.exception("assignment out of range: %d must be "
+			                 "in range 0-%d" % (index, len(self)))
 		self[index].parse_section(stream)
 
 	def match_key(self):
