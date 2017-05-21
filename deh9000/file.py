@@ -212,7 +212,7 @@ class DehackedFile(object):
 		with open(filename, "w") as f:
 			f.write(result_text)
 
-	def load(self, filename):
+	def load(self, filename, strict_mode=False):
 		deh_parser.parse_dehacked_file(filename, self.parts + [
 			deh_parser.TopLevelProperty(
 				"Doom version", self, "doom_version", int,
@@ -220,7 +220,7 @@ class DehackedFile(object):
 			deh_parser.TopLevelProperty(
 				"Patch format", self, "patch_format", int,
 			),
-		])
+		], strict_mode=strict_mode)
 
 	def interactive(self, level=None, args=()):
 		interactive.start_interactive(self, level=level, args=args)

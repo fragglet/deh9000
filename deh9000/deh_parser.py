@@ -16,6 +16,7 @@ matched by the header regexp are passed to the function as named parameters.
 """
 
 import re
+import sys
 
 # A dehacked file must start with one of these lines:
 HEADER_LINES = [
@@ -104,7 +105,26 @@ def _parse_line(sections, stream, line):
 	else:
 		stream.exception("syntax not recognized: %r" % line)
 
-def parse_dehacked_file(filename, objects):
+def _parse_stream(sections, stream, strict_mode):
+	_read_header(stream)
+	warnings = []
+	while True:
+		line = stream.readline()
+		if line == "":
+			break
+		try:
+			_parse_line(sections, stream, line)
+		except DehackedParseException as e:
+			if strict_mode:
+				raise
+			warnings.append(e.message)
+
+	if not strict_mode and warnings:
+		sys.stderr.write("Warnings loading dehacked file:\n")
+		for w in warnings:
+			sys.stderr.write("%s\n" % w)
+
+def parse_dehacked_file(filename, objects, strict_mode=False):
 	"""Load a dehacked file from the given filename.
 
 	'objects' is a list of objects which are expected to conform to the
@@ -113,10 +133,5 @@ def parse_dehacked_file(filename, objects):
 	sections = [(o.header_regexp(), o) for o in objects]
 	with open(filename, "r") as f:
 		stream = DehackedInputStream(f)
-		_read_header(stream)
-		while True:
-			line = stream.readline()
-			if line == "":
-				break
-			_parse_line(sections, stream, line)
+		_parse_stream(sections, stream, strict_mode)
 
