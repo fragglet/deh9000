@@ -42,7 +42,7 @@ def _write_patch_file(dehfile):
 	return temp_filename
 
 def start_interactive(dehfile, level=None, args=()):
-	global running_process, atexit_registered
+	global running_process, atexit_registered, start_level
 
 	# We remember the level number if one is provided, so that we can
 	# re-run again and start on the same level again.
