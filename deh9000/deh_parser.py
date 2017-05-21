@@ -121,9 +121,9 @@ def _parse_stream(sections, stream, strict_mode):
 			warnings.append(e.message)
 
 	if not strict_mode and warnings:
-		print("Warnings loading dehacked file:\n", file=sys.stderr)
+		print("Warnings loading dehacked file:", file=sys.stderr)
 		for w in warnings:
-			print("%s\n" % w, file=sys.stderr)
+			print(w, file=sys.stderr)
 
 def parse_dehacked_file(filename, objects, strict_mode=False):
 	"""Load a dehacked file from the given filename.
