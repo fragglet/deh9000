@@ -39,6 +39,10 @@ class mobjinfo_t(c.Struct):
 	                "missilestate", "deathstate", "xdeathstate",
 	                "raisestate")
 
+	# Which fields are references to entries in the S_sfx table?
+	sound_fields = ("seesound", "attacksound", "painsound", "deathsound",
+	                "activesound")
+
 	# Because dehacked things are indexed from 1:
 	def dehacked_header(self, array_index):
 		return "Thing %d" % (array_index + 1)
