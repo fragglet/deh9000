@@ -1,6 +1,13 @@
 """Python types which emulate C types."""
 
 import copy
+import re
+
+# Regexp that matches field assignment lines in dehacked files.
+FIELD_ASSIGNMENT_RE = re.compile(r"\s*(?P<deh_name>\w[\w \#\.\/]+[\w\#])*"
+                                 r"\s*=\s*"
+                                 r"\s*(?P<value>\-?\d+)"
+                                 r"\s*$", re.I)
 
 class Enum(list):
 	"""Wrapper around list that represents a C enum type."""
@@ -78,6 +85,11 @@ class Struct(object):
 		self._original_values = (copy.copy(args), copy.copy(kwargs))
 
 	@classmethod
+	def header_regexp(cls):
+		return re.compile(r"%s\s+(?P<index>\d+)(\s*\(.*\))?\s*$" % (
+			cls.DEHACKED_NAME))
+
+	@classmethod
 	def field_names(cls):
 		props = []
 		for f in dir(cls):
@@ -86,6 +98,32 @@ class Struct(object):
 				props.append((f, value))
 		props = sorted(props, key=lambda x: x[1].order)
 		return [name for name, _ in props]
+
+	def _apply_assignment(self, deh_name, value):
+		try:
+			field = self.deh_field_name(deh_name)
+			setattr(self, field, int(value))
+		except KeyError:
+			# TODO: more specific exception type:
+			raise Exception("parse error: unknown field %r" % (
+				deh_name))
+
+	def parse_section(self, stream, index="0"):
+		"""Parse a section, reading assignments from the given stream.
+
+		It is assumed that each line will be an assignment that
+		conforms to FIELD_ASSIGNMENT_RE. The function will return once
+		an empty line is reached.
+		"""
+		while True:
+			line = stream.readline()
+			if line.strip() == "":
+				break
+			m = FIELD_ASSIGNMENT_RE.match(line)
+			if not m:
+				# TODO: more specific exception type:
+				raise Exception("parse error: %r" % line)
+			self._apply_assignment(**m.groupdict())
 
 	def copy_from(self, other):
 		"""Copy all field values from another struct.
@@ -131,6 +169,15 @@ class Struct(object):
 		"""For the given C field name, get the dehacked name."""
 		prop = getattr(cls, field)
 		return prop.deh_name
+
+	@classmethod
+	def deh_field_name(cls, deh_name):
+		"""For the given dehacked name, get the C field name."""
+		for field in cls.field_names():
+			if cls.field_deh_name(field) == deh_name:
+				return field
+		raise KeyError("%r has no field for name %r" % (
+			type(self).__name__, deh_name))
 
 	def original(self):
 		"""Returns an object of the same type with the original values.
@@ -275,6 +322,17 @@ class StructArray(object):
 			self._struct_type.__name__,
 			"\n".join("\t%r," % x for x in self),
 		)
+
+	def header_regexp(self):
+		return self._struct_type().header_regexp()
+
+	def parse_section(self, stream, index):
+		index = int(index)
+		if index < 0 or index >= len(self):
+			# TODO: more specific exception type:
+			raise Exception("assignment out of range: %d must be "
+			                "in range 0-%d" % (index, len(self)))
+		self[index].parse_section(stream)
 
 	def match_key(self):
 		return (StructArray, self._struct_type)

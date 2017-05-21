@@ -1098,7 +1098,7 @@ states = StatesArray([
 	(SPR_TLP2,32771,4,None,S_TECH2LAMP,0,0)	# S_TECH2LAMP4
 ])
 
-mobjinfo = c.StructArray(mobjinfo_t, [
+mobjinfo = MobjArray([
 	(		# MT_PLAYER
 		-1,		# doomednum
 		S_PLAY,		# spawnstate

@@ -4,8 +4,18 @@ This is really only defined in its own module to avoid a circular
 import dependency.
 """
 import c
+import re
 import states_parser
 from states import *
+
+# Regexp for matching Pointer section headers:
+POINTER_HEADER_RE = re.compile(r"\s*Pointer\s+(?P<index>\d+)"
+                               r"(\s+\(.*\)\s*)?", re.I)
+
+# Pointer sections only have one "field", matched by this:
+POINTER_ASSIGN_RE = re.compile(r"\s*Codep Frame"
+                               r"\s*="
+                               r"\s*(?P<frame_num>\d+)")
 
 class StatesArray(c.StructArray):
 	"""Wrapper around StructArray that adds some extra methods."""
@@ -148,4 +158,29 @@ class CodePointers(object):
 					self._format_diff(ptr_id, state_id))
 		return result
 
+	@classmethod
+	def header_regexp(cls):
+		return POINTER_HEADER_RE
+
+	def parse_section(self, stream, index):
+		index = int(index)
+		for state_id, ptr_id in self._state_to_pointer.items():
+			if ptr_id == index:
+				to_state = self.states[state_id]
+				break
+		else:
+			# TODO: more specific exception:
+			raise Exception("invalid pointer ID %d" % index)
+
+		while True:
+			line = stream.readline()
+			if line.strip() == "":
+				break
+			m = POINTER_ASSIGN_RE.match(line)
+			if not m:
+				# TODO: more specific exception:
+				raise Exception("invalid syntax: %r" % (
+					line))
+			from_id = int(m.groupdict()["frame_num"])
+			to_state.action = self.states[from_id].action
 

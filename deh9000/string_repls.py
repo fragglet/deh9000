@@ -1,5 +1,12 @@
 
+import re
 import strings
+
+# Regexp that matches the start of Text sections.
+TEXT_HEADER_RE = re.compile(r"\s*Text"
+                            r"\s+(?P<from_len>\d+)"
+                            r"\s+(?P<to_len>\d+)"
+                            r"\s*$", re.I)
 
 class StringReplacements(object):
 	"""Class that wraps the functionality of dehacked string replacements.
@@ -128,6 +135,15 @@ class StringReplacements(object):
 			result.append(header + old + new)
 
 		return result
+
+        def header_regexp(cls):
+	        return TEXT_HEADER_RE
+
+	def parse_section(self, stream, from_len, to_len):
+		from_len, to_len = int(from_len), int(to_len)
+		from_text = stream.read(from_len)
+		to_text = stream.read(to_len)
+		self[from_text] = to_text
 
 
 if __name__ == '__main__':

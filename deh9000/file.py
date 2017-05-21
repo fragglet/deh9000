@@ -210,6 +210,26 @@ class DehackedFile(object):
 		with open(filename, "w") as f:
 			f.write(result_text)
 
+	def _parse_line(self, headers, stream, line):
+		for regex, part in headers:
+			m = regex.match(line)
+			if m:
+				params = m.groupdict()
+				part.parse_section(stream, **params)
+				break
+		else:
+			# TODO: Handle these unknown lines properly
+			print "Unknown line: %s" % line
+
+	def load(self, filename):
+		headers = [(p.header_regexp(), p) for p in self.parts]
+		with open(filename, "r") as f:
+			while True:
+				line = f.readline()
+				if line == "":
+					break
+				self._parse_line(headers, f, line)
+
 
 if __name__ == "__main__":
 	f = DehackedFile()

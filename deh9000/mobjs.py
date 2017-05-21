@@ -44,6 +44,20 @@ class mobjinfo_t(c.Struct):
 		return "Thing %d" % (array_index + 1)
 
 
+class MobjArray(c.StructArray):
+	def __init__(self, states):
+		super(MobjArray, self).__init__(mobjinfo_t, states)
+
+	def __copy__(self):
+		return MobjArray(states=self)
+
+	# We need to wrap parse_section() method to patch the array index:
+	def parse_section(self, stream, index):
+		index = int(index) - 1
+		super(MobjArray, self).parse_section(
+			stream, index="%d" % index)
+
+
 FRACUNIT = 1 << 16
 
 MF_SPECIAL = 1
