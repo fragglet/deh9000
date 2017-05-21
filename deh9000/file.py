@@ -3,6 +3,7 @@
 import copy
 
 import c
+import deh_parser
 import interactive
 import reclaim
 import states_parser
@@ -211,25 +212,15 @@ class DehackedFile(object):
 		with open(filename, "w") as f:
 			f.write(result_text)
 
-	def _parse_line(self, headers, stream, line):
-		for regex, part in headers:
-			m = regex.match(line)
-			if m:
-				params = m.groupdict()
-				part.parse_section(stream, **params)
-				break
-		else:
-			# TODO: Handle these unknown lines properly
-			print "Unknown line: %s" % line
-
 	def load(self, filename):
-		headers = [(p.header_regexp(), p) for p in self.parts]
-		with open(filename, "r") as f:
-			while True:
-				line = f.readline()
-				if line == "":
-					break
-				self._parse_line(headers, f, line)
+		deh_parser.parse_dehacked_file(filename, self.parts + [
+			deh_parser.TopLevelProperty(
+				"Doom version", self, "doom_version", int,
+			),
+			deh_parser.TopLevelProperty(
+				"Patch format", self, "patch_format", int,
+			),
+		])
 
 	def interactive(self, level=None, args=()):
 		interactive.start_interactive(self, level=level, args=args)
