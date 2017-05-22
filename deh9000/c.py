@@ -80,10 +80,10 @@ class Struct(object):
 		for f in self.field_names():
 			setattr(self, f, 0)
 		self.set_values(*args, **kwargs)
-
-		# Save a copy of the original values so that we can diff
-		# later, if we want to.
-		self._original_values = (copy.copy(args), copy.copy(kwargs))
+		# The 'original' pointer points back to the original struct
+		# that this instance was copy.copy()d from. By default, the
+		# struct points to itself as the original.
+		self.original = self
 
 	@classmethod
 	def header_regexp(cls):
@@ -178,19 +178,10 @@ class Struct(object):
 		raise KeyError("%r has no field for name %r" % (
 			type(self).__name__, deh_name))
 
-	def original(self):
-		"""Returns an object of the same type with the original values.
-
-		The values set at instantiation time are saved and can
-		be recalled later via this method, which is useful for
-		eg. diffing.
-		"""
-		args, kwargs = self._original_values
-		return type(self)(*args, **kwargs)
-
 	def __copy__(self):
-		result = self.original()
+		result = type(self)()
 		result.copy_from(self)
+		result.original = self.original
 		return result
 
 	def __repr__(self):
@@ -244,8 +235,7 @@ class Struct(object):
 		against the original values from instantiation time. A
 		list of differing field names is returned.
 		"""
-		if other is None:
-			other = self.original()
+		other = other or self.original
 		return [
 			f for f in self.field_names()
 			if getattr(self, f) != getattr(other, f)
@@ -290,6 +280,11 @@ class StructArray(object):
 
 		self._elements = tuple(copied_elements)
 
+		# The 'original' pointer points back to the original array
+		# that this instance was copy.copy()d from. By default, the
+		# array points to itself as the original.
+		self.original = self
+
 	def __iter__(self):
 		return iter(self._elements)
 	def __len__(self):
@@ -312,8 +307,8 @@ class StructArray(object):
 			obj.copy_from(other[i])
 
 	def __copy__(self):
-		result = self.original()
-		result.copy_from(self)
+		result = StructArray(self._struct_type, self)
+		result.original = self.original
 		return result
 
 	def __repr__(self):
@@ -334,10 +329,6 @@ class StructArray(object):
 
 	def match_key(self):
 		return (StructArray, self._struct_type)
-
-	def original(self):
-		return StructArray(self._struct_type,
-		                   [el.original() for el in self])
 
 	def dehacked_diffs(self, other=None):
 		result = []

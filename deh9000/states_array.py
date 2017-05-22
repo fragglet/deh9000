@@ -46,7 +46,9 @@ class StatesArray(c.StructArray):
 		super(StatesArray, self).__init__(state_t, states)
 
 	def __copy__(self):
-		return StatesArray(states=self)
+		result = StatesArray(states=self)
+		result.original = self.original or self
+		return result
 
 	def walk(self, index):
 		"""Iterate over states in sequence starting from given index.
@@ -103,7 +105,7 @@ class CodePointers(object):
 		self.states = states
 		self._state_to_pointer = {}
 		self._action_to_state = {}
-		for state_id, state in enumerate(states.original()):
+		for state_id, state in enumerate(states.original):
 			if state.action is not None:
 				ptr_id = len(self._state_to_pointer)
 				self._state_to_pointer[state_id] = ptr_id
@@ -139,13 +141,11 @@ class CodePointers(object):
 			)
 
 	def dehacked_diffs(self, other=None):
+		other = other or self.states.original
 		self._sanity_check_pointers()
 		result = []
 		for state_id, state in enumerate(self.states):
-			if other is not None:
-				other_state = other[state_id]
-			else:
-				other_state = state.original()
+			other_state = other[state_id]
 			# We need to look up the pointer ID for this state_id.
 			# But Vanilla Dehacked (and certain source ports) only
 			# allows action pointers to be changed in states that

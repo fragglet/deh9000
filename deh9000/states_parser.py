@@ -441,7 +441,7 @@ def _generate_old_to_new(old, new, alloc_states):
 	alloc_action = set()
 	alloc_non_action = set()
 	for state_id in alloc_states:
-		if new[state_id].original().action is not None:
+		if new[state_id].original.action is not None:
 			alloc_action.add(state_id)
 		else:
 			alloc_non_action.add(state_id)
