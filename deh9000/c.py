@@ -3,6 +3,7 @@
 from __future__ import print_function
 import copy
 import re
+import unittest
 
 # Regexp that matches field assignment lines in dehacked files.
 FIELD_ASSIGNMENT_RE = re.compile(r"\s*(?P<deh_name>\w[\w \#\.\/]+[\w\#])*"
@@ -350,27 +351,173 @@ class StructArray(object):
 		return result
 
 
-if __name__ == '__main__':
+class TestStruct(unittest.TestCase):
 	class Coordinate(Struct):
 		DEHACKED_NAME = "Co-ordinate"
-		x = StructField("X Value")
 		y = StructField("Y Value")
+		x = StructField("X Value")
 
-	xy = Coordinate(20, 30)
-	xy.x = 3
-	xy.y = 5
-	print(xy.dehacked_diffs(array_index=99))
+	def test_instantiate(self):
+		# Different styles of instantiation:
+		xy = TestStruct.Coordinate()
+		self.assertEqual(xy.y, 0)
+		self.assertEqual(xy.x, 0)
 
-	xy2 = Coordinate(50, 5)
-	print(xy2.dehacked_diffs(xy))
+		xy = TestStruct.Coordinate(10)
+		self.assertEqual(xy.y, 10)
+		self.assertEqual(xy.x, 0)
 
-	arr = StructArray(Coordinate, [
-		(0, 0),
-		(10, 0),
-		(0, 10),
-		(10, 10),
-	])
-	for el in arr:
-		el.x += 50
-	print(arr.dehacked_diffs())
+		xy = TestStruct.Coordinate(10, 20)
+		self.assertEqual(xy.y, 10)
+		self.assertEqual(xy.x, 20)
 
+		xy = TestStruct.Coordinate(x=123)
+		self.assertEqual(xy.x, 123)
+		self.assertEqual(xy.y, 0)
+
+		xy = TestStruct.Coordinate(x=123, y=456)
+		self.assertEqual(xy.x, 123)
+		self.assertEqual(xy.y, 456)
+
+		xy = TestStruct.Coordinate(123, x=456)
+		self.assertEqual(xy.y, 123)
+		self.assertEqual(xy.x, 456)
+
+	def test_field_names(self):
+		self.assertEqual(TestStruct.Coordinate.field_names(),
+		                 ["y", "x"])
+		xy = TestStruct.Coordinate()
+		self.assertEqual(xy.field_names(), ["y", "x"])
+
+	def test_copy_from(self):
+		xy = TestStruct.Coordinate()
+		self.assertEqual(xy.x, 0)
+		self.assertEqual(xy.y, 0)
+
+		xy2 = TestStruct.Coordinate(10, 20)
+		xy.copy_from(xy2)
+		self.assertEqual(xy.y, 10)
+		self.assertEqual(xy.x, 20)
+
+	def test_clone(self):
+		xy = TestStruct.Coordinate(10, 20)
+		xy2 = copy.copy(xy)
+		# Ensure it really is a copy by trashing the original:
+		xy.x = 99999
+		xy.y = 123123
+		self.assertEqual(xy2.y, 10)
+		self.assertEqual(xy2.x, 20)
+		self.assertEqual(xy2.original, xy)
+
+	def test_dehacked_diffs(self):
+		xy = TestStruct.Coordinate(10, 20)
+		# After copying we compare against the original:
+		xy2 = copy.copy(xy)
+		xy2.x = 99
+		xy2.y = 1000
+		diffs = xy2.dehacked_diffs(array_index=123)
+		self.assertEqual(diffs, ["Co-ordinate 123\n"
+		                         "Y Value = 1000\n"
+		                         "X Value = 99"])
+
+		# Only print fields which have changed:
+		xy2.y = 10
+		diffs = xy2.dehacked_diffs(array_index=123)
+		self.assertEqual(diffs, ["Co-ordinate 123\n"
+		                         "X Value = 99"])
+
+		# We can compare against a different base:
+		xy3 = TestStruct.Coordinate(1000, 99)
+		diffs = xy2.dehacked_diffs(other=xy3, array_index=123)
+		self.assertEqual(diffs, ["Co-ordinate 123\n"
+		                         "Y Value = 10"])
+
+class TestStructArray(unittest.TestCase):
+	def test_init(self):
+		arr = StructArray(TestStruct.Coordinate, [
+			(10,),
+			(30,),
+		])
+		self.assertEqual(len(arr), 2)
+		self.assertEqual(arr[0].y, 10)
+		self.assertEqual(arr[0].x, 0)
+		self.assertEqual(arr[1].y, 30)
+		self.assertEqual(arr[1].x, 0)
+
+		arr = StructArray(TestStruct.Coordinate, [
+			{"y": 10},
+			{"x": 40},
+		])
+		self.assertEqual(len(arr), 2)
+		self.assertEqual(arr[0].y, 10)
+		self.assertEqual(arr[0].x, 0)
+		self.assertEqual(arr[1].y, 0)
+		self.assertEqual(arr[1].x, 40)
+
+		arr = StructArray(TestStruct.Coordinate, [
+			TestStruct.Coordinate(x=20, y=10),
+			TestStruct.Coordinate(x=40, y=30),
+		])
+		self.assertEqual(len(arr), 2)
+		self.assertEqual(arr[0].y, 10)
+		self.assertEqual(arr[0].x, 20)
+		self.assertEqual(arr[1].y, 30)
+		self.assertEqual(arr[1].x, 40)
+
+	def test_copy_from(self):
+		arr = StructArray(TestStruct.Coordinate, [
+			(),
+			(),
+		])
+		arr2 = StructArray(TestStruct.Coordinate, [
+			(10, 20),
+			(30, 40),
+		])
+		arr.copy_from(arr2)
+		self.assertEqual(arr[0].y, 10)
+		self.assertEqual(arr[0].x, 20)
+		self.assertEqual(arr[1].y, 30)
+		self.assertEqual(arr[1].x, 40)
+
+	def test_clone(self):
+		arr = StructArray(TestStruct.Coordinate, [
+			(10, 20),
+			(30, 40),
+		])
+		arr2 = copy.copy(arr)
+		# Trash the original array to ensure it's really a copy:
+		arr[0].x = 0; arr[0].y = 0
+		arr[1].x = 0; arr[1].y = 0
+
+		self.assertEqual(arr2[0].y, 10)
+		self.assertEqual(arr2[0].x, 20)
+		self.assertEqual(arr2[1].y, 30)
+		self.assertEqual(arr2[1].x, 40)
+
+	def test_dehacked_diffs(self):
+		arr = StructArray(TestStruct.Coordinate, [
+			(10, 20),
+			(30, 40),
+		])
+		arr2 = copy.copy(arr)
+		arr2[0].x = 999
+		arr2[1].y = 1234
+		self.assertEqual(arr2.dehacked_diffs(), [
+			'Co-ordinate 0\nX Value = 999',
+			'Co-ordinate 1\nY Value = 1234',
+		])
+
+		# We can diff against a different array than the original, if
+		# requested.
+		arr3 = StructArray(TestStruct.Coordinate, [
+			(50, 999),
+			(1234, 65),
+		])
+		self.assertEqual(arr2.dehacked_diffs(other=arr3), [
+			'Co-ordinate 0\nY Value = 10',
+			'Co-ordinate 1\nX Value = 40',
+		])
+
+
+if __name__ == '__main__':
+	unittest.main()
