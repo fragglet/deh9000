@@ -1,6 +1,7 @@
 
 from __future__ import print_function
 import re
+import unittest
 
 import strings
 
@@ -148,11 +149,62 @@ class StringReplacements(object):
 		self[from_text] = to_text
 
 
-if __name__ == '__main__':
-	s = StringReplacements()
-	s["hello world"] = "goodbye world"
-	s.HUSTR_E1M1 = "E1M1: Another boring level"
-	print(s[strings.HUSTR_E1M1])
+class TestStringReplacements(unittest.TestCase):
+	def test_changes(self):
+		s = StringReplacements()
 
-	print(s.dehacked_diffs())
+		# Change via property:
+		self.assertIn("E1M1: Hangar", s)
+		s.HUSTR_E1M1 = "hi there!"
+		self.assertEqual(s.HUSTR_E1M1, "hi there!")
+		self.assertEqual(s["E1M1: Hangar"], "hi there!")
+
+		# Change via index:
+		self.assertIn("E1M2: Nuclear Plant", s)
+		s["E1M2: Nuclear Plant"] = "more dooms"
+		self.assertEqual(s.HUSTR_E1M2, "more dooms")
+		self.assertEqual(s["E1M2: Nuclear Plant"], "more dooms")
+
+		# Not in the standard set of strings:
+		self.assertNotIn("arglebargle", s)
+		s["arglebargle"] = "blargh"
+		self.assertEqual(s["arglebargle"], "blargh")
+		self.assertIn("arglebargle", s)
+
+	def test_iterate(self):
+		s = StringReplacements()
+
+		s.HUSTR_E1M1 = "hi there!"
+		s["E1M2: Nuclear Plant"] = "more dooms"
+		s["arglebargle"] = "blargh"
+
+		expected = (
+			("E1M1: Hangar", "hi there!"),
+			("E1M2: Nuclear Plant", "more dooms"),
+			("arglebargle", "blargh"),
+		)
+		items = s.items()
+		for x in expected:
+			self.assertIn(x, items)
+
+	def test_unset_property(self):
+		"""Unset strings map to themselves."""
+		s = StringReplacements()
+		self.assertEqual(s["asdfasdf"], "asdfasdf")
+
+	def test_dehacked_diffs(self):
+		s = StringReplacements()
+
+		s.HUSTR_E1M1 = "hi there!"
+		s["E1M2: Nuclear Plant"] = "more dooms"
+		s["arglebargle"] = "blargh"
+
+		self.assertEqual(set(s.dehacked_diffs()), {
+			'Text 19 10\nE1M2: Nuclear Plantmore dooms',
+			'Text 12 9\nE1M1: Hangarhi there!',
+			'Text 11 6\narglebargleblargh',
+		})
+
+if __name__ == '__main__':
+	unittest.main()
 
