@@ -1098,7 +1098,7 @@ states = StatesArray(state_t, [
 	(SPR_TLP2,32771,4,None,S_TECH2LAMP,0,0)	# S_TECH2LAMP4
 ])
 
-mobjinfo = MobjArray(mobj_t, [
+mobjinfo = c.StructArray(mobjinfo_t, [
 	(		# MT_PLAYER
 		-1,		# doomednum
 		S_PLAY,		# spawnstate
@@ -4660,7 +4660,7 @@ mobjinfo = MobjArray(mobj_t, [
 		MF_NOBLOCKMAP,		# flags
 		S_NULL		# raisestate
 	)
-])
+], one_indexed=True)
 
 S_sfx = c.StructArray(sfxinfo_t, [
 	("none", 0,  0, 0, -1, -1),

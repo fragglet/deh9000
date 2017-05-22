@@ -43,19 +43,6 @@ class mobjinfo_t(c.Struct):
 	sound_fields = ("seesound", "attacksound", "painsound", "deathsound",
 	                "activesound")
 
-	# Because dehacked things are indexed from 1:
-	def dehacked_header(self, array_index):
-		return "Thing %d" % (array_index + 1)
-
-
-class MobjArray(c.StructArray):
-
-	# We need to wrap parse_section() method to patch the array index:
-	def parse_section(self, stream, index):
-		index = int(index) - 1
-		super(MobjArray, self).parse_section(
-			stream, index="%d" % index)
-
 
 FRACUNIT = 1 << 16
 

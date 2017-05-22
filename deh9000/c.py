@@ -74,6 +74,7 @@ class Struct(object):
 		xy2 = Coordinate(50, 5)
 		print(xy2.dehacked_diffs(xy))
 	"""
+
 	def __init__(self, *args, **kwargs):
 		# Start with all fields initialized to zero, then override.
 		self._fields = {}
@@ -259,11 +260,12 @@ class StructArray(object):
 	  ])
 	"""
 
-	def __init__(self, struct_type, elements):
+	def __init__(self, struct_type, elements, one_indexed=False):
 		if not isinstance(struct_type(), Struct):
 			raise ValueError("%r not a struct type" % (
 				struct_type,))
 		self._struct_type = struct_type
+		self.one_indexed = one_indexed
 
 		copied_elements = []
 		for i, el in enumerate(elements):
@@ -307,7 +309,8 @@ class StructArray(object):
 			obj.copy_from(other[i])
 
 	def __copy__(self):
-		result = StructArray(self._struct_type, self)
+		result = StructArray(self._struct_type, self,
+		                     one_indexed=self.one_indexed)
 		result.original = self.original
 		return result
 
@@ -322,6 +325,8 @@ class StructArray(object):
 
 	def parse_section(self, stream, index):
 		index = int(index)
+		if self.one_indexed:
+			index -= 1
 		if index < 0 or index >= len(self):
 			stream.exception("assignment out of range: %d must be "
 			                 "in range 0-%d" % (index, len(self)))
@@ -337,8 +342,11 @@ class StructArray(object):
 				other_el = other[i]
 			else:
 				other_el = None
-			result.extend(el.dehacked_diffs(other_el,
-			                                array_index=i))
+			array_index = i
+			if self.one_indexed:
+				array_index += 1
+			result.extend(el.dehacked_diffs(
+				other_el, array_index=array_index))
 		return result
 
 
