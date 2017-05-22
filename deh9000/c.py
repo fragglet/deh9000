@@ -309,8 +309,8 @@ class StructArray(object):
 			obj.copy_from(other[i])
 
 	def __copy__(self):
-		result = StructArray(self._struct_type, self,
-		                     one_indexed=self.one_indexed)
+		result = type(self)(self._struct_type, self,
+		                    one_indexed=self.one_indexed)
 		result.original = self.original
 		return result
 
