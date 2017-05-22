@@ -49,13 +49,6 @@ class mobjinfo_t(c.Struct):
 
 
 class MobjArray(c.StructArray):
-	def __init__(self, states):
-		super(MobjArray, self).__init__(mobjinfo_t, states)
-
-	def __copy__(self):
-		result = MobjArray(states=self)
-		result.original = self.original or self
-		return result
 
 	# We need to wrap parse_section() method to patch the array index:
 	def parse_section(self, stream, index):

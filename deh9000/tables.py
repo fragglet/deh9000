@@ -128,7 +128,7 @@ weaponinfo = c.StructArray(weaponinfo_t, [
 	),
 ])
 
-states = StatesArray([
+states = StatesArray(state_t, [
 	(SPR_TROO,0,-1,None,S_NULL,0,0),	# S_NULL
 	(SPR_SHTG,4,0,A_Light0,S_NULL,0,0),	# S_LIGHTDONE
 	(SPR_PUNG,0,1,A_WeaponReady,S_PUNCH,0,0),	# S_PUNCH
@@ -1098,7 +1098,7 @@ states = StatesArray([
 	(SPR_TLP2,32771,4,None,S_TECH2LAMP,0,0)	# S_TECH2LAMP4
 ])
 
-mobjinfo = MobjArray([
+mobjinfo = MobjArray(mobj_t, [
 	(		# MT_PLAYER
 		-1,		# doomednum
 		S_PLAY,		# spawnstate

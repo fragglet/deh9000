@@ -42,14 +42,6 @@ class StatesArray(c.StructArray):
 		S_PLAY_RUN1,
 	]
 
-	def __init__(self, states):
-		super(StatesArray, self).__init__(state_t, states)
-
-	def __copy__(self):
-		result = StatesArray(states=self)
-		result.original = self.original or self
-		return result
-
 	def walk(self, index):
 		"""Iterate over states in sequence starting from given index.
 
