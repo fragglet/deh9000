@@ -2,6 +2,9 @@
 
 from __future__ import print_function
 import copy
+import os
+import tempfile
+import unittest
 
 import c
 import deh_parser
@@ -13,7 +16,7 @@ import tables
 from actions import A_FireCGun, A_FirePlasma
 from ammo import am_noammo
 from mobjs import mobjinfo_t
-from states import state_t, S_PISTOL2, S_PISTOL4
+from states import *
 from states_array import CodePointers, StatesArray
 from string_repls import StringReplacements
 from weapons import weaponinfo_t, wp_pistol
@@ -228,15 +231,119 @@ class DehackedFile(object):
 		interactive.start_interactive(self, level=level, args=args)
 
 
+TEST_DEHACKED_FILE="""
+Patch File for DeHackEd v3.0
+
+# Note: Use the pound sign ('#') to start comment lines.
+
+Doom version = 19
+Patch format = 5
+
+Ammo 0
+Max ammo = 400
+
+Misc 0
+Initial Health = 15
+
+Thing 2
+Hit points = 200
+
+Frame 14
+Duration = 0
+Next frame = 16
+
+Sound 1
+Value = 32
+
+Weapon 1
+Ammo type = 5
+
+Text 12 11
+E1M1: HangarFirst level
+
+Text 19 12
+E1M2: Nuclear PlantSecond level
+"""
+
+class TestDehackedFile(unittest.TestCase):
+	def test_save(self):
+		dehfile = DehackedFile()
+		dehfile.patch_format = 5
+		dehfile.ammodata[0].maxammo *= 2
+		dehfile.miscdata.initial_health = 15
+		dehfile.mobjinfo[1].spawnhealth *= 10
+		dehfile.states[S_PISTOL2].tics = 0
+		dehfile.states[S_PISTOL2].nextstate = S_PISTOL4
+		dehfile.strings["E1M1: Hangar"] = "First level"
+		dehfile.strings.HUSTR_E1M2 = "Second level"
+		dehfile.S_sfx[1].priority = 32
+		dehfile.weaponinfo[wp_pistol].ammo = am_noammo
+		path = os.path.join(tempfile.mkdtemp(), "test.deh")
+		dehfile.save(path)
+
+		with open(path) as f:
+			contents = f.read()
+			self.assertEqual(contents.strip(),
+			                 TEST_DEHACKED_FILE.strip())
+
+	def test_load(self):
+		f = tempfile.NamedTemporaryFile(suffix=".deh", delete=False)
+		f.write(TEST_DEHACKED_FILE.strip())
+		f.close()
+
+		dehfile = DehackedFile()
+		dehfile.load(f.name)
+
+		self.assertEqual(dehfile.patch_format, 5)
+		self.assertEqual(dehfile.ammodata[0].maxammo, 400)
+                self.assertEqual(dehfile.miscdata.initial_health, 15)
+                self.assertEqual(dehfile.mobjinfo[1].spawnhealth, 200)
+                self.assertEqual(dehfile.states[S_PISTOL2].tics, 0)
+                self.assertEqual(dehfile.states[S_PISTOL2].nextstate,
+		                 S_PISTOL4)
+                self.assertEqual(dehfile.strings.HUSTR_E1M1, "First level")
+		self.assertEqual(dehfile.strings["E1M1: Hangar"],
+		                 "First level")
+		self.assertEqual(dehfile.strings.HUSTR_E1M2, "Second level")
+                self.assertEqual(dehfile.S_sfx[1].priority, 32)
+                self.assertEqual(dehfile.weaponinfo[wp_pistol].ammo, am_noammo)
+
+		os.unlink(f.name)
+
+	def test_free_states(self):
+		dehfile = DehackedFile()
+
+		# These states are unused in Doom's states table:
+		expected = {45, 892, 893, 46, 887}
+		states = dehfile.free_states()
+		self.assertEqual(set(states), expected)
+
+		# Modifying monster states frees up more states:
+		dehfile.states[S_POSS_DIE3].nextstate = S_POSS_DIE5
+		expected.add(S_POSS_DIE4)
+		states = dehfile.free_states()
+		self.assertEqual(set(states), expected)
+
+		# We can also modify gun states:
+		dehfile.states[S_SGUN4].nextstate = S_SGUN6
+		expected.add(S_SGUN5)
+		states = dehfile.free_states()
+		self.assertEqual(set(states), expected)
+
+	def test_reclaim_states(self):
+		dehfile = DehackedFile()
+		states = dehfile.free_states()
+		self.assertLess(len(states), 50)
+
+		# Reclaim some states to use automatically.
+		states = dehfile.reclaim_states(50)
+		self.assertGreaterEqual(len(states), 50)
+
+		# reclaim_states() result is practically the same as the
+		# free_states() result.
+		self.assertEqual(set(states), set(dehfile.free_states()))
+
+
 if __name__ == "__main__":
-	f = DehackedFile()
-	f.ammodata[0].maxammo *= 2
-	f.miscdata.initial_health = 15
-	f.mobjinfo[1].spawnhealth *= 10
-	f.states[S_PISTOL2].tics = 0
-	f.states[S_PISTOL2].nextstate = S_PISTOL4
-	f.strings.HUSTR_E1M1 = "First level"
-	f.S_sfx[1].priority = 32
-	f.weaponinfo[wp_pistol].ammo = am_noammo
-	f.save("test.deh")
+	unittest.main()
 
