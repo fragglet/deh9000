@@ -20,7 +20,6 @@ from states import *
 from states_array import CodePointers, StatesArray
 from string_repls import StringReplacements
 from weapons import weaponinfo_t, wp_pistol
-from weapons import wp_pistol
 
 
 DEHACKED_HEADER_FORMAT = """
