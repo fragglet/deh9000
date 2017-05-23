@@ -81,10 +81,13 @@ pins.
 
 from __future__ import print_function
 import re
+import unittest
 
+import c
 import actions
-from sprites import spritenum_t
-from states import state_t, statenum_t
+from actions import *
+from sprites import *
+from states import state_t, statenum_t, S_BFGEXP
 
 # eg. "Spawn:"
 GOTO_LABEL_RE = re.compile(r"\s*(?P<label>\w+)\s*:\s*")
@@ -186,7 +189,7 @@ def construct_states(params):
 
 class _Parser(object):
 	def __init__(self):
-		self.states = [state_t()]
+		self.states = [state_t(action=None)]
 		self.state_labels = {}
 		self.previous_state_id = -1
 		self.loop_start_id = -1
@@ -494,54 +497,153 @@ def remap_states(old, new, alloc_states):
 
 	return old_to_new
 
-if __name__ == '__main__':
-	states, labels = parse("""
-	# This is the spawn state:
-	Spawn:
-		TROO AB 10 A_Look
-		Loop
-	See:
-		TROO AABBCCDD 3 A_Chase
-		loop
-	Melee:
-	Missile:
-		TROO EF 8 A_FaceTarget
-		TROO G 6 A_TroopAttack
-		goto S_CYBER_RUN3
-	# Ouch! That hurt!
-	Pain:
-		TROO H 2
-		TROO H 2 A_Pain
-		Goto 456
-	Death:
-		TROO I 8
-		TROO J 8 A_Scream
-	Pin(S_BFGEXP):
-		TROO K 6
-	Pin(199):
-		TROO L 6 A_Fall
-		TROO M -1
-		Stop
-	XDeath:
-		TROO N 5
-		TROO O 5 A_XScream
-		TROO P 5
-		TROO Q 5 A_Fall
-		TROO RST 5
-		TROO U -1
-		Stop
-	Raise:
-		TROO MLKJI 8
-		Goto See
-	""")
 
-	# Copy parsed states into table.
-	import tables
-	free_states = range(100, 200)
-	old_to_new = remap_states(states, tables.states, free_states)
-	labels = {name: old_to_new[i] for name, i in labels.items()}
-	for label, start_id in labels.items():
-		print("Label %r:" % label)
-		for state_id in tables.states.walk(start_id):
-			print("\t%d: %s" % (state_id, tables.states[state_id]))
+class TestParser(unittest.TestCase):
+	TEST_INPUT = """
+		# This is the spawn state:
+		Spawn:
+			TROO AB 10 A_Look
+			Loop
+		See:
+			TROO AABBCCDD 3 A_Chase
+			loop
+		Melee:
+		Missile:
+			TROO EF 8 A_FaceTarget
+			TROO G 6 A_TroopAttack
+			goto S_CYBER_RUN3
+		# Ouch! That hurt!
+		Pain:
+			TROO H 2
+			TROO H 2 A_Pain
+			Goto 456
+		Death:
+			TROO I 8 Bright
+			TROO J 8 Bright A_Scream
+		Pin(S_BFGEXP):
+			TROO K 6
+		Pin(199):
+			TROO L 6 A_Fall
+			TROO M -1
+			Stop
+		XDeath:
+			TROO N 5
+			TROO O 5 A_XScream
+			TROO P 5
+			TROO Q 5 A_Fall
+			TROO RST 5
+			TROO U -1
+			Stop
+		Raise:
+			TROO MLKJI 8
+			Goto See
+	"""
+
+	def test_parse(self):
+		expected = c.StructArray(state_t, [
+		(SPR_TROO,  0,  0, None,            0),  #  0
+		(SPR_TROO,  0, 10, A_Look,          2),  #  1 Spawn:
+		(SPR_TROO,  1, 10, A_Look,          1),  #  2 Loop
+
+		(SPR_TROO,  0,  3, A_Chase,         4),  #  3 See:
+		(SPR_TROO,  0,  3, A_Chase,         5),  #  4
+		(SPR_TROO,  1,  3, A_Chase,         6),  #  5
+		(SPR_TROO,  1,  3, A_Chase,         7),  #  6
+		(SPR_TROO,  2,  3, A_Chase,         8),  #  7
+		(SPR_TROO,  2,  3, A_Chase,         9),  #  8
+		(SPR_TROO,  3,  3, A_Chase,        10),  #  9
+		(SPR_TROO,  3,  3, A_Chase,         3),  # 10 Loop
+
+		(SPR_TROO,  4,  8, A_FaceTarget,   12),  # 11 Melee:
+		(SPR_TROO,  5,  8, A_FaceTarget,   13),  # 12
+		(SPR_TROO,  6,  6, A_TroopAttack, 678),  # 13 Goto S_CYBER_RUN3
+
+		(SPR_TROO,  7,  2, None,           15),  # 14 Pain:
+		(SPR_TROO,  7,  2, A_Pain,        456),  # 15 Goto 456
+
+		(SPR_TROO, 8|32768,  8, None,      17),  # 16 Death:
+		(SPR_TROO, 9|32768,  8, A_Scream,  18),  # 17
+		(SPR_TROO,      10,  6, None,      19),  # 18
+		(SPR_TROO,      11,  6, A_Fall,    20),  # 19
+		(SPR_TROO,      12, -1, None,       0),  # 20 Stop
+
+		(SPR_TROO, 13,  5, None,           22),  # 21 XDeath:
+		(SPR_TROO, 14,  5, A_XScream,      23),  # 22
+		(SPR_TROO, 15,  5, None,           24),  # 23
+		(SPR_TROO, 16,  5, A_Fall,         25),  # 24
+		(SPR_TROO, 17,  5, None,           26),  # 25
+		(SPR_TROO, 18,  5, None,           27),  # 26
+		(SPR_TROO, 19,  5, None,           28),  # 27
+		(SPR_TROO, 20, -1, None,            0),  # 28 Stop
+
+		(SPR_TROO, 12,  8, None,           30),  # 29 Raise:
+		(SPR_TROO, 11,  8, None,           31),  # 30
+		(SPR_TROO, 10,  8, None,           32),  # 31
+		(SPR_TROO,  9,  8, None,           33),  # 32
+		(SPR_TROO,  8,  8, None,            3),  # 33 Goto See
+		])
+
+		states, _ = parse(TestParser.TEST_INPUT)
+		self.assertEqual(len(states), len(expected))
+
+		for i, got in enumerate(states):
+			want = expected[i]
+			msg = "mismatch in states[%d]" % i
+			self.assertEqual(want.sprite, got.sprite, msg=msg)
+			self.assertEqual(want.frame, got.frame, msg=msg)
+			self.assertEqual(want.tics, got.tics, msg=msg)
+			self.assertEqual(want.action, got.action, msg=msg)
+			self.assertEqual(want.nextstate, got.nextstate,
+			                 msg=msg)
+
+	def test_labels(self):
+		expected = {
+			"Spawn":    1,
+			"See":      3,
+			"Melee":   11,
+			"Missile": 11,
+			"Pain":    14,
+			"Death":   16,
+			"XDeath":  21,
+			"Raise":   29,
+
+			"spawnstate":    1,
+			"seestate":      3,
+			"meleestate":   11,
+			"missilestate": 11,
+			"painstate":    14,
+			"deathstate":   16,
+			"xdeathstate":  21,
+			"raisestate":   29,
+		}
+		_, labels = parse(TestParser.TEST_INPUT)
+		self.assertEqual(labels, expected)
+
+	def test_no_remap(self):
+		no_remap_states = {13, 15}
+		states, _ = parse(TestParser.TEST_INPUT)
+		for state_id, state in enumerate(states):
+			if state_id in no_remap_states:
+				self.assertTrue(state.no_remap_nextstate)
+			else:
+				self.assertFalse(
+					hasattr(state, "no_remap_nextstate"))
+
+	def test_pins(self):
+		pins = {
+			18: S_BFGEXP,
+			19: 199,
+		}
+		states, _ = parse(TestParser.TEST_INPUT)
+		for state_id, state in enumerate(states):
+			if state_id in pins:
+				self.assertEquals(state.pin_state_id,
+				                  pins[state_id])
+			else:
+				self.assertFalse(
+					hasattr(state, "pin_state_id"))
+
+
+if __name__ == "__main__":
+	unittest.main()
 
