@@ -8,6 +8,7 @@ to the method will terminate and restart the source port with new values.
 
 import atexit
 import os
+import shlex
 import subprocess
 import tempfile
 
@@ -22,7 +23,8 @@ ARGS = ["-window", "-nofullscreen", "-nograbmouse"]
 running_process = None
 temp_filename = None
 atexit_registered = False
-start_level = (1, 1)
+saved_args = ()
+saved_level = (1, 1)
 
 def _stop_process():
 	global running_process
@@ -41,13 +43,20 @@ def _write_patch_file(dehfile):
 	dehfile.save(temp_filename)
 	return temp_filename
 
-def start_interactive(dehfile, level=None, args=()):
-	global running_process, atexit_registered, start_level
+def start_interactive(dehfile, args=None, level=None):
+	global running_process, atexit_registered, saved_args, saved_level
 
-	# We remember the level number if one is provided, so that we can
-	# re-run again and start on the same level again.
+	# Arguments can be provided as a list or just as a string. If a string
+	# then use shlex to parse into a list.
+	if isinstance(args, str):
+		args = shlex.split(args)
+
+	# Remember arguments so that if we are invoked again we restart with
+	# the same arguments.
 	if level is not None:
-		start_level = level
+		saved_level = level
+	if args is not None:
+		saved_args = args
 
 	# Terminate process with SIGHUP if it is already running:
 	_stop_process()
@@ -59,13 +68,13 @@ def start_interactive(dehfile, level=None, args=()):
 		atexit_registered = True
 
 	full_args = [EXE, "-deh", _write_patch_file(dehfile)]
-	full_args.extend(args)
+	full_args.extend(saved_args)
 	full_args.extend(ARGS)
 	full_args.append("-warp")
-	if isinstance(start_level, tuple):
-		full_args.extend([str(start_level[0]), str(start_level[1])])
+	if isinstance(saved_level, tuple):
+		full_args.extend([str(saved_level[0]), str(saved_level[1])])
 	else:
-		full_args.extend([str(start_level)])
+		full_args.extend([str(saved_level)])
 
 	running_process = subprocess.Popen(full_args, stdout=subprocess.PIPE)
 	running_process.stdout.close()

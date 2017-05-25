@@ -226,8 +226,16 @@ class DehackedFile(object):
 			),
 		], strict_mode=strict_mode)
 
-	def interactive(self, level=None, args=()):
-		interactive.start_interactive(self, level=level, args=args)
+	def interactive(self, args=None, level=None):
+		"""Start a source port testing this dehacked file.
+
+		If invoked multiple times, the previously launched process is
+		killed. Arguments are also saved so that they only need to be
+		specified once; calling dehfile.interactive() relaunches the
+		game with an updated dehacked patch and using the same
+		arguments as before.
+		"""
+		interactive.start_interactive(self, args=args, level=level)
 
 
 TEST_DEHACKED_FILE="""
