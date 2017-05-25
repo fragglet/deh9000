@@ -21,6 +21,22 @@ class Enum(list):
 		for index, name in enumerate(self):
 			globals[name] = index
 
+class EnumSet(set):
+	"""Wrapper around set for representing a set of enum values.
+
+	This is in practical terms identical to a set of integers, but those
+	values are assumed to be indexes into an Enum and the __repr__ method
+	will represent the values in their symbolic form.
+	"""
+	def __init__(self, enum_type, values):
+		super(EnumSet, self).__init__(values)
+		self.enum_type = enum_type
+
+	def __repr__(self):
+		return "{%s}" % (
+			", ".join(self.enum_type[i] for i in self)
+		)
+
 class StructField(property):
 	"""Helper wrapper around property() for declaring C struct fields.
 

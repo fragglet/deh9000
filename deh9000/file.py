@@ -114,7 +114,7 @@ class DehackedFile(object):
 		for field in mobjinfo_t.state_fields:
 			state_id = getattr(mobj, field)
 			result |= set(states.walk(state_id))
-		return result
+		return c.EnumSet(statenum_t, result)
 
 	def weapon_states(self, weapon_id):
 		"""Returns a set of all states used by the given weapon."""
@@ -125,7 +125,7 @@ class DehackedFile(object):
 		for field in weaponinfo_t.state_fields:
 			state_id = getattr(weapon, field)
 			result |= set(states.walk(state_id))
-		return result
+		return c.EnumSet(statenum_t, result)
 
 	def reclaim_states(self, count, strategies=reclaim.strategies,
 	                   avoid_strategies=(), debug=False):
@@ -186,7 +186,7 @@ class DehackedFile(object):
 				marked |= set(states.walk(second_state_id))
 		# Make a set with all state numbers. What's not marked?
 		allstates = set(range(len(states)))
-		return allstates.difference(marked)
+		return c.EnumSet(statenum_t, allstates.difference(marked))
 
 	def dehacked_diffs(self, other=None):
 		result = []
