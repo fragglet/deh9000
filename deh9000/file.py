@@ -16,6 +16,7 @@ import tables
 from actions import A_FireCGun, A_FirePlasma
 from ammo import am_noammo
 from mobjs import mobjinfo_t
+from sprites import spritenum_t
 from states import *
 from states_array import CodePointers, StatesArray
 from string_repls import StringReplacements
@@ -172,8 +173,7 @@ class DehackedFile(object):
 		for mobj_id in range(len(self.mobjinfo)):
 			marked |= self.mobj_states(mobj_id)
 		# Add all weapon states (referenced from weaponinfo).
-		weaponinfo = self.weaponinfo
-		for weapon_id, weapon in enumerate(weaponinfo):
+		for weapon_id, weapon in enumerate(self.weaponinfo):
 			weaponstates = self.weapon_states(weapon_id)
 			marked |= weaponstates
 			# There is a special case - if any of the states used
@@ -187,6 +187,36 @@ class DehackedFile(object):
 		# Make a set with all state numbers. What's not marked?
 		allstates = set(range(len(states)))
 		return c.EnumSet(statenum_t, allstates.difference(marked))
+
+	def free_sprites(self):
+		"""Returns a set of indexes of unused sprites."""
+		# Iterate over all non-free states and mark sprite numbers.
+		free_states = self.free_states()
+		used_sprites = set()
+		for state_id, state in enumerate(self.states):
+			if state_id not in free_states:
+				used_sprites.add(state.sprite)
+		# Make a set of all sprite numbers. What's not marked?
+		allsprites = set(range(len(spritenum_t)))
+		return c.EnumSet(spritenum_t,
+		                 allsprites.difference(used_sprites))
+
+	def reclaim_sprites(self, spritecount):
+		"""Tries to reclaim sprite numbers.
+
+		This function uses the same reclaim strategies used by the
+		reclaim_states method, but attempts to acquire sprite numbers
+		(indexes into sprnames) instead.
+		"""
+		# TODO: This is just a wrapper around reclaim_states. Not all
+		# strategies lead to sprites being freed, so this is wasteful.
+		statecount = 0
+		while True:
+			free_sprites = self.free_sprites()
+			if len(free_sprites) >= spritecount:
+				return free_sprites
+			states = self.reclaim_states(statecount)
+			statecount = len(states) + 1
 
 	def dehacked_diffs(self, other=None):
 		result = []
@@ -349,6 +379,19 @@ class TestDehackedFile(unittest.TestCase):
 		# reclaim_states() result is practically the same as the
 		# free_states() result.
 		self.assertEqual(set(states), set(dehfile.free_states()))
+
+	def test_reclaim_sprites(self):
+		dehfile = DehackedFile()
+		sprites = dehfile.free_sprites()
+		self.assertLess(len(sprites), 10)
+
+		# Reclaim some sprite numbers to use automatically.
+		sprites = dehfile.reclaim_sprites(10)
+		self.assertGreaterEqual(len(sprites), 10)
+
+		# reclaim_sprites() result is practically the same as the
+		# free_sprites() result.
+		self.assertEqual(set(sprites), set(dehfile.free_sprites()))
 
 
 if __name__ == "__main__":
