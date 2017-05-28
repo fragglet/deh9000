@@ -49,6 +49,8 @@ class StatesArray(c.StructArray):
 		S_PLAY_ATK1,
 		S_PLAY_ATK2,
 		S_PLAY_RUN1,
+		# This state cannot be modified by dehacked (causes an overrun).
+		S_TECH2LAMP4,
 	]
 
 	def walk(self, index):
