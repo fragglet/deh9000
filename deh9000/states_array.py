@@ -8,6 +8,7 @@ import c
 import re
 import states_parser
 from states import *
+import strings
 
 # Regexp for matching Pointer section headers:
 POINTER_HEADER_RE = re.compile(r"\s*Pointer\s+(?P<index>\d+)"
@@ -20,6 +21,13 @@ POINTER_ASSIGN_RE = re.compile(r"\s*Codep Frame"
 
 class StatesArray(c.StructArray):
 	"""Wrapper around StructArray that adds some extra methods."""
+
+	# The parse() method below needs the list of sprite names to figure
+	# out how sprite names map to sprite numbers. By default we just use
+	# the sprite names array from the strings module, but this will get
+	# overridden by DehackedFile to allow string replacements of sprite
+	# names.
+	sprnames = strings.sprnames
 
 	# These states are hard-coded into the Doom source code - bits
 	# of code jump to these states.
@@ -75,7 +83,7 @@ class StatesArray(c.StructArray):
 		Returned is a dictionary mapping from label name to index of
 		state representing that label.
 		"""
-		states, labels = states_parser.parse(defstr)
+		states, labels = states_parser.parse(defstr, sprnames)
 		old_to_new = states_parser.remap_states(states, self,
 		                                        alloc_states)
 		return {label: old_to_new[state_id]

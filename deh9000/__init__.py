@@ -18,7 +18,7 @@ miscdata = dehfile.miscdata
 mobjinfo = dehfile.mobjinfo
 S_sfx = dehfile.S_sfx
 states = dehfile.states
-sprnames = dehfile.strings.sprnames
+sprnames = dehfile.sprnames
 strings = dehfile.strings
 weaponinfo = dehfile.weaponinfo
 
