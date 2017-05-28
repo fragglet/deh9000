@@ -128,18 +128,11 @@ class DehackedFile(object):
 			result |= set(states.walk(state_id))
 		return c.EnumSet(statenum_t, result)
 
-	def reclaim_states(self, count, strategies=reclaim.strategies,
-	                   avoid_strategies=(), debug=False):
-		"""Tries to reclaim the given number of states.
-
-		This is achieved using reclaim strategies found in reclaim.py
-		to modify the mobjinfo and state tables in subtle ways. The
-		more states requested, the more invasive the changes become.
-		"""
+	def _run_reclaim(self, callback, strategies, avoid_strategies):
+		last_strategy = "(start)"
 		for strategy in strategies:
-			free_states = self.free_states()
-			if len(free_states) >= count:
-				return free_states
+			if callback(last_strategy):
+				return True
 			# User can list strategies to avoid:
 			if strategy in avoid_strategies:
 				continue
@@ -153,13 +146,33 @@ class DehackedFile(object):
 			if func in avoid_strategies:
 				continue
 			func(self, *args)
+			last_strategy = "%s(%s)" % (func, args)
+
+		# Ran out of strategies; did we achieve the goal?
+		return callback(last_strategy)
+
+	def reclaim_states(self, count, strategies=reclaim.strategies,
+	                   avoid_strategies=(), debug=False):
+		"""Tries to reclaim the given number of states.
+
+		This is achieved using reclaim strategies found in reclaim.py
+		to modify the mobjinfo and state tables in subtle ways. The
+		more states requested, the more invasive the changes become.
+		"""
+		def reclaim_callback(last_strategy):
+			states = self.free_states()
 			if debug:
-				print("After %s(%s), %d states free" % (
-					func, args,
-					len(self.free_states())))
-		else:
+				print("After %s, %d states free" % (
+					last_strategy,
+					len(states)))
+			return len(states) >= count
+
+		if not self._run_reclaim(reclaim_callback,
+		                         strategies, avoid_strategies):
 			raise OverflowError(
 				"Couldn't reclaim %d states." % count)
+
+		return self.free_states()
 
 	def free_states(self):
 		"""Returns a set of the indexes of all unreferenced states."""
@@ -201,22 +214,31 @@ class DehackedFile(object):
 		return c.EnumSet(spritenum_t,
 		                 allsprites.difference(used_sprites))
 
-	def reclaim_sprites(self, spritecount):
+	def reclaim_sprites(self, count, strategies=reclaim.strategies,
+	                    avoid_strategies=(), debug=False):
 		"""Tries to reclaim sprite numbers.
 
 		This function uses the same reclaim strategies used by the
 		reclaim_states method, but attempts to acquire sprite numbers
 		(indexes into sprnames) instead.
 		"""
-		# TODO: This is just a wrapper around reclaim_states. Not all
-		# strategies lead to sprites being freed, so this is wasteful.
-		statecount = 0
-		while True:
-			free_sprites = self.free_sprites()
-			if len(free_sprites) >= spritecount:
-				return free_sprites
-			states = self.reclaim_states(statecount)
-			statecount = len(states) + 1
+		def reclaim_callback(last_strategy):
+			sprites = self.free_sprites()
+			if debug:
+				print("After %s, %d sprites free" % (
+					last_strategy,
+					len(sprites)))
+			return len(sprites) >= count
+
+		# TODO: Some strategies free up sprites but not all. This
+		# should only use strategies which do so and avoid the ones
+		# which are not useful.
+		if not self._run_reclaim(reclaim_callback,
+		                         strategies, avoid_strategies):
+			raise OverflowError(
+				"Couldn't reclaim %d sprites." % count)
+
+		return self.free_sprites()
 
 	def dehacked_diffs(self, other=None):
 		result = []
