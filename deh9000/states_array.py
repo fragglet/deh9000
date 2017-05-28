@@ -83,7 +83,7 @@ class StatesArray(c.StructArray):
 		Returned is a dictionary mapping from label name to index of
 		state representing that label.
 		"""
-		states, labels = states_parser.parse(defstr, sprnames)
+		states, labels = states_parser.parse(defstr, self.sprnames)
 		old_to_new = states_parser.remap_states(states, self,
 		                                        alloc_states)
 		return {label: old_to_new[state_id]
@@ -181,4 +181,6 @@ class CodePointers(object):
 				stream.exception("invalid syntax: %r" % line)
 			from_id = int(m.groupdict()["frame_num"])
 			to_state.action = self.states[from_id].action
+
+# TODO: Add tests.
 
