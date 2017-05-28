@@ -95,13 +95,17 @@ class Struct(object):
 	def __init__(self, *args, **kwargs):
 		# Start with all fields initialized to zero, then override.
 		self._fields = {}
-		for f in self.field_names():
-			setattr(self, f, 0)
+		self.clear()
 		self.set_values(*args, **kwargs)
 		# The 'original' pointer points back to the original struct
 		# that this instance was copy.copy()d from. By default, the
 		# struct points to itself as the original.
 		self.original = self
+
+	def clear(self):
+		"""Set all field values to zero."""
+		for f in self.field_names():
+			setattr(self, f, 0)
 
 	@classmethod
 	def header_regexp(cls):
@@ -180,6 +184,17 @@ class Struct(object):
 				raise ValueError("%r has no field %r" % (
 					type(self).__name__, field))
 			setattr(self, field, value)
+
+	def update(self, values):
+		"""Set values from the given dict of values.
+
+		Dictionary keys should correspond to field names; those that
+		do not will be ignored.
+		"""
+		field_names = self.field_names()
+		for k, v in values.items():
+			if k in field_names:
+				setattr(self, k, v)
 
 	@classmethod
 	def field_deh_name(cls, field):
