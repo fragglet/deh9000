@@ -220,8 +220,22 @@ class DehackedFile(object):
 
 		This function uses the same reclaim strategies used by the
 		reclaim_states method, but attempts to acquire sprite numbers
-		(indexes into sprnames) instead.
+		(indexes into sprnames[]) instead.
 		"""
+		# Generator function that runs over all the provided strategies
+		# and yields only those strategies which produce an increase in
+		# the number of sprites. This is achieved by operating on a
+		# separate "clean" DehackedFile instance.
+		def sprite_strategies():
+			f = DehackedFile()
+			free_sprites = f.free_sprites()
+			for strategy in strategies:
+				f._run_reclaim(lambda _: False, [strategy], [])
+				new_free_sprites = f.free_sprites()
+				if len(new_free_sprites) > len(free_sprites):
+					yield strategy
+				free_sprites = new_free_sprites
+
 		def reclaim_callback(last_strategy):
 			sprites = self.free_sprites()
 			if debug:
@@ -230,11 +244,11 @@ class DehackedFile(object):
 					len(sprites)))
 			return len(sprites) >= count
 
-		# TODO: Some strategies free up sprites but not all. This
-		# should only use strategies which do so and avoid the ones
-		# which are not useful.
-		if not self._run_reclaim(reclaim_callback,
-		                         strategies, avoid_strategies):
+		# Run reclaim. The generator object returned by the
+		# sprite_strategies() function above produces the sequence of
+		# strategies to try.
+		if not self._run_reclaim(reclaim_callback, sprite_strategies(),
+		                         avoid_strategies):
 			raise OverflowError(
 				"Couldn't reclaim %d sprites." % count)
 
