@@ -173,6 +173,9 @@ class StringList(object):
 		self.string_repls = string_repls
 		self.original = original
 
+	def __contains__(self, value):
+		return value in list(self)
+
 	def __getitem__(self, index):
 		s = self.original[index]
 		return self.string_repls[s]
@@ -263,6 +266,43 @@ class TestStringReplacements(unittest.TestCase):
 			'Text 12 9\nE1M1: Hangarhi there!',
 			'Text 11 6\narglebargleblargh',
 		})
+
+
+class TestStringList(unittest.TestCase):
+	def setUp(self):
+		self.strings = StringReplacements()
+		self.orig = ["hello", "goodbye", "world", "etc."]
+		self.strlist = StringList(self.strings, self.orig)
+
+	def test_get_set(self):
+		self.assertEqual(self.strlist[0], "hello")
+		self.strlist[0] = "ahoy"
+		self.assertEqual(self.strlist[0], "ahoy")
+		self.assertEqual(self.strings["hello"], "ahoy")
+
+		self.assertEqual(self.strlist[2], "world")
+		self.strings["world"] = "mondo"
+		self.assertEqual(self.strlist[2], "mondo")
+
+	def test_length(self):
+		self.assertEqual(len(self.strlist), len(self.orig))
+
+	def test_copy(self):
+		newvalues = ["one", "two", "three", "four"]
+		self.strlist.copy_from(newvalues)
+		for i, v in enumerate(newvalues):
+			self.assertEqual(self.strlist[i], v)
+			self.assertEqual(self.strings[self.orig[i]], v)
+
+	def test_index(self):
+		self.assertEqual(self.strlist.index("world"), 2)
+		self.assertIn("world", self.strlist)
+		self.assertNotIn("ciao", self.strlist)
+
+		self.strlist[1] = "ciao"
+		self.assertEqual(self.strlist.index("ciao"), 1)
+		self.assertIn("ciao", self.strlist)
+
 
 if __name__ == '__main__':
 	unittest.main()
