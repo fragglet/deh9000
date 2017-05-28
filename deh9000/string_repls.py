@@ -36,15 +36,20 @@ class StringReplacements(object):
 	"""
 	def __init__(self, module=None, base_module=strings):
 		self._extras = {}
+		self._properties = set()
+		self._string_lists = set()
 		# Build a reverse mapping from original string back
 		# to property name.
-		self._properties = set()
 		self._reverse_map = {}
 		for propname in dir(base_module):
 			value = getattr(base_module, propname)
 			if isinstance(value, str):
 				self._reverse_map[value] = propname
 				self._properties.add(propname)
+			elif isinstance(value, (tuple, list)):
+				setattr(self, propname,
+				        StringList(self, value))
+				self._string_lists.add(propname)
 		# Load strings from base_module (strings.py) and then
 		# (optionally) overwrite with strings from a modified version
 		# if one has been provided.
@@ -65,6 +70,12 @@ class StringReplacements(object):
 			value = getattr(module, propname)
 			if isinstance(value, str):
 				setattr(self, propname, value)
+
+		# Update strings lists from module too:
+		for propname in self._string_lists:
+			if hasattr(module, propname):
+				getattr(self, propname).copy_from(
+					getattr(module, propname))
 
 	def __contains__(self, s):
 		return s in self._reverse_map or s in self._extras
@@ -147,6 +158,54 @@ class StringReplacements(object):
 		from_text = stream.read(from_len)
 		to_text = stream.read(to_len)
 		self[from_text] = to_text
+
+
+class StringList(object):
+	"""Class for representing a string list based on StringReplacements.
+
+	This is used for the sprite names list (sprnames) and possibly other
+	lists of strings. An interface similar to the Python list interface is
+	implemented, but nothing is actually stored; instead it is just a
+	facade that stores any changes to its contents as modifications stored
+	in a StringReplacements object.
+	"""
+	def __init__(self, string_repls, original):
+		self.string_repls = string_repls
+		self.original = original
+
+	def __getitem__(self, index):
+		s = self.original[index]
+		return self.string_repls[s]
+
+	def __setitem__(self, index, newvalue):
+		s = self.original[index]
+		self.string_repls[s] = newvalue
+
+	def __len__(self):
+		return len(self.original)
+
+	def __iter__(self):
+		for i in range(len(self)):
+			yield self[i]
+
+	def __repr__(self):
+		return repr(list(self))
+
+	def copy_from(self, strlist):
+		if len(self) != len(strlist):
+			raise ValueError(
+				"list lengths do not match: %d != %d" % (
+					len(self), len(strlist)))
+		for i, v in enumerate(strlist):
+			self[i] = v
+
+	def index(self, value):
+		for i, v in enumerate(self):
+			if v == value:
+				return i
+		else:
+			raise ValueError("%r not found in list" % (
+				value))
 
 
 class TestStringReplacements(unittest.TestCase):
