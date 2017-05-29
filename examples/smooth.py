@@ -10,11 +10,12 @@ from __future__ import print_function
 from deh9000 import *
 
 # We need some additional states; acquire these now.
-dehfile.reclaim_states(50)
+dehfile.reclaim_states(60)
 
 # Rebuild weapons from scratch.
 weaponinfo[wp_fist].clear()
 dehfile.assign_sprites(("PUNG", "PKFS"))
+weaponinfo[wp_fist].ammo = am_noammo
 weaponinfo[wp_fist].update(states.parse(dehfile.free_states(), """
         Ready:
                 PUNG A 1 A_WeaponReady
@@ -36,6 +37,7 @@ weaponinfo[wp_fist].update(states.parse(dehfile.free_states(), """
 
 weaponinfo[wp_pistol].clear()
 dehfile.assign_sprites(("PKPI", "PKPF"))
+weaponinfo[wp_pistol].ammo = am_clip
 weaponinfo[wp_pistol].update(states.parse(dehfile.free_states(), """
         Ready:
                 PKPI A 1 A_WeaponReady
@@ -59,6 +61,7 @@ weaponinfo[wp_pistol].update(states.parse(dehfile.free_states(), """
 
 weaponinfo[wp_shotgun].clear()
 dehfile.assign_sprites(("SHTG", "SHTF", "PKSG"))
+weaponinfo[wp_shotgun].ammo = am_shell
 weaponinfo[wp_shotgun].update(states.parse(dehfile.free_states(), """
         Ready:
                 SHTG A 1 A_WeaponReady
@@ -91,6 +94,7 @@ weaponinfo[wp_shotgun].update(states.parse(dehfile.free_states(), """
 
 weaponinfo[wp_supershotgun].clear()
 dehfile.assign_sprites(("PKS2", "SHT2"))
+weaponinfo[wp_supershotgun].ammo = am_shell
 weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
         Ready:
                 PKS2 A 1 A_WeaponReady
@@ -125,8 +129,41 @@ weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
                 Goto S_LIGHTDONE
 """))
 
+weaponinfo[wp_chaingun].clear()
+dehfile.assign_sprites(("TNT1", "CHGG", "PKCG", "PKCF"))
+weaponinfo[wp_chaingun].ammo = am_clip
+weaponinfo[wp_chaingun].update(states.parse(dehfile.free_states(), """
+        Ready:
+                CHGG A 1 A_WeaponReady
+                Loop
+        Deselect:
+                CHGG A 1 A_Lower
+                Loop
+        Select:
+                CHGG A 1 A_Raise
+                Loop
+        Fire:
+	Pin(S_CHAIN1):
+                PKCG A 1 A_FireCGun
+                PKCG BCD 1
+	Pin(S_CHAIN2):
+                PKCG A 1 A_FireCGun
+                PKCG BCD 1
+                PKCG B 0 A_ReFire
+                Goto Ready
+        Flash:
+	Pin(S_CHAINFLASH1):
+                PKCF A 5 Bright A_Light1
+                Goto S_LIGHTDONE
+	Pin(S_CHAINFLASH2):
+                PKCF B 5 Bright A_Light2
+                Goto S_LIGHTDONE
+
+"""))
+
 weaponinfo[wp_plasma].clear()
 dehfile.assign_sprites(("PLSG", "PLSF", "PKPL", "TNT1"))
+weaponinfo[wp_plasma].ammo = am_cell
 weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
         Ready:
                 PLSG A 1 A_WeaponReady
@@ -164,6 +201,7 @@ weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
 """))
 
 weaponinfo[wp_chainsaw].clear()
+weaponinfo[wp_chainsaw].ammo = am_noammo
 weaponinfo[wp_chainsaw].update(states.parse(dehfile.free_states(), """
         Deselect:
                 SAWG C 1 A_Lower
