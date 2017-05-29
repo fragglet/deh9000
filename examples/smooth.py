@@ -9,28 +9,13 @@ from __future__ import print_function
 
 from deh9000 import *
 
-# Clear all weapons we're replacing first, so we can reclaim their states.
-weaponinfo[wp_fist].clear()
-weaponinfo[wp_pistol].clear()
-weaponinfo[wp_shotgun].clear()
-weaponinfo[wp_supershotgun].clear()
-weaponinfo[wp_plasma].clear()
-weaponinfo[wp_chainsaw].clear()
-state_ids = dehfile.reclaim_states(110)
-state_ids.remove(S_SAW)
-
-# Acquire new sprite names we need.
-new_sprites = ("PKFS", "PUNG", "PKPI", "PKPF", "PKSG", "SHTG", "SHTF",
-               "SHT2", "PKS2", "PKPL", "PLSF", "TNT1", "PLSG", "SAWG")
-
-sprite_ids = list(dehfile.reclaim_sprites(len(new_sprites)))
-for i, name in enumerate(new_sprites):
-	sprite_id = sprite_ids[i]
-	sprnames[sprite_id] = name
+# We need some additional states; acquire these now.
+dehfile.reclaim_states(50)
 
 # Rebuild weapons from scratch.
-
-weaponinfo[wp_fist].update(states.parse(state_ids, """
+weaponinfo[wp_fist].clear()
+dehfile.assign_sprites(("PUNG", "PKFS"))
+weaponinfo[wp_fist].update(states.parse(dehfile.free_states(), """
         Ready:
                 PUNG A 1 A_WeaponReady
                 Loop
@@ -49,7 +34,9 @@ weaponinfo[wp_fist].update(states.parse(state_ids, """
                 Goto Ready
 """))
 
-weaponinfo[wp_pistol].update(states.parse(state_ids, """
+weaponinfo[wp_pistol].clear()
+dehfile.assign_sprites(("PKPI", "PKPF"))
+weaponinfo[wp_pistol].update(states.parse(dehfile.free_states(), """
         Ready:
                 PKPI A 1 A_WeaponReady
                 Loop
@@ -70,7 +57,9 @@ weaponinfo[wp_pistol].update(states.parse(state_ids, """
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_shotgun].update(states.parse(state_ids, """
+weaponinfo[wp_shotgun].clear()
+dehfile.assign_sprites(("SHTG", "SHTF", "PKSG"))
+weaponinfo[wp_shotgun].update(states.parse(dehfile.free_states(), """
         Ready:
                 SHTG A 1 A_WeaponReady
                 Loop
@@ -100,7 +89,9 @@ weaponinfo[wp_shotgun].update(states.parse(state_ids, """
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_supershotgun].update(states.parse(state_ids, """
+weaponinfo[wp_supershotgun].clear()
+dehfile.assign_sprites(("PKS2", "SHT2"))
+weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
         Ready:
                 PKS2 A 1 A_WeaponReady
                 Loop
@@ -134,7 +125,9 @@ weaponinfo[wp_supershotgun].update(states.parse(state_ids, """
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_plasma].update(states.parse(state_ids, """
+weaponinfo[wp_plasma].clear()
+dehfile.assign_sprites(("PLSG", "PLSF", "PKPL", "TNT1"))
+weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
         Ready:
                 PLSG A 1 A_WeaponReady
                 Loop
@@ -170,9 +163,8 @@ weaponinfo[wp_plasma].update(states.parse(state_ids, """
                 Goto S_LIGHTDONE
 """))
 
-state_ids.add(S_SAW)
-
-weaponinfo[wp_chainsaw].update(states.parse(state_ids, """
+weaponinfo[wp_chainsaw].clear()
+weaponinfo[wp_chainsaw].update(states.parse(dehfile.free_states(), """
         Deselect:
                 SAWG C 1 A_Lower
                 Loop
@@ -197,6 +189,8 @@ weaponinfo[wp_chainsaw].update(states.parse(state_ids, """
 
 dehfile.save("smooth.deh")
 
+# Any left over?
+state_ids = dehfile.free_states()
 if state_ids:
 	print("Still have %d states remaining" % len(state_ids))
 
