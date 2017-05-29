@@ -260,6 +260,38 @@ class DehackedFile(object):
 
 		return self.free_sprites()
 
+	def assign_sprites(self, spritenames):
+		"""Ensure that the given sprite names are in sprnames.
+
+		If the sprite names are not in sprnames, they are set there
+		by calling reclaim_sprites() to find unused sprites.
+		Returns a list of sprite indexes corresponding to the list of
+		names requested.
+		"""
+		# This is complicated but: every entry in spritenames fits into
+		# one of three sets:
+		#  'need': not currently in self.sprnames
+		#  'already free': in self.sprnames, but not currently used
+		#  'not free': in self.sprnames, and currently in use
+		free_sprites = self.free_sprites()
+		need = [name for name in spritenames
+		        if name not in self.sprnames]
+		already_free_ids = [spr_id for spr_id in free_sprites
+		                    if self.sprnames[spr_id] in spritenames]
+		# Reclaim's result will include 'already free' sprites so we
+		# need to request both what we need and what's already free.
+		got = self.reclaim_sprites(len(need) + len(already_free_ids))
+		# Whittle down the reclaim result to just the new sprites that
+		# have been reclaimed. These are the ones that we're going to
+		# assign to the names in 'need' that need a slot:
+		for spr_id in already_free_ids:
+			got.remove(spr_id)
+		got = list(got)
+		for i, name in enumerate(need):
+			sprite_id = got[i]
+			self.sprnames[sprite_id] = name
+		return [self.sprnames.index(name) for name in spritenames]
+
 	def dehacked_diffs(self, other=None):
 		result = []
 		# If there's no diff then we compare against original values,
