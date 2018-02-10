@@ -93,7 +93,7 @@ weaponinfo[wp_shotgun].update(states.parse(dehfile.free_states(), """
 """))
 
 weaponinfo[wp_supershotgun].clear()
-dehfile.assign_sprites(("PKS2", "SHT2"))
+dehfile.assign_sprites(("PKS2", ))
 weaponinfo[wp_supershotgun].ammo = am_shell
 weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
         Ready:
@@ -124,8 +124,8 @@ weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
                 PKS2 T 1 A_ReFire
                 Goto Ready
         Flash:
-                SHT2 J 3 Bright A_Light2
-                SHT2 I 2 Bright A_Light1
+                PKS2 V 3 Bright A_Light2
+                PKS2 U 2 Bright A_Light1
                 Goto S_LIGHTDONE
 """))
 
