@@ -10,7 +10,7 @@ from __future__ import print_function
 from deh9000 import *
 
 # We need some additional states; acquire these now.
-dehfile.reclaim_states(60)
+dehfile.reclaim_states(80)
 
 # Rebuild weapons from scratch.
 weaponinfo[wp_fist].clear()
@@ -153,10 +153,12 @@ weaponinfo[wp_chaingun].update(states.parse(dehfile.free_states(), """
                 Goto Ready
         Flash:
 	Pin(S_CHAINFLASH1):
-                PKCF A 5 Bright A_Light1
+                PKCF A 2 Bright A_Light1
+                PKCF B 3 Bright
                 Goto S_LIGHTDONE
 	Pin(S_CHAINFLASH2):
-                PKCF B 5 Bright A_Light2
+                PKCF B 2 Bright A_Light2
+                PKCF A 3 Bright
                 Goto S_LIGHTDONE
 
 """))
