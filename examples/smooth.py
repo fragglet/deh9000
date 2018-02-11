@@ -108,10 +108,10 @@ weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
         Fire:
                 PKS2 A 3
                 PKS2 A 6 A_FireShotgun2
-                PKS2 A 3 A_CheckReload
+                PKS2 A 3
                 PKS2 B 2
                 PKS2 C 3
-                PKS2 D 4
+                PKS2 D 4 A_CheckReload
                 PKS2 E 4
                 PKS2 F 2 A_OpenShotgun2
                 PKS2 GHIJ 2
@@ -121,7 +121,7 @@ weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
                 PKS2 NOPQ 2
                 PKS2 R 3 A_CloseShotgun2
                 PKS2 S 3
-                PKS2 T 1 A_ReFire
+                PKS2 T 5 A_ReFire
                 Goto Ready
         Flash:
                 PKS2 V 3 Bright A_Light2
