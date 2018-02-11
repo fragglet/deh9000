@@ -164,7 +164,7 @@ weaponinfo[wp_chaingun].update(states.parse(dehfile.free_states(), """
 """))
 
 weaponinfo[wp_plasma].clear()
-dehfile.assign_sprites(("PLSG", "PLSF", "PKPL", "TNT1"))
+dehfile.assign_sprites(("PLSG", "PLSF", "PKPL", "NULL"))
 weaponinfo[wp_plasma].ammo = am_cell
 weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
         Ready:
@@ -197,7 +197,11 @@ weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
       #          PLSF D 0 Bright A_ReFire
       #          Goto Fire+3
         Flash:
-                TNT1 A 1 A_Light1
+	Pin(S_PLASMAFLASH1):
+                NULL A 4 A_Light1
+                Goto S_LIGHTDONE
+	Pin(S_PLASMAFLASH2):
+                NULL A 4 A_Light1
                 Goto S_LIGHTDONE
 """))
 
