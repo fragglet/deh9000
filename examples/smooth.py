@@ -179,14 +179,13 @@ weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
         Fire:
                 PLSF C 1 Bright A_FirePlasma
                 PLSF D 2 Bright
-                TNT1 A 0 A_ReFire
-                PLSF E 1 Bright
+                PLSF E 1 Bright A_ReFire
                 PLSF F 1 Bright
                 PLSF E 1 Bright
                 PKPL B 1
                 PKPL DEF 1
-                PKPL G 6
-                PKPL FEDC 2
+                PKPL G 7
+                PKPL FEDC 1
                 PKPL BA 1
                 Goto Ready
       #  Hold:
