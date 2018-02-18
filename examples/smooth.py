@@ -55,7 +55,8 @@ weaponinfo[wp_pistol].update(states.parse(dehfile.free_states(), """
                 PKPI A 5 A_ReFire
                 Goto Ready
         Flash:
-                PKPF A 3 Bright A_Light1
+                PKPF A 2 Bright A_Light1
+                PKPF B 1 Bright
                 Goto S_LIGHTDONE
 """))
 
