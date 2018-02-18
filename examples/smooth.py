@@ -264,39 +264,34 @@ weaponinfo[wp_missile].update(states.parse(dehfile.free_states(), """
                 Goto S_LIGHTDONE
 """))
 
-#weaponinfo[wp_bfg].clear()
-#weaponinfo[wp_bfg].ammo = am_cell
-#dehfile.assign_sprites(("BFGG", "BFGN", "BFGF"))
-#weaponinfo[wp_bfg].update(states.parse(dehfile.free_states(), """
-#        Ready:
-#                BFGG A 1 A_WeaponReady
-#                Loop
-#        Deselect:
-#                BFGG A 1 A_Lower
-#                Loop
-#        Select:
-#                BFGG A 1 A_Raise
-#                Loop
-#        Fire:
-#                BFGG A 20 A_BFGsound
-#                BFGG A 2 A_GunFlash
-#                BFGN A 8
-#                BFGN A 10 A_FireBFG
-#                BFGN A 1 A_ReFire
-#                BFGG A 19 A_ReFire
-#                goto Ready
-#        Flash:
-#		BFGF A 11 A_Light1
-#		BFGF B 6 A_Light2
-#		Goto S_LIGHTDONE
-#            #   BFGW A 2 bright
-#            #   BFGX HGFE 1 bright A_Light2
-#            #   BFGX DCBA 1 bright A_Light2
-#            #   TNT1 A 0 A_Light0
-#            #   BFGY ABCDE 1 bright
-#            #   BFGY FGHIJKL 1
-#            #   Goto LightDone
-#"""))
+weaponinfo[wp_bfg].clear()
+weaponinfo[wp_bfg].ammo = am_cell
+dehfile.assign_sprites(("BFGG", "BFGN", "BFGW", "BFGX", "BFGY"))
+weaponinfo[wp_bfg].update(states.parse(dehfile.free_states(), """
+        Ready:
+                BFGG A 1 A_WeaponReady
+                Loop
+        Deselect:
+                BFGG A 1 A_Lower
+                Loop
+        Select:
+                BFGG A 1 A_Raise
+                Loop
+        Fire:
+                BFGG A 20 A_BFGsound
+                BFGG A 2 A_GunFlash
+                BFGN A 8
+                BFGN A 10 A_FireBFG
+                BFGG A 20 A_ReFire
+                goto Ready
+        Flash:
+                BFGW A 3 bright
+                BFGX GE 2 bright A_Light1
+                BFGX DCBA 1 bright A_Light2
+                BFGY ABCD 1 bright
+                BFGY FHJ 2 bright A_Light0
+                Goto S_LIGHTDONE
+"""))
 
 dehfile.save("smooth.deh")
 
