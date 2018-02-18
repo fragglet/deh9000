@@ -130,7 +130,7 @@ weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
 """))
 
 weaponinfo[wp_chaingun].clear()
-dehfile.assign_sprites(("TNT1", "CHGG", "PKCG", "PKCF"))
+dehfile.assign_sprites(("CHGG", "PKCG", "PKCF", "NULL"))
 weaponinfo[wp_chaingun].ammo = am_clip
 weaponinfo[wp_chaingun].update(states.parse(dehfile.free_states(), """
         Ready:
@@ -154,17 +154,19 @@ weaponinfo[wp_chaingun].update(states.parse(dehfile.free_states(), """
         Flash:
 	Pin(S_CHAINFLASH1):
                 PKCF A 2 Bright A_Light1
-                PKCF B 3 Bright
+                PKCF D 1 Bright
+                NULL A 2
                 Goto S_LIGHTDONE
 	Pin(S_CHAINFLASH2):
-                PKCF B 2 Bright A_Light2
-                PKCF A 3 Bright
+                PKCF C 2 Bright A_Light2
+                PKCF B 1 Bright
+                NULL A 2
                 Goto S_LIGHTDONE
 
 """))
 
 weaponinfo[wp_plasma].clear()
-dehfile.assign_sprites(("PLSG", "PLSF", "PKPL", "NULL"))
+dehfile.assign_sprites(("PLSG", "PLSF", "PKPL"))
 weaponinfo[wp_plasma].ammo = am_cell
 weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
         Ready:
