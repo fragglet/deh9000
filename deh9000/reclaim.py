@@ -62,7 +62,7 @@ def pain_elemental_death_last_frame(file):
 
 def static_tech_lamps(file, state_id):
 	"""Makes tech lamps static instead of animated."""
-	file.states[state_id].tics = -1
+	file.states[state_id].nextstate = state_id
 
 def simpler_bfg_hit(file):
 	"""Removes the last two frames of the BFG ball hit animation."""
@@ -164,18 +164,18 @@ def static_gore_decorations(file, mobjtype):
 		# S_HEADCANDLES: Skull pile doesn't flicker (1 frame)
 		# S_HEARTCOL: Beating heart column doesn't beat: 1 frame
 		# S_BLOODYTWITCH: Hanging dude becomes static (3 frames):
-		file.states[state_id].tics = -1
+		file.states[state_id].nextstate = state_id
 
 def static_evil_eye(file):
 	"""Makes the floating "evil" eye static instead of animated."""
 	# Saves 3 frames:
-	file.states[S_EVILEYE].tics = -1
+	file.states[S_EVILEYE].nextstate = S_EVILEYE
 
 def simpler_bonus(file, state_id):
 	"""Removes the animation on health bottles/armor helmets."""
 	# Health bottle / armor helmet are static (5 frames each). But
 	# we show frame #3 as this looks good when static.
-	file.states[state_id].tics = -1
+	file.states[state_id].nextstate = state_id
 	file.states[state_id].frame = 3
 
 def simpler_powerups(file, state_id):
@@ -193,7 +193,7 @@ def simpler_powerups(file, state_id):
 def no_blinking(file, state_id):
 	"""Makes keys and armor vests static and stop blinking."""
 	file.states[state_id].frame = 32769
-	file.states[state_id].tics = -1
+	file.states[state_id].nextstate = state_id
 
 def squash_resurrect_animations(file, mobjtype):
 	"""Reduces the number of frames in monster resurrection animations."""
