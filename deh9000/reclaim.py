@@ -156,15 +156,18 @@ def all_green_pillars(file, mobjtype):
 
 def static_gore_decorations(file, mobjtype):
 	"""Makes gore/corpse decorations static instead of animated."""
-	# Twitching impaled body uses non-twitching frame (2 frames):
-	if mobjtype == MT_MISC75:
-		file.mobjinfo[MT_MISC75].spawnstate = S_DEADSTICK
-	else:
-		state_id = file.mobjinfo[mobjtype].spawnstate
-		# S_HEADCANDLES: Skull pile doesn't flicker (1 frame)
-		# S_HEARTCOL: Beating heart column doesn't beat: 1 frame
-		# S_BLOODYTWITCH: Hanging dude becomes static (3 frames):
-		file.states[state_id].nextstate = state_id
+	state_id = file.mobjinfo[mobjtype].spawnstate
+	# S_HEADCANDLES: Skull pile doesn't flicker (1 frame)
+	# S_HEARTCOL: Beating heart column doesn't beat: 1 frame
+	# S_BLOODYTWITCH: Hanging dude becomes static (3 frames)
+	# S_LIVESTICK: Twitching impaled dude no longer twitches (1 frame)
+	file.states[state_id].nextstate = state_id
+
+	# S_LIVESTICK: Reuse the sprite number from S_DEADSTICK so that
+	# POL6 can be reused. We don't just reuse the full S_DEADSTICK
+	# static frame because this would cause demo desyncs.
+	if state_id == S_LIVESTICK:
+		file.states[S_LIVESTICK].sprite = SPR_POL1
 
 def static_evil_eye(file):
 	"""Makes the floating "evil" eye static instead of animated."""
