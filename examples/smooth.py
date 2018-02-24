@@ -221,6 +221,7 @@ weaponinfo[wp_chainsaw].update(states.parse(dehfile.free_states(), """
 	Pin(S_SAW):
                 SAWG C 1 A_WeaponReady
                 SAWG CDD 1
+	Pin(S_SAWB):
                 SAWG E 1 A_WeaponReady
                 SAWG EFF 1
                 Loop
