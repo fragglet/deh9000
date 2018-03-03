@@ -16,7 +16,7 @@ dehfile.reclaim_states(84)
 weaponinfo[wp_fist].clear()
 dehfile.assign_sprites(("PUNG", "PKFS"))
 weaponinfo[wp_fist].ammo = am_noammo
-weaponinfo[wp_fist].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_fist].update(states.parse("""
         Ready:
                 PUNG A 1 A_WeaponReady
                 Loop
@@ -38,7 +38,7 @@ weaponinfo[wp_fist].update(states.parse(dehfile.free_states(), """
 weaponinfo[wp_pistol].clear()
 dehfile.assign_sprites(("PKPI", "PKPF"))
 weaponinfo[wp_pistol].ammo = am_clip
-weaponinfo[wp_pistol].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_pistol].update(states.parse("""
         Ready:
                 PKPI A 1 A_WeaponReady
                 Loop
@@ -63,7 +63,7 @@ weaponinfo[wp_pistol].update(states.parse(dehfile.free_states(), """
 weaponinfo[wp_shotgun].clear()
 dehfile.assign_sprites(("SHTG", "SHTF", "PKSG"))
 weaponinfo[wp_shotgun].ammo = am_shell
-weaponinfo[wp_shotgun].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_shotgun].update(states.parse("""
         Ready:
                 SHTG A 1 A_WeaponReady
                 Loop
@@ -96,7 +96,7 @@ weaponinfo[wp_shotgun].update(states.parse(dehfile.free_states(), """
 weaponinfo[wp_supershotgun].clear()
 dehfile.assign_sprites(("PKS2", ))
 weaponinfo[wp_supershotgun].ammo = am_shell
-weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_supershotgun].update(states.parse("""
         Ready:
                 PKS2 A 1 A_WeaponReady
                 Loop
@@ -133,7 +133,7 @@ weaponinfo[wp_supershotgun].update(states.parse(dehfile.free_states(), """
 weaponinfo[wp_chaingun].clear()
 dehfile.assign_sprites(("CHGG", "PKCG", "PKCF", "NULL"))
 weaponinfo[wp_chaingun].ammo = am_clip
-weaponinfo[wp_chaingun].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_chaingun].update(states.parse("""
         Ready:
                 CHGG A 1 A_WeaponReady
                 Loop
@@ -169,7 +169,7 @@ weaponinfo[wp_chaingun].update(states.parse(dehfile.free_states(), """
 weaponinfo[wp_plasma].clear()
 dehfile.assign_sprites(("PLSG", "PLSF", "PKPL"))
 weaponinfo[wp_plasma].ammo = am_cell
-weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_plasma].update(states.parse("""
         Ready:
                 PLSG A 1 A_WeaponReady
                 Loop
@@ -210,7 +210,7 @@ weaponinfo[wp_plasma].update(states.parse(dehfile.free_states(), """
 
 weaponinfo[wp_chainsaw].clear()
 weaponinfo[wp_chainsaw].ammo = am_noammo
-weaponinfo[wp_chainsaw].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_chainsaw].update(states.parse("""
         Deselect:
                 SAWG C 1 A_Lower
                 Loop
@@ -237,7 +237,7 @@ weaponinfo[wp_chainsaw].update(states.parse(dehfile.free_states(), """
 weaponinfo[wp_missile].clear()
 weaponinfo[wp_missile].ammo = am_misl
 dehfile.assign_sprites(("MISG", "PKRL", "PKRF"))
-weaponinfo[wp_missile].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_missile].update(states.parse("""
         Ready:
                 MISG A 1 A_WeaponReady
                 Loop
@@ -268,7 +268,7 @@ weaponinfo[wp_missile].update(states.parse(dehfile.free_states(), """
 weaponinfo[wp_bfg].clear()
 weaponinfo[wp_bfg].ammo = am_cell
 dehfile.assign_sprites(("BFGG", "BFGN", "BFGW", "BFGX", "BFGY"))
-weaponinfo[wp_bfg].update(states.parse(dehfile.free_states(), """
+weaponinfo[wp_bfg].update(states.parse("""
         Ready:
                 BFGG A 1 A_WeaponReady
                 Loop

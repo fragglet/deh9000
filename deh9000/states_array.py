@@ -19,8 +19,18 @@ POINTER_ASSIGN_RE = re.compile(r"\s*Codep Frame"
                                r"\s*="
                                r"\s*(?P<frame_num>\d+)")
 
+
+
+
 class StatesArray(c.StructArray):
 	"""Wrapper around StructArray that adds some extra methods."""
+
+	# The parse() method below needs a set of states to use when assigning
+	# new states automatically. If not explicitly provided, this function
+	# will be called with to get a set of states. The default is a function
+	# that returns an empty set and will fail, but this will be overridden
+	# by DehackedFile to link into the garbage collector.
+	get_alloc_states = lambda: set()
 
 	# The parse() method below needs the list of sprite names to figure
 	# out how sprite names map to sprite numbers. By default we just use
@@ -73,18 +83,22 @@ class StatesArray(c.StructArray):
 			if index in previous_states:
 				return
 
-	def parse(self, alloc_states, defstr):
+	def parse(self, defstr, alloc_states=None):
 		"""Parse list of states in DECORATE format, copying into array.
 
-		In order to copy the states into the array, a collection of
-		states to allocate must be provided (indexes into the array).
+		The parameter alloc_states controls which states will be
+		allocated to copy the parsed states into the array. If not
+		specified, get_alloc_states() will be called to find which
+		states are free for reuse. You may need to call
+		DehackedFile.reclaim_states() first to free up some states.
+
 		States which are used will be removed from alloc_states.
-		DehackedFile.free_states and DehackedFile.reclaim_states are
-		useful functions to generate a list of states to use.
 
 		Returned is a dictionary mapping from label name to index of
 		state representing that label.
 		"""
+		if alloc_states is None:
+			alloc_states = self.get_alloc_states()
 		states, labels = states_parser.parse(defstr, self.sprnames)
 		old_to_new = states_parser.remap_states(states, self,
 		                                        alloc_states)
