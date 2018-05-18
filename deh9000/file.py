@@ -399,7 +399,7 @@ class TestDehackedFile(unittest.TestCase):
 
 	def test_load(self):
 		f = tempfile.NamedTemporaryFile(suffix=".deh", delete=False)
-		f.write(TEST_DEHACKED_FILE.strip())
+		f.write(TEST_DEHACKED_FILE.strip().encode('utf8'))
 		f.close()
 
 		dehfile = DehackedFile()

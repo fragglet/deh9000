@@ -39,7 +39,7 @@ class DehackedInputStream(object):
 
 	def read(self, nbytes):
 		"""Read the specified number of bytes from the input."""
-		result = bytes()
+		result = ''
 		while len(result) < nbytes:
 			c = self.stream.read(1)
 			# Strip out \r\n - support DOS text file format.
