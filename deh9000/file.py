@@ -407,17 +407,17 @@ class TestDehackedFile(unittest.TestCase):
 
 		self.assertEqual(dehfile.patch_format, 5)
 		self.assertEqual(dehfile.ammodata[0].maxammo, 400)
-                self.assertEqual(dehfile.miscdata.initial_health, 15)
-                self.assertEqual(dehfile.mobjinfo[1].spawnhealth, 200)
-                self.assertEqual(dehfile.states[S_PISTOL2].tics, 0)
-                self.assertEqual(dehfile.states[S_PISTOL2].nextstate,
+		self.assertEqual(dehfile.miscdata.initial_health, 15)
+		self.assertEqual(dehfile.mobjinfo[1].spawnhealth, 200)
+		self.assertEqual(dehfile.states[S_PISTOL2].tics, 0)
+		self.assertEqual(dehfile.states[S_PISTOL2].nextstate,
 		                 S_PISTOL4)
-                self.assertEqual(dehfile.strings.HUSTR_E1M1, "First level")
+		self.assertEqual(dehfile.strings.HUSTR_E1M1, "First level")
 		self.assertEqual(dehfile.strings["E1M1: Hangar"],
 		                 "First level")
 		self.assertEqual(dehfile.strings.HUSTR_E1M2, "Second level")
-                self.assertEqual(dehfile.S_sfx[1].priority, 32)
-                self.assertEqual(dehfile.weaponinfo[wp_pistol].ammo, am_noammo)
+		self.assertEqual(dehfile.S_sfx[1].priority, 32)
+		self.assertEqual(dehfile.weaponinfo[wp_pistol].ammo, am_noammo)
 
 		os.unlink(f.name)
 

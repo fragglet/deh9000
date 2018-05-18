@@ -150,7 +150,7 @@ class StringReplacements(object):
 
 		return result
 
-        def header_regexp(cls):
+	def header_regexp(cls):
 	        return TEXT_HEADER_RE
 
 	def parse_section(self, stream, from_len, to_len):
