@@ -648,8 +648,8 @@ class TestParser(unittest.TestCase):
 		states, _ = parse(TestParser.TEST_INPUT, self.sprnames)
 		for state_id, state in enumerate(states):
 			if state_id in pins:
-				self.assertEquals(state.pin_state_id,
-				                  pins[state_id])
+				self.assertEqual(state.pin_state_id,
+				                 pins[state_id])
 			else:
 				self.assertFalse(
 					hasattr(state, "pin_state_id"))
