@@ -3,7 +3,9 @@
 In the Doom source code the equivalent definitions are found in info.h.
 """
 
-import c
+from __future__ import absolute_import
+
+from deh9000 import c
 
 spritenum_t = c.Enum([
 	"SPR_TROO",

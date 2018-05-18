@@ -5,7 +5,9 @@ constants. These are scattered throughout the Doom source; filenames are
 listed below.
 """
 
-import c
+from __future__ import absolute_import
+
+from deh9000 import c
 
 # The Doom source doesn't really have a deh_misc_t type, but it's convenient
 # to represent this like a C struct. The field names match the names found in

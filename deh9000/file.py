@@ -1,26 +1,28 @@
 """Class that represents an entire Dehacked file."""
 
+from __future__ import absolute_import
 from __future__ import print_function
+
 import copy
 import os
 import tempfile
 import unittest
 
-import c
-import deh_parser
-import interactive
-import reclaim
-import states_parser
-import tables
+from deh9000 import c
+from deh9000 import deh_parser
+from deh9000 import interactive
+from deh9000 import reclaim
+from deh9000 import states_parser
+from deh9000 import tables
 
-from actions import A_FireCGun, A_FirePlasma
-from ammo import am_noammo
-from mobjs import mobjinfo_t
-from sprites import spritenum_t
-from states import *
-from states_array import CodePointers, StatesArray
-from string_repls import StringReplacements
-from weapons import weaponinfo_t, wp_pistol
+from deh9000.actions import A_FireCGun, A_FirePlasma
+from deh9000.ammo import am_noammo
+from deh9000.mobjs import mobjinfo_t
+from deh9000.sprites import spritenum_t
+from deh9000.states import *
+from deh9000.states_array import CodePointers, StatesArray
+from deh9000.string_repls import StringReplacements
+from deh9000.weapons import weaponinfo_t, wp_pistol
 
 
 DEHACKED_HEADER_FORMAT = """

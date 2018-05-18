@@ -1,9 +1,11 @@
 
+from __future__ import absolute_import
 from __future__ import print_function
+
 import re
 import unittest
 
-import strings
+from deh9000 import strings
 
 # Regexp that matches the start of Text sections.
 TEXT_HEADER_RE = re.compile(r"\s*Text"

@@ -4,11 +4,14 @@ This is really only defined in its own module to avoid a circular
 import dependency.
 """
 
-import c
+from __future__ import absolute_import
+
 import re
-import states_parser
-from states import *
-import strings
+
+from deh9000 import c
+from deh9000 import states_parser
+from deh9000 import strings
+from deh9000.states import *
 
 # Regexp for matching Pointer section headers:
 POINTER_HEADER_RE = re.compile(r"\s*Pointer\s+(?P<index>\d+)"

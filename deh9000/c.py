@@ -1,6 +1,8 @@
 """Python types which emulate C types."""
 
+from __future__ import absolute_import
 from __future__ import print_function
+
 import copy
 import re
 import unittest

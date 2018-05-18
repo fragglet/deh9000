@@ -15,7 +15,9 @@ methods it implements. Furthermore, any values from named capture groups
 matched by the header regexp are passed to the function as named parameters.
 """
 
+from __future__ import absolute_import
 from __future__ import print_function
+
 import re
 import sys
 

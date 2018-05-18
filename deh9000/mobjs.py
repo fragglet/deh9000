@@ -5,7 +5,9 @@ decorations, powerups, etc.). In the Doom source code the equivalent
 definitions are found in info.h.
 """
 
-import c
+from __future__ import absolute_import
+
+from deh9000 import c
 
 class mobjinfo_t(c.Struct):
 	DEHACKED_NAME = "Thing"

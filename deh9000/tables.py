@@ -7,16 +7,19 @@ copy of this file, edit it and then use the built-in functions to compare the
 modified version against the original "clean" copy.
 """
 
-import c
-from actions import *
-from ammo import *
-from misc import *
-from mobjs import *
-from sounds import *
-from sprites import *
-from states import *
-from states_array import CodePointers, StatesArray
-from weapons import *
+from __future__ import absolute_import
+
+from deh9000 import c
+
+from deh9000.actions import *
+from deh9000.ammo import *
+from deh9000.misc import *
+from deh9000.mobjs import *
+from deh9000.sounds import *
+from deh9000.sprites import *
+from deh9000.states import *
+from deh9000.states_array import CodePointers, StatesArray
+from deh9000.weapons import *
 
 ammodata = c.StructArray(ammodata_t, [
 	(10, 200),    # am_clip

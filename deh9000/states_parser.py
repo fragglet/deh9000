@@ -79,17 +79,19 @@ alloc_states collection provided, otherwise it is not possible to apply the
 pins.
 """
 
+from __future__ import absolute_import
 from __future__ import print_function
+
 import copy
 import re
 import unittest
 
-import c
-import actions
-from actions import *
-from sprites import *
-from states import state_t, statenum_t, S_BFGEXP
-import strings
+from deh9000 import c
+from deh9000 import actions
+from deh9000 import strings
+from deh9000.actions import *
+from deh9000.sprites import *
+from deh9000.states import state_t, statenum_t, S_BFGEXP
 
 # eg. "Spawn:"
 GOTO_LABEL_RE = re.compile(r"\s*(?P<label>\w+)\s*:\s*")

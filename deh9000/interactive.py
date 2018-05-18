@@ -6,6 +6,8 @@ can be called to start a source port to test the changes out. Successive calls
 to the method will terminate and restart the source port with new values.
 """
 
+from __future__ import absolute_import
+
 import atexit
 import os
 import shlex

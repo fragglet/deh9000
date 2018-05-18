@@ -1,13 +1,15 @@
-from actions import *
-from ammo import *
-from misc import *
-from mobjs import *
-from sounds import *
-from sprites import *
-from states import *
-from weapons import *
+from __future__ import absolute_import
 
-from file import DehackedFile
+from deh9000.actions import *
+from deh9000.ammo import *
+from deh9000.misc import *
+from deh9000.mobjs import *
+from deh9000.sounds import *
+from deh9000.sprites import *
+from deh9000.states import *
+from deh9000.weapons import *
+
+from deh9000.file import DehackedFile
 
 # For convenience, we create one global instance of a dehacked file.
 # This allows users to "from deh9000 import *" and refer to all the
