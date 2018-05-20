@@ -352,13 +352,13 @@ Patch File for DeHackEd v3.0
 Doom version = 19
 Patch format = 5
 
-Ammo 0
+Ammo 0 (Bullets)
 Max ammo = 400
 
 Misc 0
 Initial Health = 15
 
-Thing 2
+Thing 2 (Trooper)
 Hit points = 200
 
 Frame 14
@@ -368,7 +368,7 @@ Next frame = 16
 Sound 1
 Value = 32
 
-Weapon 1
+Weapon 1 (Pistol)
 Ammo type = 5
 
 Text 12 11

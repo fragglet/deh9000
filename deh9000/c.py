@@ -95,6 +95,7 @@ class Struct(object):
 	"""
 
 	def __init__(self, *args, **kwargs):
+		self.object_name = None
 		# Start with all fields initialized to zero, then override.
 		self._fields = {}
 		self.clear()
@@ -158,6 +159,7 @@ class Struct(object):
 			"Structs must be of the same type, %r != %r" % (
 				type(self), type(other),
 			))
+		self.object_name = other.object_name
 		for field_name in self.field_names():
 			value = getattr(other, field_name)
 			setattr(self, field_name, value)
@@ -226,7 +228,10 @@ class Struct(object):
 				for f in self.field_names()))
 
 	def dehacked_header(self, array_index):
-		return "%s %d" % (self.DEHACKED_NAME, array_index)
+		result = "%s %d" % (self.DEHACKED_NAME, array_index)
+		if self.object_name:
+			result += " (%s)" % self.object_name
+		return result
 
 	def dehacked_output(self, fields=None, array_index=0):
 		"""Get a description of this struct in dehacked form.
@@ -382,6 +387,13 @@ class StructArray(object):
 			result.extend(el.dehacked_diffs(
 				other_el, array_index=array_index))
 		return result
+
+	def set_object_names(self, names):
+		"""Set the object_name properties of elements of this array."""
+		for idx, name in enumerate(names):
+			if idx >= len(self):
+				break
+			self[idx].object_name = name
 
 
 class TestStruct(unittest.TestCase):
