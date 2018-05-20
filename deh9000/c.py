@@ -112,8 +112,9 @@ class Struct(object):
 
 	@classmethod
 	def header_regexp(cls):
-		return re.compile(r"%s\s+(?P<index>\d+)(\s*\(.*\))?\s*$" % (
-			cls.DEHACKED_NAME))
+		return re.compile(
+			r"%s\s+(?P<index>\d+)(\s*\((?P<name>.*)\))?\s*$" % (
+				cls.DEHACKED_NAME))
 
 	@classmethod
 	def field_names(cls):
@@ -133,13 +134,15 @@ class Struct(object):
 			stream.exception("parse error: unknown field %r" % (
 				deh_name))
 
-	def parse_section(self, stream, index="0"):
+	def parse_section(self, stream, index="0", name=None):
 		"""Parse a section, reading assignments from the given stream.
 
 		It is assumed that each line will be an assignment that
 		conforms to FIELD_ASSIGNMENT_RE. The function will return once
 		an empty line is reached.
 		"""
+		if name:
+			self.object_name = name
 		while True:
 			line = stream.readline()
 			if line.strip() == "":
@@ -362,14 +365,14 @@ class StructArray(object):
 	def header_regexp(self):
 		return self._struct_type().header_regexp()
 
-	def parse_section(self, stream, index):
+	def parse_section(self, stream, index, **kwargs):
 		index = int(index)
 		if self.one_indexed:
 			index -= 1
 		if index < 0 or index >= len(self):
 			stream.exception("assignment out of range: %d must be "
 			                 "in range 0-%d" % (index, len(self)))
-		self[index].parse_section(stream)
+		self[index].parse_section(stream, **kwargs)
 
 	def match_key(self):
 		return (StructArray, self._struct_type)
