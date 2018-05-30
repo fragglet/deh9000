@@ -32,9 +32,11 @@ HEADER_LINES = [
 COMMENT_LINE_RE = re.compile("\s*#")
 
 class DehackedParseException(Exception):
+	"""An error caused by a failure to parse a Dehacked file."""
 	pass
 
 class DehackedInputStream(object):
+	"""Wrapper around an I/O stream for reading Dehacked files."""
 	def __init__(self, stream):
 		self.stream = stream
 		self.lineno = 0

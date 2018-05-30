@@ -9,6 +9,11 @@ from __future__ import absolute_import
 from deh9000 import c
 
 class sfxinfo_t(c.Struct):
+	"""Struct type representing the sound effects played in game.
+
+	Each sound effect that can be played has an entry in the S_sfx table.
+	In Dehacked these are the "Sound" sections.
+	"""
 	DEHACKED_NAME = "Sound"
 
 	name        = c.StructField(None)  # "Offset"

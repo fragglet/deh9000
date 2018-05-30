@@ -10,6 +10,12 @@ from __future__ import absolute_import
 from deh9000 import c
 
 class weaponinfo_t(c.Struct):
+	"""Struct type controlling weapon properties.
+
+	Every weapon in the game has an entry in the weaponinfo[] table that is
+	of this type. Fields control the type of ammo used by the weapon and
+	the states used to animate the weapon.
+	"""
 	DEHACKED_NAME = "Weapon"
 
 	ammo       = c.StructField("Ammo type")

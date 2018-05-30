@@ -10,6 +10,15 @@ from __future__ import absolute_import
 from deh9000 import c
 
 class state_t(c.Struct):
+	"""Struct type for the state table that controls AI and animations.
+
+	Every in-game object has a current state that controls how it currently
+	appears (sprite number and frame). Animation occurs by jumping to a new
+	state (nextstate) after a delay (tics), and AI is implemented by
+	invoking an action pointer that is associated with the state.
+
+	In Dehacked these are called "Frames".
+	"""
 	DEHACKED_NAME = "Frame"
 
 	sprite    = c.StructField("Sprite number")

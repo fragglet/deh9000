@@ -8,6 +8,10 @@ particular frame.
 """
 
 class Action():
+	"""Represents a callback function used to perform a particular action.
+
+	In dehacked these are called "code pointers".
+	"""
 	def __init__(self, name):
 		self.name = name
 

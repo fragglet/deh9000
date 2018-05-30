@@ -318,11 +318,13 @@ class DehackedFile(object):
 		return [self.dehacked_header()] + result
 
 	def save(self, filename):
+		"""Save the Dehacked file to the given filename."""
 		result_text = "\n\n".join(self.dehacked_diffs())
 		with open(filename, "w") as f:
 			f.write(result_text)
 
 	def load(self, filename, strict_mode=False):
+		"""Load a Dehacked file from the given filename."""
 		deh_parser.parse_dehacked_file(filename, self.parts + [
 			deh_parser.TopLevelProperty(
 				"Doom version", self, "doom_version", int,

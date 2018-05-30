@@ -10,6 +10,13 @@ from __future__ import absolute_import
 from deh9000 import c
 
 class mobjinfo_t(c.Struct):
+	"""Struct type containing properties for a given thing type.
+
+	Doom has an table of objects of this type named mobjinfo[]. In Dehacked
+	these are "Thing" sections. Each represents a type of object that can
+	exist in-game, including players, monsters, projectiles, ammo/power-ups
+	and decorations.
+	"""
 	DEHACKED_NAME = "Thing"
 
 	doomednum    = c.StructField("ID #")
