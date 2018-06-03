@@ -155,7 +155,7 @@ The following are indexes into the `states` table:
 * `seestate`: State the monster jumps to when it sees an enemy.
 * `painstate`: State for monster pain animation.
 * `meleestate`: State for monster melee attack.
-* `missilestate`: State for monster distance attack (includes tracer attacks,
+* `missilestate`: State for monster distance attack (includes hitscan attacks,
   despite the name).
 * `deathstate`: State for normal monster death animation.
 * `xdeathstate`: State for monster gib death animation.
