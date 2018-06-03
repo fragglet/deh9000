@@ -236,7 +236,84 @@ The `S_sfx` table is a table of the game's sound effects; each entry in
 ## Special objects
 
 ### strings
+
+Other than tables, one very useful feature in Dehacked patches is the ability
+to perform string replacements. Almost any text appearing in the game can be
+replaced. A convenient way to do this is using the symbolic names for strings
+which can be found by checking `strings.py` in the source code, or
+`d_englsh.h` in the Doom source code. Here's an example:
+```
+import deh9000
+
+f = deh9000.DehackedFile()
+
+# Set a level name in the automap:
+f.strings.HUSTR_1 = "my boring level"
+# Add some story text:
+f.strings.C4TEXT = "at last that's all over with!"
+
+f.save("boring.deh")
+```
+That said, Doom includes a lot of strings which do not have symbolic names.
+Sometimes you may want to do arbitrary string replacements in order to do
+fancy tricks. Here's an example:
+```
+import deh9000
+
+f = deh9000.DehackedFile()
+
+# Everyone loves the ouch face:
+for face in ("STFST%d%d", "STFTR%d0", "STFTL%d0", "STFEVL%d", "STFKILL%d"):
+	f.strings[face] = "STFOUCH%d"
+
+f.save("ouchface.deh")
+```
+In general you can use `strings` like a normal Python dictionary to set and
+look up string replacements in the specified Dehacked file.
+
 ### miscdata
+
+Dehacked supports a rather random selection of miscellaneous parameters which
+can be tweaked in patches using the `miscdata` object. Here's an example:
+```
+import deh9000
+
+f = deh9000.DehackedFile()
+
+# In our WAD, we start from almost nothing:
+f.miscdata.initial_health = 10
+f.miscdata.initial_bullets = 3
+
+f.save("hardlife.deh")
+```
+
+`miscdata` has the following properties:
+
+* `initial_health`: initial health a player has when starting anew.
+* `initial_bullets`: number of bullets the player has when starting anew.
+* `max_health`: maximum health that can be reached using medikits alone.
+* `max_armor`: maximum armor which can be reached by picking up armor helmets.
+* `green_armor_class`: armor class that is given when picking up the green
+  armor or an armor helmet.  DOS dehacked only modifies the behavior of the
+  green armor shirt, the armor class set by armor helmets is not affected.
+* `blue_armor_class`: armor class that is given when picking up the blue
+  armor or a megasphere. DOS dehacked only modifies the MegaArmor behavior
+  and not the MegaSphere, which always gives armor type 2.
+* `max_soulsphere`: maximum health which can be reached by picking up the
+  soulsphere.
+* `soulsphere_health`: amount of health bonus that picking up a soulsphere
+  gives.
+* `megasphere_health`: what health is set to after picking up a megasphere.
+* `god_mode_health`: what the health value is set to when cheating using
+  the IDDQD god mode cheat.
+* `idfa_armor`: what the armor is set to when using the IDFA cheat.
+* `idfa_armor_class`: what the armor class is set to when using the IDFA cheat.
+* `idkfa_armor`: what the armor is set to when using the IDKFA cheat.
+* `idkfa_armor_class`: what the armor class is set to when using IDKFA.
+* `bfg_cells_per_shot`: the number of CELLs firing the BFG uses up.
+* `species_infighting`: controls whether monsters can harm other monsters
+  of the same species. For example, whether an imp fireball will damage other
+  imps. The value of this is weird - '202' means off, while '221' means on.
 
 ## Advanced features
 
