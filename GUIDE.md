@@ -54,7 +54,60 @@ namespace. There is a single global copy of the tables that can be modified;
 these belong to a singleton object that is named `dehfile`.
 
 ### Loading and saving Dehacked files
+
+DEH9000 supports both loading and saving Dehacked files. This allows Dehacked
+files to be loaded into memory, modified and then saved again. For example to
+modify an existing mod to make all the enemies tougher:
+```
+import deh9000
+
+f = deh9000.DehackedFile()
+f.load("easy.deh")
+
+# Make all the enemies tougher:
+for mobj in f.mobjinfo:
+	if mobj.flags & deh9000.MF_COUNTKILL:
+		mobj.spawnhealth = int(mobj.spawnhealth * 1.3)
+
+f.save("tougher.deh")
+```
+It's also possible to use this to merge multiple patches into one. Here's a
+simple example of a program to merge many Dehacked patches into one:
+```
+import deh9000, sys
+
+f = deh9000.DehackedFile()
+
+for filename in sys.argv[1:-1]:
+        f.load(filename)
+
+f.save(sys.argv[-1])
+```
+
 ### Interactive mode
+
+One of the nice things about Python is the dynamic nature of the language
+means that it's easy to open up a Python interactive console at any time and
+get some immediate results. To support this, DEH9000 has "interactive mode"
+which will quickly start up Chocolate Doom to test out changes typed on the
+command line. It's recommended to use this in combination with "globals mode"
+(described above).
+
+For example, suppose you wanted to experiment with the mobj `mass` parameter
+and see the effect of changing it:
+```
+$ python
+Python 3.6.4 (v3.6.4:d48ecebad5, Dec 18 2017, 21:07:28)
+[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from deh9000 import *
+>>> mobjinfo[MT_POSSESSED].mass = 10
+>>> dehfile.interactive()
+>>> mobjinfo[MT_POSSESSED].mass = 1
+>>> dehfile.interactive()
+```
+Every time the `interactive()` method is called the game is killed and
+restarted.
 
 ## Tables
 
