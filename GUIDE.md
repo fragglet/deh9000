@@ -108,7 +108,7 @@ The following are indexes into the `states` table:
 * `xdeathstate`: State for monster gib death animation.
 * `raisestate`: State for monster resurrect animation (Archvile resurrections)
 
-The following are indexes into the `sfxinfo` table:
+The following are indexes into the `S_sfx` table:
 
 * `seesound`: Sound the monster waits when waking up.
 * `attacksound`: Sound used for melee attacks.
@@ -153,11 +153,87 @@ The following properties are available on each `state_t`:
 * `misc2`: Extra parameter to action function.
 
 ### weaponinfo
+
+The `weaponinfo` table controls the properties of the player's weapons. Each
+entry in `weaponinfo` is an object of type `weaponinfo_t`, and there
+is a symbolic name for each entry that begins with `wp_...`. Here's an
+example:
+```
+import deh9000
+
+f = deh9000.DehackedFile()
+
+# Infinite missiles for the rocket launcher!
+f.weaponinfo[deh9000.wp_missile].ammo = deh9000.am_noammo
+
+f.save("rockets.deh")
+```
+
+The following properties are available on each `weaponinfo_t`:
+
+* `ammo`: Index of entry in `ammodata[]` of the ammo this weapon consumes (or
+  `am_noammo` if it consumes no ammo, like the fist.
+
+The following are indexes into `states[]`:
+
+* `upstate`: Animation frame to show when switching to this weapon.
+* `downstate`: Animation frame to show when switching to this weapon.
+* `readystate`: Animation frame to show while holding the weapon.
+* `atkstate`: Animation frame to show when the weapon fires.
+* `flashstate`: Extra animation sequence to overlay when weapon fires, for
+  gun flash.
+
 ### ammodata
+
+The `ammodata` table controls parameters for each ammo type in the game. Each
+entry in `ammodata` is an object of type `ammodata_t` and there is a symbolic
+name for each entry that begins with `am_...`. Here's an example:
+```
+import deh9000
+
+f = deh9000.DehackedFile()
+
+# Don't let the player carry too many rockets - it's unrealistic.
+f.weaponinfo[deh9000.am_misl].maxammo = 10
+
+f.save("10rocket.deh")
+```
+
+The `ammodata` table does not exist as such inside the Doom source code, but
+exists in DEH9000 as an abstraction for Dehacked's `Ammo` block type.
+
+The following properties are available on each `ammodata_t`:
+
+* `clipammo`: Amount of ammo the player receives when picking up a "clip" of
+  this ammo type. Each ammo type has two types of power-up that give some of
+  that ammo: a "clip" type and a "box" type. The box gives 5x the clip type.
+  Ammo dropped by a monster (either in clip or weapon form) usually gives half
+  a clip.
+* `maxammo`: Maximum amount of this ammo type that a player can hold. The
+  backpack item doubles this.
+
 ### sprnames
+
+The `sprnames` table is a list of strings used for sprite names; there is a
+limited number of sprite names which can be used in the game. Each entry in
+`sprnames` has a symbolic name that begins `SPR_...`. Here's an example:
+```
+import deh9000
+
+f = deh9000.DehackedFile()
+
+# Let's make zombiemen look like sergeants:
+f.sprnames[deh9000.SPR_POSS] = "SPOS"
+
+f.save("sargies.deh")
+```
+
 ### S\_sfx
 
-## Special objects:
+The `S_sfx` table is a table of the game's sound effects; each entry in
+`S_sfx` is an object of type `sfxinfo_t`. It's not a very interesting table.
+
+## Special objects
 
 ### strings
 ### miscdata
