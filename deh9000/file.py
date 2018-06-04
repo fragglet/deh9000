@@ -270,28 +270,25 @@ class DehackedFile(object):
 		Returns a list of sprite indexes corresponding to the list of
 		names requested.
 		"""
-		# This is complicated but: every entry in spritenames fits into
-		# one of three sets:
-		#  'need': not currently in self.sprnames
-		#  'already free': in self.sprnames, but not currently used
-		#  'not free': in self.sprnames, and currently in use
-		free_sprites = self.free_sprites()
-		need = [name for name in spritenames
-		        if name not in self.sprnames]
-		already_free_ids = [spr_id for spr_id in free_sprites
-		                    if self.sprnames[spr_id] in spritenames]
-		# Reclaim's result will include 'already free' sprites so we
-		# need to request both what we need and what's already free.
-		got = self.reclaim_sprites(len(need) + len(already_free_ids))
-		# Whittle down the reclaim result to just the new sprites that
-		# have been reclaimed. These are the ones that we're going to
-		# assign to the names in 'need' that need a slot:
-		for spr_id in already_free_ids:
-			got.remove(spr_id)
-		got = list(got)
-		for i, name in enumerate(need):
-			sprite_id = got[i]
-			self.sprnames[sprite_id] = name
+		spritenames = [s.upper() for s in spritenames]
+		free_sprite_ids = self.free_sprites()
+		# There is a subset of free_sprite_ids we can use, because
+		# there is a corner case where a sprite is free but also in
+		# the spritenames list we're trying to assign.
+		have_ids = {spr_id for spr_id in free_sprite_ids
+		            if self.sprnames[spr_id] not in spritenames}
+		need = {name for name in spritenames
+		        if name not in self.sprnames}
+		if len(need) > len(have_ids):
+			raise OverflowError(
+				"Can't assign %d more sprites: only "
+				"%d sprites are available." % (
+					len(need), len(have_ids)))
+		# We have enough sprites to assign all those in 'need'. So
+		# go through the list and do so.
+		for name in need:
+			spr_id = have_ids.pop()
+			self.sprnames[spr_id] = name
 		return [self.sprnames.index(name) for name in spritenames]
 
 	def dehacked_diffs(self, other=None):
