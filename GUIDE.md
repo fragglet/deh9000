@@ -136,38 +136,31 @@ f.save("easycybr.deh")
 
 The following properties are available on each `mobjinfo_t`:
 
-* `doomednum`: Number used in levels to create an object of this type.
-* `spawnhealth`: Number of health points the object starts with.
-* `reactiontime`: Time a monster will wait before attacking.
-* `painchance`: Chance (out of 255) a monster will jump to `painstate` when
-  hurt.
-* `speed`: How fast the monster moves.
-* `radius`: Size of the object. Bounding boxes are actually square despite the
-  name.
-* `height`: Height of the object.
-* `mass`: Used in thrust when calculating momentum from weapon impacts.
-* `damage`: Amount of damage done by missile things.
-* `flags`: Control flags (these begin with `MF_...`).
-
-The following are indexes into the `states` table:
-
-* `spawnstate`: Initial state the object starts in.
-* `seestate`: State the monster jumps to when it sees an enemy.
-* `painstate`: State for monster pain animation.
-* `meleestate`: State for monster melee attack.
-* `missilestate`: State for monster distance attack (includes hitscan attacks,
-  despite the name).
-* `deathstate`: State for normal monster death animation.
-* `xdeathstate`: State for monster gib death animation.
-* `raisestate`: State for monster resurrect animation (Archvile resurrections)
-
-The following are indexes into the `S_sfx` table:
-
-* `seesound`: Sound the monster waits when waking up.
-* `attacksound`: Sound used for melee attacks.
-* `painsound`: Sound played by `A_Pain` action.
-* `deathsound`: Sound played by `A_Scream` action.
-* `activesound`: Sound randomly played while monster is active.
+| Field name | Dehacked name | Description | Index into |
+| ---------- | ------------- | ----------- | ---------- |
+| `doomednum` | `ID #` | Number used in levels to create an object of this type. | |
+| `spawnstate` | `Initial frame` | Initial state the object starts in. | `states` |
+| `spawnhealth` | `Hit points` | Number of health points the object starts with. | |
+| `seestate` | `First moving frame` | State the monster jumps to when it sees an enemy. | `states` |
+| `seesound` | `Alert sound` | Sound the monster waits when waking up. | `S_sfx` |
+| `reactiontime` | `Reaction time` | Time a monster will wait before attacking. | |
+| `attacksound` | `Attack sound` | Sound used for melee attacks. | `S_sfx` |
+| `painstate` | `Injury frame` | State for monster pain animation. | `states` |
+| `painchance` | `Pain chance` | Chance (out of 255) a monster will jump to `painstate` when hurt. | |
+| `painsound` | `Pain sound` | Sound played by `A_Pain` action. | `S_sfx` |
+| `meleestate` | `Close attack frame` | State for monster melee attack. | `states` |
+| `missilestate` | `Far attack frame` | State for monster distance attack (includes hitscan attacks, despite the name). | `states` |
+| `deathstate` | `Death frame` | State for normal monster death animation. | `states` |
+| `xdeathstate` | `Exploding frame` | State for monster gib death animation. | `states` |
+| `deathsound` | `Death sound` | Sound played by `A_Scream` action. | `S_sfx` |
+| `speed` | `Speed` | How fast the monster moves. | |
+| `radius` | `Width` | Size of the object. Bounding boxes are actually square despite the name. | |
+| `height` | `Height` | Height of the object. | |
+| `mass` | `Mass` | Used in thrust when calculating momentum from weapon impacts. | |
+| `damage` | `Missile damage` | Amount of damage done by missile things. | |
+| `activesound` | `Action sound` | Sound randomly played while monster is active. | `S_sfx` |
+| `flags` | `Bits` | Control flags (these begin with `MF_...`). | |
+| `raisestate` | `Respawn frame` | State for monster resurrect animation (Archvile resurrections) | `states` |
 
 ### states
 
@@ -194,16 +187,15 @@ f.save("fastgun.deh")
 
 The following properties are available on each `state_t`:
 
-* `sprite`: Index of entry in `sprnames[]` of the sprite to use for this state.
-* `frame`: Sprite frame number to use for this frame of animation. These map
-  alphabetically; `A` = `0`, `B` = `1`, etc. For example, for `TROOC` this
-  would be `2`, and `sprite` would be `SPR_TROO`.
-* `tics`: Number of tics to show this state before jumping to `nextstate`.
-* `nextstate`: Index into `states[]` of the next state to show.
-* `action`: Internal action to invoke when this state is jumped to. These
-  begin with `A_...`.
-* `misc1`: Extra parameter to action function.
-* `misc2`: Extra parameter to action function.
+| Field name | Dehacked name | Description | Index into |
+| ---------- | ------------- | ----------- | ---------- |
+| `sprite` | `Sprite number` | Sprite to use for this state. | `sprnames` |
+| `frame` | `Sprite subnumber` | Sprite frame number to use for this frame of animation. These map alphabetically; `A` = `0`, `B` = `1`, etc. For example, for `TROOC` this would be `2`, and `sprite` would be `SPR_TROO`. | |
+| `tics` | `Duration` | Number of tics to show this state before jumping to `nextstate`. | |
+| `nextstate` | `Next frame` | Next state to show. | `states` |
+| `action` | | Internal action to invoke when this state is jumped to. These begin with `A_...`. | |
+| `misc1` | `Unknown 1` | Extra parameter to action function. | |
+| `misc2` | `Unknown 2` | Extra parameter to action function. | |
 
 ### weaponinfo
 
@@ -224,17 +216,14 @@ f.save("rockets.deh")
 
 The following properties are available on each `weaponinfo_t`:
 
-* `ammo`: Index of entry in `ammodata[]` of the ammo this weapon consumes (or
-  `am_noammo` if it consumes no ammo, like the fist.
-
-The following are indexes into `states[]`:
-
-* `upstate`: Animation frame to show when switching to this weapon.
-* `downstate`: Animation frame to show when switching to this weapon.
-* `readystate`: Animation frame to show while holding the weapon.
-* `atkstate`: Animation frame to show when the weapon fires.
-* `flashstate`: Extra animation sequence to overlay when weapon fires, for
-  gun flash.
+| Field name | Dehacked name | Description | Index into |
+| ---------- | ------------- | ----------- | ---------- |
+| `ammo` | `Ammo type` | Ammo this weapon consumes (or `am_noammo` if it consumes no ammo, like the fist). | `ammodata` |
+| `upstate` | `Deselect frame` | Animation frame to show when switching to this weapon. | `states` |
+| `downstate` | `Select frame` | Animation frame to show when switching to this weapon. | `states` |
+| `readystate` | `Bobbing frame` | Animation frame to show while holding the weapon. | `states` |
+| `atkstate` | `Shooting frame` | Animation frame to show when the weapon fires. | `states` |
+| `flashstate` | `Firing frame` | Extra animation sequence to overlay when weapon fires, for gun flash. | `states` |
 
 ### ammodata
 
@@ -257,13 +246,10 @@ exists in DEH9000 as an abstraction for Dehacked's `Ammo` block type.
 
 The following properties are available on each `ammodata_t`:
 
-* `clipammo`: Amount of ammo the player receives when picking up a "clip" of
-  this ammo type. Each ammo type has two types of power-up that give some of
-  that ammo: a "clip" type and a "box" type. The box gives 5x the clip type.
-  Ammo dropped by a monster (either in clip or weapon form) usually gives half
-  a clip.
-* `maxammo`: Maximum amount of this ammo type that a player can hold. The
-  backpack item doubles this.
+| Field name | Dehacked name | Description | Index into |
+| ---------- | ------------- | ----------- | ---------- |
+| `clipammo` | `Per ammo` | Amount of ammo the player receives when picking up a "clip" of this ammo type. Each ammo type has two types of power-up that give some of that ammo: a "clip" type and a "box" type. The box gives 5x the clip type.  Ammo dropped by a monster (either in clip or weapon form) usually gives half a clip. |
+| `maxammo` | `Max ammo` | Maximum amount of this ammo type that a player can hold. The backpack item doubles this. |
 
 ### sprnames
 
@@ -342,31 +328,24 @@ f.save("hardlife.deh")
 
 `miscdata` has the following properties:
 
-* `initial_health`: initial health a player has when starting anew.
-* `initial_bullets`: number of bullets the player has when starting anew.
-* `max_health`: maximum health that can be reached using medikits alone.
-* `max_armor`: maximum armor which can be reached by picking up armor helmets.
-* `green_armor_class`: armor class that is given when picking up the green
-  armor or an armor helmet.  DOS dehacked only modifies the behavior of the
-  green armor shirt, the armor class set by armor helmets is not affected.
-* `blue_armor_class`: armor class that is given when picking up the blue
-  armor or a megasphere. DOS dehacked only modifies the MegaArmor behavior
-  and not the MegaSphere, which always gives armor type 2.
-* `max_soulsphere`: maximum health which can be reached by picking up the
-  soulsphere.
-* `soulsphere_health`: amount of health bonus that picking up a soulsphere
-  gives.
-* `megasphere_health`: what health is set to after picking up a megasphere.
-* `god_mode_health`: what the health value is set to when cheating using
-  the IDDQD god mode cheat.
-* `idfa_armor`: what the armor is set to when using the IDFA cheat.
-* `idfa_armor_class`: what the armor class is set to when using the IDFA cheat.
-* `idkfa_armor`: what the armor is set to when using the IDKFA cheat.
-* `idkfa_armor_class`: what the armor class is set to when using IDKFA.
-* `bfg_cells_per_shot`: the number of CELLs firing the BFG uses up.
-* `species_infighting`: controls whether monsters can harm other monsters
-  of the same species. For example, whether an imp fireball will damage other
-  imps. The value of this is weird - '202' means off, while '221' means on.
+| Field name | Dehacked name | Description |
+| ---------- | ------------- | ----------- |
+| `initial_health` | `Initial Health` | Initial health a player has when starting anew. |
+| `initial_bullets` | `Initial Bullets` | Number of bullets the player has when starting anew. |
+| `max_health` | `Max Health` | Maximum health that can be reached using medikits alone. |
+| `max_armor` | `Max Armor` | Maximum armor which can be reached by picking up armor helmets. |
+| `green_armor_class` | `Green Armor Class` | Armor class that is given when picking up the green armor or an armor helmet. DOS dehacked only modifies the behavior of the green armor shirt, the armor class set by armor helmets is not affected. |
+| `blue_armor_class` | `Blue Armor Class` | Armor class that is given when picking up the blue armor or a megasphere. DOS dehacked only modifies the MegaArmor behavior and not the MegaSphere, which always gives armor type 2. |
+| `max_soulsphere` | `Max Soulsphere` | Maximum health which can be reached by picking up the soulsphere. |
+| `soulsphere_health` | `Soulsphere Health` | Amount of health bonus that picking up a soulsphere gives. |
+| `megasphere_health` | `Megasphere Health` | What health is set to after picking up a megasphere. |
+| `god_mode_health` | `God Mode Health` | What the health value is set to when cheating using the IDDQD god mode cheat. |
+| `idfa_armor` | `IDFA Armor` | What the armor is set to when using the IDFA cheat. |
+| `idfa_armor_class` | `IDFA Armor Class` | What the armor class is set to when using the IDFA cheat. |
+| `idkfa_armor` | `IDKFA Armor` | What the armor is set to when using the IDKFA cheat. |
+| `idkfa_armor_class` | `IDKFA Armor Class` | What the armor class is set to when using IDKFA. |
+| `bfg_cells_per_shot` | `BFG Cells/Shot` | The number of CELLs firing the BFG uses up. |
+| `species_infighting` | `Species Infighting` | Controls whether monsters can harm other monsters of the same species. For example, whether an imp fireball will damage other imps. The value of this is weird - '202' means off, while '221' means on. |
 
 ## Advanced features
 
