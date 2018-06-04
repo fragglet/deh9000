@@ -246,8 +246,8 @@ exists in DEH9000 as an abstraction for Dehacked's `Ammo` block type.
 
 The following properties are available on each `ammodata_t`:
 
-| Field name | Dehacked name | Description | Index into |
-| ---------- | ------------- | ----------- | ---------- |
+| Field name | Dehacked name | Description |
+| ---------- | ------------- | ----------- |
 | `clipammo` | `Per ammo` | Amount of ammo the player receives when picking up a "clip" of this ammo type. Each ammo type has two types of power-up that give some of that ammo: a "clip" type and a "box" type. The box gives 5x the clip type.  Ammo dropped by a monster (either in clip or weapon form) usually gives half a clip. |
 | `maxammo` | `Max ammo` | Maximum amount of this ammo type that a player can hold. The backpack item doubles this. |
 
