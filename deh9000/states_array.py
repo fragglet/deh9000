@@ -23,8 +23,6 @@ POINTER_ASSIGN_RE = re.compile(r"\s*Codep Frame"
                                r"\s*(?P<frame_num>\d+)")
 
 
-
-
 class StatesArray(c.StructArray):
 	"""Wrapper around StructArray that adds some extra methods."""
 
@@ -33,14 +31,15 @@ class StatesArray(c.StructArray):
 	# will be called with to get a set of states. The default is a function
 	# that returns an empty set and will fail, but this will be overridden
 	# by DehackedFile to link into the garbage collector.
-	get_alloc_states = lambda: set()
+	def get_alloc_states(self):
+		return set()
 
-	# The parse() method below needs the list of sprite names to figure
-	# out how sprite names map to sprite numbers. By default we just use
-	# the sprite names array from the strings module, but this will get
-	# overridden by DehackedFile to allow string replacements of sprite
-	# names.
-	sprnames = strings.sprnames
+	# The parse() Method below needs to be able to set sprite names
+	# automatically when parsing states. This function will be called to
+	# map a set of sprite names into sprite numbers. The default here is
+	# just a function that looks them up in the sprnames list.
+	def assign_sprites(self, names):
+		return [strings.sprnames.index(name) for name in names]
 
 	# These states are hard-coded into the Doom source code - bits
 	# of code jump to these states.
@@ -102,7 +101,9 @@ class StatesArray(c.StructArray):
 		"""
 		if alloc_states is None:
 			alloc_states = self.get_alloc_states()
-		states, labels = states_parser.parse(defstr, self.sprnames)
+		states, labels, sprnames = states_parser.parse(defstr)
+		states_parser.remap_sprites(
+			states, self.assign_sprites(sprnames))
 		old_to_new = states_parser.remap_states(states, self,
 		                                        alloc_states)
 		return {label: old_to_new[state_id]

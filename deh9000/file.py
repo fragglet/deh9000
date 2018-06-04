@@ -86,7 +86,7 @@ class DehackedFile(object):
 		# Set a couple of hooks in the states array which make the API
 		# for DECORATE-format parsing a bit nicer.
 		self.states.get_alloc_states = self.free_states
-		self.states.sprnames = self.sprnames
+		self.states.assign_sprites = self.assign_sprites
 
 		if module is not None:
 			self.load_from_module(module)

@@ -14,7 +14,6 @@ dehfile.reclaim_states(84)
 
 # Rebuild weapons from scratch.
 weaponinfo[wp_fist].clear()
-dehfile.assign_sprites(("PUNG", "PKFS"))
 weaponinfo[wp_fist].ammo = am_noammo
 weaponinfo[wp_fist].update(states.parse("""
         Ready:
@@ -36,7 +35,6 @@ weaponinfo[wp_fist].update(states.parse("""
 """))
 
 weaponinfo[wp_pistol].clear()
-dehfile.assign_sprites(("PKPI", "PKPF"))
 weaponinfo[wp_pistol].ammo = am_clip
 weaponinfo[wp_pistol].update(states.parse("""
         Ready:
@@ -61,7 +59,6 @@ weaponinfo[wp_pistol].update(states.parse("""
 """))
 
 weaponinfo[wp_shotgun].clear()
-dehfile.assign_sprites(("SHTG", "SHTF", "PKSG"))
 weaponinfo[wp_shotgun].ammo = am_shell
 weaponinfo[wp_shotgun].update(states.parse("""
         Ready:
@@ -94,7 +91,6 @@ weaponinfo[wp_shotgun].update(states.parse("""
 """))
 
 weaponinfo[wp_supershotgun].clear()
-dehfile.assign_sprites(("PKS2", ))
 weaponinfo[wp_supershotgun].ammo = am_shell
 weaponinfo[wp_supershotgun].update(states.parse("""
         Ready:
@@ -131,7 +127,6 @@ weaponinfo[wp_supershotgun].update(states.parse("""
 """))
 
 weaponinfo[wp_chaingun].clear()
-dehfile.assign_sprites(("CHGG", "PKCG", "PKCF", "NULL"))
 weaponinfo[wp_chaingun].ammo = am_clip
 weaponinfo[wp_chaingun].update(states.parse("""
         Ready:
@@ -167,7 +162,6 @@ weaponinfo[wp_chaingun].update(states.parse("""
 """))
 
 weaponinfo[wp_plasma].clear()
-dehfile.assign_sprites(("PLSG", "PLSF", "PKPL"))
 weaponinfo[wp_plasma].ammo = am_cell
 weaponinfo[wp_plasma].update(states.parse("""
         Ready:
@@ -236,7 +230,6 @@ weaponinfo[wp_chainsaw].update(states.parse("""
 
 weaponinfo[wp_missile].clear()
 weaponinfo[wp_missile].ammo = am_misl
-dehfile.assign_sprites(("MISG", "PKRL", "PKRF"))
 weaponinfo[wp_missile].update(states.parse("""
         Ready:
                 MISG A 1 A_WeaponReady
@@ -267,7 +260,6 @@ weaponinfo[wp_missile].update(states.parse("""
 
 weaponinfo[wp_bfg].clear()
 weaponinfo[wp_bfg].ammo = am_cell
-dehfile.assign_sprites(("BFGG", "BFGN", "BFGW", "BFGX", "BFGY"))
 weaponinfo[wp_bfg].update(states.parse("""
         Ready:
                 BFGG A 1 A_WeaponReady

@@ -169,8 +169,8 @@ def action_pointer_for_name(name):
 
 
 class _Parser(object):
-	def __init__(self, sprnames):
-		self.sprnames = sprnames
+	def __init__(self):
+		self.sprnames = []
 		self.states = [state_t(action=None)]
 		self.state_labels = {}
 		self.previous_state_id = -1
@@ -242,10 +242,12 @@ class _Parser(object):
 		return result
 
 	def sprite_for_name(self, name):
+		name = name.upper()
 		try:
-			return self.sprnames.index(name.upper())
+			return self.sprnames.index(name)
 		except ValueError:
-			raise StatesParseException("Unknown sprite %r" % name)
+			self.sprnames.append(name)
+			return len(self.sprnames) - 1
 
 	def construct_states(self, params):
 		sprite_num = self.sprite_for_name(params["sprname"])
@@ -403,7 +405,7 @@ class _Parser(object):
 			               "or goto")
 		self.apply_gotos()
 
-def parse(defstr, sprnames):
+def parse(defstr):
 	"""Parses a string in DECORATE-style States {} syntax.
 
 	Returned is a tuple containing two values:
@@ -413,10 +415,12 @@ def parse(defstr, sprnames):
 	   states list using remap_states().
 	 - A dictionary mapping from label names defined in the string to
 	   indexes in the states list to the states they represent.
+	 - List of sprite names in the parsed states. The sprite field for each
+	   state_t is an index into this list.
 	"""
-	p = _Parser(sprnames)
+	p = _Parser()
 	p.parse(defstr)
-	return p.states, p.state_labels
+	return p.states, p.state_labels, p.sprnames
 
 def _generate_old_to_new(old, new, alloc_states):
 	"""Generate old ID -> new ID mapping table.
@@ -502,6 +506,11 @@ def remap_states(old, new, alloc_states):
 
 	return old_to_new
 
+def remap_sprites(states, sprite_ids):
+	"""Modify the given states to set the sprite fields."""
+	for state in states:
+		state.sprite = sprite_ids[state.sprite]
+
 
 class TestParser(unittest.TestCase):
 	TEST_INPUT = """
@@ -544,60 +553,57 @@ class TestParser(unittest.TestCase):
 			Goto See
 	"""
 
-	def setUp(self):
-		# We use a modified copy of the sprite names array to test
-		# That it is possible to change sprite names.
-		self.sprnames = copy.copy(strings.sprnames)
-		self.sprnames[SPR_GOR1] = "ASDF"
-
 	def test_parse(self):
+		expected_sprnames = [
+			"TROO", "ASDF",
+		]
 		expected = c.StructArray(state_t, [
-		(SPR_TROO,  0,  0, None,            0),  #  0
-		(SPR_TROO,  0, 10, A_Look,          2),  #  1 Spawn:
-		(SPR_TROO,  1, 10, A_Look,          1),  #  2 Loop
+		(0,  0,  0, None,            0),  #  0
+		(0,  0, 10, A_Look,          2),  #  1 Spawn:
+		(0,  1, 10, A_Look,          1),  #  2 Loop
 
-		(SPR_TROO,  0,  3, A_Chase,         4),  #  3 See:
-		(SPR_TROO,  0,  3, A_Chase,         5),  #  4
-		(SPR_TROO,  1,  3, A_Chase,         6),  #  5
-		(SPR_TROO,  1,  3, A_Chase,         7),  #  6
-		(SPR_TROO,  2,  3, A_Chase,         8),  #  7
-		(SPR_TROO,  2,  3, A_Chase,         9),  #  8
-		(SPR_TROO,  3,  3, A_Chase,        10),  #  9
-		(SPR_TROO,  3,  3, A_Chase,         3),  # 10 Loop
+		(0,  0,  3, A_Chase,         4),  #  3 See:
+		(0,  0,  3, A_Chase,         5),  #  4
+		(0,  1,  3, A_Chase,         6),  #  5
+		(0,  1,  3, A_Chase,         7),  #  6
+		(0,  2,  3, A_Chase,         8),  #  7
+		(0,  2,  3, A_Chase,         9),  #  8
+		(0,  3,  3, A_Chase,        10),  #  9
+		(0,  3,  3, A_Chase,         3),  # 10 Loop
 
-		(SPR_TROO,  4,  8, A_FaceTarget,   12),  # 11 Melee:
-		(SPR_TROO,  5,  8, A_FaceTarget,   13),  # 12
-		(SPR_TROO,  6,  6, A_TroopAttack, 678),  # 13 Goto S_CYBER_RUN3
+		(0,  4,  8, A_FaceTarget,   12),  # 11 Melee:
+		(0,  5,  8, A_FaceTarget,   13),  # 12
+		(0,  6,  6, A_TroopAttack, 678),  # 13 Goto S_CYBER_RUN3
 
-		(SPR_TROO,  7,  2, None,           15),  # 14 Pain:
-		(SPR_TROO,  7,  2, A_Pain,        456),  # 15 Goto 456
+		(0,  7,  2, None,           15),  # 14 Pain:
+		(0,  7,  2, A_Pain,        456),  # 15 Goto 456
 
-		(SPR_TROO, 8|32768,  8, None,      17),  # 16 Death:
-		(SPR_TROO, 9|32768,  8, A_Scream,  18),  # 17
-		(SPR_TROO,      10,  6, None,      19),  # 18
-		(SPR_TROO,      11,  6, A_Fall,    20),  # 19
-		(SPR_TROO,      12, -1, None,       0),  # 20 Stop
+		(0, 8|32768,  8, None,      17),  # 16 Death:
+		(0, 9|32768,  8, A_Scream,  18),  # 17
+		(0,      10,  6, None,      19),  # 18
+		(0,      11,  6, A_Fall,    20),  # 19
+		(0,      12, -1, None,       0),  # 20 Stop
 
-		(SPR_TROO, 13,  5, None,           22),  # 21 XDeath:
-		(SPR_TROO, 14,  5, A_XScream,      23),  # 22
-		(SPR_TROO, 15,  5, None,           24),  # 23
-		(SPR_TROO, 16,  5, A_Fall,         25),  # 24
-		(SPR_TROO, 17,  5, None,           26),  # 25
-		(SPR_TROO, 18,  5, None,           27),  # 26
-		(SPR_TROO, 19,  5, None,           28),  # 27
-		(SPR_TROO, 20, -1, None,            0),  # 28 Stop
+		(0, 13,  5, None,           22),  # 21 XDeath:
+		(0, 14,  5, A_XScream,      23),  # 22
+		(0, 15,  5, None,           24),  # 23
+		(0, 16,  5, A_Fall,         25),  # 24
+		(0, 17,  5, None,           26),  # 25
+		(0, 18,  5, None,           27),  # 26
+		(0, 19,  5, None,           28),  # 27
+		(0, 20, -1, None,            0),  # 28 Stop
 
-		# Sprite names here have been changed: GOR1 -> ASDF. But the
-		# index is the same.
-		(SPR_GOR1, 12,  8, None,           30),  # 29 Raise:
-		(SPR_GOR1, 11,  8, None,           31),  # 30
-		(SPR_GOR1, 10,  8, None,           32),  # 31
-		(SPR_GOR1,  9,  8, None,           33),  # 32
-		(SPR_GOR1,  8,  8, None,            3),  # 33 Goto See
+		# Sprite number here is different (ASDF)
+		(1, 12,  8, None,           30),  # 29 Raise:
+		(1, 11,  8, None,           31),  # 30
+		(1, 10,  8, None,           32),  # 31
+		(1,  9,  8, None,           33),  # 32
+		(1,  8,  8, None,            3),  # 33 Goto See
 		])
 
-		states, _ = parse(TestParser.TEST_INPUT, self.sprnames)
+		states, _, sprnames = parse(TestParser.TEST_INPUT)
 		self.assertEqual(len(states), len(expected))
+		self.assertEqual(sprnames, expected_sprnames)
 
 		for i, got in enumerate(states):
 			want = expected[i]
@@ -629,12 +635,12 @@ class TestParser(unittest.TestCase):
 			"xdeathstate":  21,
 			"raisestate":   29,
 		}
-		_, labels = parse(TestParser.TEST_INPUT, self.sprnames)
+		_, labels, _ = parse(TestParser.TEST_INPUT)
 		self.assertEqual(labels, expected)
 
 	def test_no_remap(self):
 		no_remap_states = {13, 15}
-		states, _ = parse(TestParser.TEST_INPUT, self.sprnames)
+		states, _, _ = parse(TestParser.TEST_INPUT)
 		for state_id, state in enumerate(states):
 			if state_id in no_remap_states:
 				self.assertTrue(state.no_remap_nextstate)
@@ -647,7 +653,7 @@ class TestParser(unittest.TestCase):
 			18: S_BFGEXP,
 			19: 199,
 		}
-		states, _ = parse(TestParser.TEST_INPUT, self.sprnames)
+		states, _, _ = parse(TestParser.TEST_INPUT)
 		for state_id, state in enumerate(states):
 			if state_id in pins:
 				self.assertEqual(state.pin_state_id,
