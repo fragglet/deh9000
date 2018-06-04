@@ -15,7 +15,7 @@ In "object mode", DEH9000 works like a standard Python library. To generate a
 Dehacked file, create an instance of `deh9000.DehackedFile`; the file object
 has various properties which can be modified to generate a patch. Here's an
 example:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -40,7 +40,7 @@ especially if you're porting hacks from Doom's C source code. It's also useful
 if you're writing a script to output a single Dehacked file, since it avoids
 having to repeatedly write the `deh9000` import prefix.
 Here's an example that is equivalent to the previous example:
-```
+```python
 from deh9000 import *
 
 # Give all weapons infinite ammo.
@@ -58,7 +58,7 @@ these belong to a singleton object that is named `dehfile`.
 DEH9000 supports both loading and saving Dehacked files. This allows Dehacked
 files to be loaded into memory, modified and then saved again. For example to
 modify an existing mod to make all the enemies tougher:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -73,7 +73,7 @@ f.save("tougher.deh")
 ```
 It's also possible to use this to merge multiple patches into one. Here's a
 simple example of a program to merge many Dehacked patches into one:
-```
+```python
 import deh9000, sys
 
 f = deh9000.DehackedFile()
@@ -95,7 +95,7 @@ command line. It's recommended to use this in combination with "globals mode"
 
 For example, suppose you wanted to experiment with the mobj `mass` parameter
 and see the effect of changing it:
-```
+```python
 $ python
 Python 3.6.4 (v3.6.4:d48ecebad5, Dec 18 2017, 21:07:28)
 [GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
@@ -123,7 +123,7 @@ objects. Each entry in `mobjinfo` is an object of type `mobjinfo_t`, and there
 is a symbolic name for each entry that begins with `MT_...`. Here's an
 example:
 
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -168,7 +168,7 @@ The `states` table defines the individual frames of animation for all objects
 and weapons. Each entry in `states` is an object of type `state_t`, and there
 is a symbolic name for each entry that begins with `S_...`. Here's an
 example:
-```
+```python
 import deh9000
 
 pistol_states = (
@@ -203,7 +203,7 @@ The `weaponinfo` table controls the properties of the player's weapons. Each
 entry in `weaponinfo` is an object of type `weaponinfo_t`, and there
 is a symbolic name for each entry that begins with `wp_...`. Here's an
 example:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -230,7 +230,7 @@ The following properties are available on each `weaponinfo_t`:
 The `ammodata` table controls parameters for each ammo type in the game. Each
 entry in `ammodata` is an object of type `ammodata_t` and there is a symbolic
 name for each entry that begins with `am_...`. Here's an example:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -256,7 +256,7 @@ The following properties are available on each `ammodata_t`:
 The `sprnames` table is a list of strings used for sprite names; there is a
 limited number of sprite names which can be used in the game. Each entry in
 `sprnames` has a symbolic name that begins `SPR_...`. Here's an example:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -281,7 +281,7 @@ to perform string replacements. Almost any text appearing in the game can be
 replaced. A convenient way to do this is using the symbolic names for strings
 which can be found by checking `strings.py` in the source code, or
 `d_englsh.h` in the Doom source code. Here's an example:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -296,7 +296,7 @@ f.save("boring.deh")
 That said, Doom includes a lot of strings which do not have symbolic names.
 Sometimes you may want to do arbitrary string replacements in order to do
 fancy tricks. Here's an example:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
@@ -314,7 +314,7 @@ look up string replacements in the specified Dehacked file.
 
 Dehacked supports a rather random selection of miscellaneous parameters which
 can be tweaked in patches using the `miscdata` object. Here's an example:
-```
+```python
 import deh9000
 
 f = deh9000.DehackedFile()
