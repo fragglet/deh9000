@@ -349,7 +349,80 @@ f.save("hardlife.deh")
 
 ## Advanced features
 
-### Finding free states and sprites
+### Finding free states
+
+One of the big limitations of vanilla Dehacked is the limited number of states
+available to work with in the `states` table. This restricts the ability to
+add new monsters and animations, since any new states must come at the expense
+of sacrificing something else.
+
+DEH9000 includes a helpful API that can help to identify which states are not
+referenced from anywhere and are therefore free to use. It starts from the
+`mobjinfo` and `weaponinfo` tables and walks all referenced states to find out
+which are used and which are not used: if you're familiar with how a
+mark-and-sweep garbage collector operates, it works in a similar way.
+
+To use it, call `DehackedFile.free_states()`. Here's a short demo of an
+interactive session:
+```python
+Python 3.6.4 (v3.6.4:d48ecebad5, Dec 18 2017, 21:07:28)
+[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
+Type "help", "copyright", "credits" or "license" for more information.
+>>> from deh9000 import *
+>>> dehfile.free_states()
+{S_DEADBOTTOM, S_STALAG, S_DEADTORSO, S_DSNR1, S_DSNR2}
+>>>
+```
+Vanilla Doom has these five free states available before anything else is
+done: they're left over from the development process and were never included
+in the game. Suppose now you decide that in order to get more states, you'll
+sacrifice the Wolfenstein SS guard from Doom II's secret levels. To do this,
+call `clear()` on the object corresponding to the guard:
+```python
+>>> mobjinfo[MT_WOLFSS].clear()
+>>> dehfile.free_states()
+{S_STALAG, S_DSNR1, S_DSNR2, S_SSWV_STND, S_SSWV_STND2, S_SSWV_RUN1,
+S_SSWV_RUN2, S_SSWV_RUN3, S_SSWV_RUN4, S_SSWV_RUN5, S_SSWV_RUN6, S_SSWV_RUN7,
+S_SSWV_RUN8, S_SSWV_ATK1, S_SSWV_ATK2, S_SSWV_ATK3, S_SSWV_ATK4, S_SSWV_ATK5,
+S_SSWV_ATK6, S_SSWV_PAIN, S_SSWV_PAIN2, S_SSWV_DIE1, S_SSWV_DIE2, S_SSWV_DIE3,
+S_SSWV_DIE4, S_SSWV_DIE5, S_SSWV_XDIE1, S_SSWV_XDIE2, S_SSWV_XDIE3,
+S_SSWV_XDIE4, S_SSWV_XDIE5, S_SSWV_XDIE6, S_SSWV_XDIE7, S_SSWV_XDIE8,
+S_SSWV_XDIE9, S_SSWV_RAISE1, S_SSWV_RAISE2, S_SSWV_RAISE3, S_SSWV_RAISE4,
+S_SSWV_RAISE5, S_DEADTORSO, S_DEADBOTTOM}
+```
+All of the guard's animation states are now free to reuse for other purposes,
+along with the original five states previously mentioned. This gives a lot of
+flexibility since it's now possible to programmatically reassign them, and
+experiment with sacrificing different pieces of the game to get the right
+balance.
+
+### Finding free sprites
+
+As with `free_states()` a similar API exists for reclaiming sprites. These are
+another thing that is often in short supply.
+```python
+>>> from deh9000 import *
+>>> dehfile.free_sprites()
+{SPR_SMT2}
+```
+Unlike with `free_states()`, Doom only has a single unreferenced sprite in its
+tables. Suppose we try the same trick of clearing the Wolfenstein SS guard:
+```python
+>>> mobjinfo[MT_WOLFSS].clear()
+>>> dehfile.free_sprites()
+{SPR_SMT2}
+```
+Surprisingly, this doesn't work. That's because the Boss Brain's "eye" thing
+from MAP30 reuses the SS guard's sprite name. Changing its three states to use
+a different sprite fixes the issue, and now `SPR_SSWV` is available:
+```python
+>>> states[S_BRAINEYE].sprite = SPR_TROO
+>>> states[S_BRAINEYESEE].sprite = SPR_TROO
+>>> states[S_BRAINEYE1].sprite = SPR_TROO
+>>> dehfile.free_sprites()
+{SPR_SSWV, SPR_SMT2}
+```
+
 ### Automatic reclaim
 ### DECORATE-style parser
 
