@@ -1,17 +1,17 @@
 
-DEH9000 is a different approach to creating
+DEH 9000 is a different approach to creating
 [Dehacked](https://doomwiki.org/wiki/DeHackEd) patches that is designed to
 appeal to programmers. It takes the form of a Python library that can be
 imported and used to write programs which output Dehacked patches.
 
 ## How to use the library
 
-There are two "modes" of using DEH9000, which depend on what you're doing:
+There are two "modes" of using DEH 9000, which depend on what you're doing:
 "object mode" and "global mode".
 
 ### Object mode
 
-In "object mode", DEH9000 works like a standard Python library. To generate a
+In "object mode", DEH 9000 works like a standard Python library. To generate a
 Dehacked file, create an instance of `deh9000.DehackedFile`; the file object
 has various properties which can be modified to generate a patch. Here's an
 example:
@@ -33,7 +33,7 @@ instances.
 
 ### Globals mode
 
-The DEH9000 API is designed to emulate Doom's internal API - the tables, types
+The DEH 9000 API is designed to emulate Doom's internal API - the tables, types
 and field names are named the same as they are in the Doom source code.
 Because of this, it can often be more convenient to use "globals mode",
 especially if you're porting hacks from Doom's C source code. It's also useful
@@ -55,7 +55,7 @@ these belong to a singleton object that is named `dehfile`.
 
 ### Loading and saving Dehacked files
 
-DEH9000 supports both loading and saving Dehacked files. This allows Dehacked
+DEH 9000 supports both loading and saving Dehacked files. This allows Dehacked
 files to be loaded into memory, modified and then saved again. For example to
 modify an existing mod to make all the enemies tougher:
 ```python
@@ -88,7 +88,7 @@ f.save(sys.argv[-1])
 
 One of the nice things about Python is the dynamic nature of the language
 means that it's easy to open up a Python interactive console at any time and
-get some immediate results. To support this, DEH9000 has "interactive mode"
+get some immediate results. To support this, DEH 9000 has "interactive mode"
 which will quickly start up Chocolate Doom to test out changes typed on the
 command line. It's recommended to use this in combination with "globals mode"
 (described above).
@@ -113,7 +113,7 @@ restarted.
 
 The tables contain all of the data controlling Doom's objects and how they are
 animated. Because of this they are some of the most important features of
-DEH9000. Each table mirrors an internal table from the Doom source code and
+DEH 9000. Each table mirrors an internal table from the Doom source code and
 the same names are used as in the Doom source.
 
 ### mobjinfo
@@ -242,7 +242,7 @@ f.save("10rocket.deh")
 ```
 
 The `ammodata` table does not exist as such inside the Doom source code, but
-exists in DEH9000 as an abstraction for Dehacked's `Ammo` block type.
+exists in DEH 9000 as an abstraction for Dehacked's `Ammo` block type.
 
 The following properties are available on each `ammodata_t`:
 
@@ -356,7 +356,7 @@ available to work with in the `states` table. This restricts the ability to
 add new monsters and animations, since any new states must come at the expense
 of sacrificing something else.
 
-DEH9000 includes a helpful API that can help to identify which states are not
+DEH 9000 includes a helpful API that can help to identify which states are not
 referenced from anywhere and are therefore free to use. It starts from the
 `mobjinfo` and `weaponinfo` tables and walks all referenced states to find out
 which are used and which are not used: if you're familiar with how a
