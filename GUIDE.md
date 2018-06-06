@@ -424,5 +424,53 @@ a different sprite fixes the issue, and now `SPR_SSWV` is available:
 ```
 
 ### Automatic reclaim
+
+As seen in the previous section, finding states and sprites to use can be
+tricky and require ingenuity and sometimes, deliberate sacrifices of game
+elements. However, there are a number of tricks which can be used to tweak the
+state tables and free up more states for use. DEH 9000 comes with a number of
+these tricks built in and ready to use via the automatic reclaim API.
+
+The tricks used vary in intrusiveness - the least intrusive strategies remove
+animations which are unused "in practice": for example, the Pain Elemental
+resurrect animation. Moderate strategies steal frames from animated powerups
+such as the soul sphere and megasphere, and make twitching gore animations
+static. The most extreme strategies remove the Wolfenstein SS guard entirely
+and make the Hell Knight and Baron look identical. But often these more
+extreme strategies can be entirely avoided.
+
+All of this is hidden behind a single API where the caller can request a
+number of states to be made available. Here's an example from an interactive
+session.
+```python
+>>> from deh9000 import *
+>>> dehfile.free_states()
+{S_DEADBOTTOM, S_STALAG, S_DEADTORSO, S_DSNR1, S_DSNR2}
+>>> dehfile.reclaim_states(10)
+{S_DSNR1, S_DSNR2, S_PAIN_RAISE1, S_PAIN_RAISE2, S_PAIN_RAISE3, S_PAIN_RAISE4,
+S_PAIN_RAISE5, S_PAIN_RAISE6, S_STALAG, S_DEADTORSO, S_DEADBOTTOM}
+>>> dehfile.reclaim_states(20)
+{S_TECHLAMP2, S_TECHLAMP3, S_TECHLAMP4, S_BRAIN_DIE2, S_BRAIN_DIE3,
+S_PAIN_DIE6, S_PAIN_RAISE1, S_PAIN_RAISE2, S_PAIN_RAISE3, S_PAIN_RAISE4,
+S_PAIN_RAISE5, S_PAIN_RAISE6, S_FATSHOTX2, S_FATSHOTX3, S_DSNR1, S_DSNR2,
+S_STALAG, S_SMOKE3, S_SMOKE4, S_SMOKE5, S_DEADTORSO, S_DEADBOTTOM}
+```
+As previously seen, initially only five states are free, but by calling
+`reclaim_states()`, more are automatically made available by applying the
+built-in reclaim strategies. Returned is a set of states which are now free to
+use. Note that the five states from the initial call to `free_states()` are
+also included.
+
+A similar API is available to reclaim sprites. The same set of strategies is
+used for both APIs; reclaiming states often has a side-effect of freeing up
+sprites as well.
+```python
+>>> from deh9000 import *
+>>> dehfile.free_sprites()
+{SPR_SMT2}
+>>> dehfile.reclaim_sprites(5)
+{SPR_FBXP, SPR_POB1, SPR_POB2, SPR_IFOG, SPR_SMT2}
+```
+
 ### DECORATE-style parser
 
