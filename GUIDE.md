@@ -76,6 +76,9 @@ simple example of a program to merge many Dehacked patches into one:
 ```python
 import deh9000, sys
 
+assert len(sys.argv) >= 4, (
+	"Usage: merge file.deh [file.deh...] merged.deh")
+
 f = deh9000.DehackedFile()
 
 for filename in sys.argv[1:-1]:
@@ -236,7 +239,7 @@ import deh9000
 f = deh9000.DehackedFile()
 
 # Don't let the player carry too many rockets - it's unrealistic.
-f.weaponinfo[deh9000.am_misl].maxammo = 10
+f.ammodata[deh9000.am_misl].maxammo = 10
 
 f.save("10rocket.deh")
 ```
