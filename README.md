@@ -13,6 +13,8 @@ ever wanted to be able to just hack around with Doom's internal tables and
 automatically generate a Dehacked patch of your changes then you'll like DEH
 9000.
 
+See [the guide](GUIDE.md) for some documentation on how to use DEH 9000.
+
 ### Why the name?
 
 The Python API for editing WAD files is called
