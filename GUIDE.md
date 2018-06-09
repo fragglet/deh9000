@@ -122,10 +122,6 @@ command line. It's recommended to use this in combination with "globals mode"
 For example, suppose you wanted to experiment with the mobj `mass` parameter
 and see the effect of changing it:
 ```python
-$ python
-Python 3.6.4 (v3.6.4:d48ecebad5, Dec 18 2017, 21:07:28)
-[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
 >>> from deh9000 import *
 >>> mobjinfo[MT_POSSESSED].mass = 10
 >>> dehfile.interactive()
@@ -391,9 +387,6 @@ mark-and-sweep garbage collector operates, it works in a similar way.
 To use it, call `DehackedFile.free_states()`. Here's a short demo of an
 interactive session:
 ```python
-Python 3.6.4 (v3.6.4:d48ecebad5, Dec 18 2017, 21:07:28)
-[GCC 4.2.1 (Apple Inc. build 5666) (dot 3)] on darwin
-Type "help", "copyright", "credits" or "license" for more information.
 >>> from deh9000 import *
 >>> dehfile.free_states()
 {S_DEADBOTTOM, S_STALAG, S_DEADTORSO, S_DSNR1, S_DSNR2}
