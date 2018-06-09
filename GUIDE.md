@@ -4,6 +4,29 @@ DEH 9000 is a different approach to creating
 appeal to programmers. It takes the form of a Python library that can be
 imported and used to write programs which output Dehacked patches.
 
+## Table of contents
+
+- [How to use the library](#How-to-use-the-library)
+  * [Object mode](#Object-mode)
+  * [Globals mode](#Globals-mode)
+  * [Loading and saving Dehacked files](#Loading-and-saving-Dehacked-files)
+  * [Interactive mode](#Interactive-mode)
+- [Tables](#Tables)
+  * [mobjinfo](#mobjinfo)
+  * [states](#states)
+  * [weaponinfo](#weaponinfo)
+  * [ammodata](#ammodata)
+  * [sprnames](#sprnames)
+  * [S\_sfx](#S\_sfx)
+- [Special objects](#Special-objects)
+  * [strings](#strings)
+  * [miscdata](#miscdata)
+- [Animation resources](#Animation-resources)
+  * [Finding free states](#Finding-free-states)
+  * [Finding free sprites](#Finding-free-sprites)
+  * [Automatic reclaim](#Automatic-reclaim)
+- [DECORATE-style parser](#DECORATE-style-parser)
+
 ## How to use the library
 
 There are two "modes" of using DEH 9000, which depend on what you're doing:
@@ -350,7 +373,7 @@ f.save("hardlife.deh")
 | `bfg_cells_per_shot` | `BFG Cells/Shot` | The number of CELLs firing the BFG uses up. |
 | `species_infighting` | `Species Infighting` | Controls whether monsters can harm other monsters of the same species. For example, whether an imp fireball will damage other imps. The value of this is weird - '202' means off, while '221' means on. |
 
-## Advanced features
+## Animation resources
 
 ### Finding free states
 
@@ -475,5 +498,5 @@ sprites as well.
 {SPR_FBXP, SPR_POB1, SPR_POB2, SPR_IFOG, SPR_SMT2}
 ```
 
-### DECORATE-style parser
+## DECORATE-style parser
 
