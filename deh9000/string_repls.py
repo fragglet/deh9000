@@ -142,7 +142,7 @@ class StringReplacements(object):
 	def dehacked_diffs(self, other=None):
 		other = other or {}
 		result = []
-		for old, new in self.iteritems():
+		for old, new in sorted(self.iteritems()):
 			# Both have the exact same replacement? No need
 			# to repeat it.
 			if other.get(old, old) == new:
