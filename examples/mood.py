@@ -9,17 +9,16 @@ For more information: https://jmtd.net/doom/mood/"""
 from deh9000 import *
 
 # pacifist monsters
-for name in [ MT_POSSESSED, MT_SHOTGUY, MT_TROOP, MT_CHAINGUY, MT_VILE,
-              MT_FATSO, MT_SERGEANT, MT_BRUISER, MT_KNIGHT, MT_SKULL,
-              MT_SPIDER, MT_BABY, MT_CYBORG, MT_KEEN, MT_WOLFSS, MT_PAIN,
-              MT_HEAD, MT_UNDEAD ]:
-    monster = mobjinfo[name]
+for monster in mobjinfo:
+    if not (monster.flags & MF_COUNTKILL or monster == mobjinfo[MT_SKULL]):
+        continue
 
-    states[monster.missilestate].tics = 1
-    states[monster.missilestate].nextstate = monster.seestate
+    if monster.missilestate:
+        states[monster.missilestate].tics = 1
+        states[monster.missilestate].nextstate = monster.seestate
 
     # necessary if melee and missile use different frames (e.g. revenant)
-    if monster.meleestate != 0:
+    if monster.meleestate:
         states[monster.meleestate].tics = 1
         states[monster.meleestate].nextstate = monster.seestate
 
@@ -32,15 +31,13 @@ projectile_weapons = [
     MT_CHAINGUN
 ]
 
-# make all weapons copies of +1 health bottle (Except chainsaw)
+# make all weapons copies of +1 health potion (Except chainsaw)
 for weapon in projectile_weapons:
-    mobjinfo[weapon].spawnstate = mobjinfo[MT_MISC2].spawnstate # health potion
+    mobjinfo[weapon].spawnstate = mobjinfo[MT_MISC2].spawnstate
 
 miscdata.initial_bullets = 0
 
 # pistol becomes a fist
-weaponinfo[wp_pistol].ammo = weaponinfo[wp_fist].ammo
-for state in weaponinfo_t.state_fields:
-    setattr(weaponinfo[wp_pistol], state, getattr(weaponinfo[wp_fist], state))
+weaponinfo[wp_pistol].copy_from(weaponinfo[wp_fist])
 
 dehfile.save("mood.deh")
