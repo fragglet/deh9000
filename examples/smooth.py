@@ -10,7 +10,7 @@ from __future__ import print_function
 from deh9000 import *
 
 # We need some additional states; acquire these now.
-dehfile.reclaim_states(85)
+dehfile.reclaim_states(78)
 
 # Rebuild weapons from scratch.
 weaponinfo[wp_fist].clear()
