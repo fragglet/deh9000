@@ -93,11 +93,13 @@ def reuse_trooper_gib_animation(file, state_id):
 	"""
 	# These are carefully chosen to ensure that the new sequences still
 	# call the A_XScream and A_Fall action pointers as intended.
+	# The frames here have to be carefully chosen to preserve demo
+	# playback, otherwise nightmare monster respawn can be affected.
 	new_nextstate = {
 		S_SPOS_XDIE1: S_POSS_XDIE2,
 		S_PLAY_XDIE1: S_POSS_XDIE2,
-		S_TROO_XDIE4: S_POSS_XDIE5,
-		S_CPOS_XDIE3: S_POSS_XDIE5,
+		S_TROO_XDIE4: S_POSS_XDIE6,
+		S_CPOS_XDIE3: S_POSS_XDIE7,
 		S_SSWV_XDIE1: S_POSS_XDIE2,
 	}
 	if state_id in new_nextstate:
