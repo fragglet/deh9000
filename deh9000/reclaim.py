@@ -19,15 +19,6 @@ def changed(struct):
 	"""Returns true if the given struct has changed."""
 	return len(struct.dehacked_diffs()) > 0
 
-def clear_pain_elemental_resurrections(file):
-	"""Clears the resurrect sequences for the Pain Elemental.
-
-	The Pain Elemental has an animation sequence for the Archvile to
-	resurrect it, but it disappears when it dies so this can never
-	happen.
-	"""
-	file.mobjinfo[MT_PAIN].raisestate = S_NULL
-
 def mancubus_shot_rocket_explosion(file):
 	"""Use rocket explosion states for mancubus shot explosion.
 
@@ -220,6 +211,7 @@ def squash_resurrect_animations(file, mobjtype):
 		MT_KNIGHT: 9,     # BOS2J0
 		MT_BABY: 9,       # BSPIJ0
 		MT_WOLFSS: 9,     # SSWVJ0
+		MT_PAIN: 9,       # PAINI0
 	}
 	frame = monsters[mobjtype]
 	mobj = mobjinfo[mobjtype]
@@ -273,7 +265,7 @@ def hell_knight_identical_to_baron(file):
 		setattr(knight, field, getattr(baron, field))
 
 strategies = [
-	clear_pain_elemental_resurrections,
+	(squash_resurrect_animations,     MT_PAIN),
 	mancubus_shot_rocket_explosion,
 	combine_revenant_smoke_puff,
 	simpler_boss_brain_death,
