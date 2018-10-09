@@ -176,23 +176,11 @@ weaponinfo[wp_plasma].update(states.parse("""
         Fire:
                 PLSF C 1 Bright A_FirePlasma
                 PLSF D 2 Bright
-                PLSF E 1 Bright A_ReFire
-                PLSF F 1 Bright
-                PLSF E 1 Bright
-                PKPL B 1
-                PKPL DEF 1
-                PKPL G 7
-                PKPL FEDC 1
-                PKPL BA 1
+                PKPL C 1 A_ReFire
+                PKPL E 1
+                PLSG B 15
+                PKPL DCB 1
                 Goto Ready
-      #  Hold:
-      #          PLSF E 1 Bright A_FirePlasma
-      #          PLSF F 1 Bright
-      #          PLSF E 1 Bright
-      #          PLSF C 1 Bright A_FirePlasma
-      #          PLSF D 2 Bright
-      #          PLSF D 0 Bright A_ReFire
-      #          Goto Fire+3
         Flash:
 	Pin(S_PLASMAFLASH1):
                 NULL A 4 A_Light1
