@@ -354,8 +354,8 @@ f.save("hardlife.deh")
 | ---------- | ------------- | ----------- |
 | `initial_health` | `Initial Health` | Initial health a player has when starting anew. |
 | `initial_bullets` | `Initial Bullets` | Number of bullets the player has when starting anew. |
-| `max_health` | `Max Health` | Maximum health that can be reached using medikits alone. |
-| `max_armor` | `Max Armor` | Maximum armor which can be reached by picking up armor helmets. |
+| `max_health` | `Max Health` | Maximum health that can be reached using health potions. |
+| `max_armor` | `Max Armor` | Maximum armor that can be reached by picking up armor helmets. |
 | `green_armor_class` | `Green Armor Class` | Armor class that is given when picking up the green armor or an armor helmet. DOS dehacked only modifies the behavior of the green armor shirt, the armor class set by armor helmets is not affected. |
 | `blue_armor_class` | `Blue Armor Class` | Armor class that is given when picking up the blue armor or a megasphere. DOS dehacked only modifies the MegaArmor behavior and not the MegaSphere, which always gives armor type 2. |
 | `max_soulsphere` | `Max Soulsphere` | Maximum health which can be reached by picking up the soulsphere. |
