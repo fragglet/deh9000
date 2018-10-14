@@ -10,7 +10,8 @@ from __future__ import print_function
 from deh9000 import *
 
 # We need some additional states; acquire these now.
-dehfile.reclaim_states(78)
+dehfile.reclaim_states(73)
+dehfile.reclaim_sprites(8)
 
 # Rebuild weapons from scratch.
 weaponinfo[wp_fist].clear()
@@ -260,17 +261,16 @@ weaponinfo[wp_bfg].update(states.parse("""
                 Loop
         Fire:
                 BFGG A 20 A_BFGsound
-                BFGG A 2 A_GunFlash
-                BFGN A 8
-                BFGN A 10 A_FireBFG
+                BFGG A 10 A_GunFlash
+                BFGG A 10 A_FireBFG
                 BFGG A 20 A_ReFire
                 goto Ready
         Flash:
                 BFGW A 3 bright
                 BFGX GE 2 bright A_Light1
                 BFGX DCBA 1 bright A_Light2
-                BFGY ABCD 1 bright
-                BFGY FHJ 2 bright A_Light0
+                BFGY AB 1 bright
+                BFGY C 1 bright A_Light0
                 Goto S_LIGHTDONE
 """))
 
