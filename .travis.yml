@@ -8,3 +8,8 @@ python:
 install:
   - python setup.py -q install
 script: ./.travis.sh
+addons:
+  apt:
+    packages:
+    - python-apsw
+
