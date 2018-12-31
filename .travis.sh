@@ -13,7 +13,7 @@ for src in deh9000/*.py examples/*.py examples/guide/*.py; do
 	if echo "$IGNORE_FILES" | grep -qw "$src"; then
 		continue
 	fi
-	if ! python "$src"; then
+	if ! python -vvv "$src"; then
 		echo "FAILED: $src"
 		success=false
 	fi
