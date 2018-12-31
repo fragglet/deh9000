@@ -24,3 +24,13 @@ sprnames = dehfile.sprnames
 strings = dehfile.strings
 weaponinfo = dehfile.weaponinfo
 
+def sql():
+	"""Open an SQLite console with DEH9000 virtual tables."""
+	from deh9000.sqlite import MakeTables, Shell
+	import sys
+	f = DehackedFile()
+	for filename in sys.argv[1:]:
+		f.load(filename)
+	shell = Shell(f, db=MakeTables(f))
+	shell.cmdloop()
+

@@ -14,10 +14,12 @@ from __future__ import print_function
 
 import apsw
 import sys
+import unittest
 
 from deh9000 import actions
 from deh9000 import c
-from deh9000.states import state_t
+from deh9000.file import DehackedFile
+from deh9000.states import state_t, S_PISTOL
 
 TABLES = [
 	"ammodata",
@@ -91,6 +93,8 @@ class Table(object):
 
 	def _convert_from_sql_value(self, field, value):
 		if field == state_t.action:
+			if value == None:
+				return None
 			if not hasattr(actions, value):
 				raise NameError("Unknown action pointer %r" % (
 					value))
@@ -175,7 +179,7 @@ def MakeTables(dehfile, connection=None):
 	"""
 	if not connection:
 		connection = apsw.Connection(":memory:")
-	mod = Module(f)
+	mod = Module(dehfile)
 	connection.createmodule("deh9000", mod)
 	cursor = connection.cursor()
 	for table in TABLES:
@@ -184,11 +188,66 @@ def MakeTables(dehfile, connection=None):
 	return connection
 
 
+class TestSqlite(unittest.TestCase):
+
+	def setUp(self):
+		self.dehfile = DehackedFile()
+		self.conn = MakeTables(self.dehfile)
+
+	def expected_table_rows(self, table_name):
+		if table_name == "miscdata":
+			return 1
+		arr = getattr(self.dehfile, table_name)
+		return len(arr)
+
+	def test_query_all_tables(self):
+		for t in TABLES:
+			cursor = self.conn.cursor()
+			rowcount = 0
+			for row in cursor.execute("SELECT * FROM %s" % t):
+				rowcount += 1
+			self.assertEqual(rowcount, self.expected_table_rows(t))
+
+	def test_update_query(self):
+		cursor = self.conn.cursor()
+		query = "SELECT tics FROM states WHERE rowid=%d" % S_PISTOL
+		self.assertEqual(self.dehfile.states[S_PISTOL].tics, 1)
+		for row in cursor.execute(query):
+			self.assertEqual(row[0], 1)
+		cursor.execute("""
+			UPDATE states SET tics=tics*2
+			WHERE rowid=%d
+		""" % S_PISTOL)
+		self.assertEqual(self.dehfile.states[S_PISTOL].tics, 2)
+		for row in cursor.execute(query):
+			self.assertEqual(row[0], 2)
+
+	def test_action_pointer_conversion(self):
+		cursor = self.conn.cursor()
+		query = "SELECT action FROM states WHERE rowid=%d" % S_PISTOL
+		self.assertEqual(self.dehfile.states[S_PISTOL].action,
+		                 actions.A_WeaponReady)
+		for row in cursor.execute(query):
+			self.assertEqual(row[0], "A_WeaponReady")
+
+		cursor.execute("""
+			UPDATE states SET action='A_SkelFist'
+			WHERE rowid=%d
+		""" % S_PISTOL)
+		self.assertEqual(self.dehfile.states[S_PISTOL].action,
+		                 actions.A_SkelFist)
+		for row in cursor.execute(query):
+			self.assertEqual(row[0], "A_SkelFist")
+
+		cursor.execute("""
+			UPDATE states SET action=NULL
+			WHERE rowid=%d
+		""" % S_PISTOL)
+		self.assertEqual(self.dehfile.states[S_PISTOL].action, None)
+		for row in cursor.execute(query):
+			self.assertEqual(row[0], None)
+
+
 if __name__ == "__main__":
-	import file
-	f = file.DehackedFile()
-	for filename in sys.argv[1:]:
-		f.load(filename)
-	shell = Shell(f, db=MakeTables(f))
-	shell.cmdloop()
+	unittest.main()
 
