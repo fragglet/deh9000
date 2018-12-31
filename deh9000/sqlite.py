@@ -18,17 +18,28 @@ import unittest
 
 from deh9000 import actions
 from deh9000 import c
+from deh9000.ammo import ammotype_t
 from deh9000.file import DehackedFile
+from deh9000.mobjs import mobjtype_t
+from deh9000.sounds import sfxenum_t
 from deh9000.states import state_t, S_PISTOL
+from deh9000.states import statenum_t
+from deh9000.weapons import weapontype_t
 
-TABLES = [
-	"ammodata",
-	"miscdata",
-	"mobjinfo",
-	"states",
+TABLES = {
+	"ammodata":   ammotype_t,
+	"miscdata":   None,
+	"mobjinfo":   mobjtype_t,
+	"states":     statenum_t,
+	"S_sfx":      sfxenum_t,
+	"weaponinfo": weapontype_t,
 	# TODO "strings",
-	"S_sfx",
-	"weaponinfo",
+}
+
+METADATA_COLUMNS = [
+	"id",
+	"enum_name",
+	"object_name",
 ]
 
 class Cursor(object):
@@ -38,26 +49,18 @@ class Cursor(object):
 	SQLite.
 	"""
 
-	def __init__(self, struct_array, columns):
-		self.struct_array = struct_array
-		self.columns = columns
+	def __init__(self, table):
 		self.position = 0
+		self.table = table
 
 	def Close(self):
 		pass
 
 	def Column(self, number):
-		if number == -1:
-			return self.position
-		colname = self.columns[number]
-		result = getattr(self.struct_array[self.position], colname)
-		# We represent action pointers by their string name:
-		if isinstance(result, actions.Action):
-			result = result.name
-		return result
+		return self.table[number, self.position]
 
 	def Eof(self):
-		return self.position >= len(self.struct_array)
+		return self.position >= len(self.table)
 
 	def Filter(self, indexnum, indexname, constraintargs):
 		pass
@@ -76,20 +79,48 @@ class Table(object):
 	queried and modified.
 	"""
 
-	def __init__(self, struct_array):
+	def __init__(self, struct_array, enum_type):
 		self.struct_array = struct_array
-		self.columns = type(struct_array[0]).field_names()
+		self.enum_type = enum_type
+		self.data_columns = type(struct_array[0]).field_names()
 
 	def BestIndex(self, constraints, orderbys):
 		pass
 
 	def Open(self):
-		return Cursor(self.struct_array, self.columns)
+		return Cursor(self)
 
 	def Disconnect(self):
 		pass
 
 	Destroy = Disconnect
+
+	def __len__(self):
+		return len(self.struct_array)
+
+	def _metadata_cell(self, row, column):
+		if column == 0:
+			return row
+		elif column == 1 and self.enum_type:
+			return self.enum_type[row]
+		elif column == 2:
+			return self.struct_array[row].object_name
+
+	def __getitem__(self, key):
+		(column, row) = key
+		if column == -1:
+			return row
+		if column < len(METADATA_COLUMNS):
+			return self._metadata_cell(row, column)
+		colname = self.data_columns[column - len(METADATA_COLUMNS)]
+		result = getattr(self.struct_array[row], colname)
+		return self._convert_to_sql_value(result)
+
+	def _convert_to_sql_value(self, value):
+		# We represent action pointers by their string name:
+		if isinstance(value, actions.Action):
+			return value.name
+		return value
 
 	def _convert_from_sql_value(self, field, value):
 		if field == state_t.action:
@@ -102,13 +133,27 @@ class Table(object):
 
 		return value
 
+	def _set_metadata_cell(self, row, column, value):
+		if column == 0 or column == 1:
+			raise IndexError("Cannot change field %r" % (
+				METADATA_COLUMNS[column]))
+		elif column == 2:
+			self.struct_array[row].object_name = value
+
+	def __setitem__(self, key, value):
+		(column, row) = key
+		if column < len(METADATA_COLUMNS):
+			return self._set_metadata_cell(row, column, value)
+		colname = self.data_columns[column - len(METADATA_COLUMNS)]
+		obj = self.struct_array[row]
+		field = getattr(type(obj), colname)
+		value = self._convert_from_sql_value(field, value)
+		setattr(obj, colname, value)
+
 	def UpdateChangeRow(self, rowid, newrowid, fields):
-		s = self.struct_array[rowid]
-		for field_id, column in enumerate(self.columns):
-			value = fields[field_id]
-			field = getattr(type(s), column)
-			value = self._convert_from_sql_value(field, value)
-			setattr(s, column, value)
+		for column, value in enumerate(fields):
+			if self[column, rowid] != value:
+				self[column, rowid] = value
 
 	def UpdateDeleteRow(self, rowid):
 		raise NotImplementedError()
@@ -133,14 +178,16 @@ class Module(object):
 			raise ValueError("no arguments permitted")
 		if tablename not in TABLES:
 			raise ValueError("valid tables: %s" % (
-				"; ".join(TABLES)))
+				"; ".join(TABLES.keys())))
 		array = getattr(self.dehfile, tablename)
+		enum_type = TABLES[tablename]
 		if isinstance(array, c.Struct):
 			array = c.StructArray(type(array), [array])
-		table = Table(array)
+		table = Table(array, enum_type)
 		struct_type = type(array[0])
+		columns = METADATA_COLUMNS + struct_type.field_names()
 		create_sql = "CREATE TABLE %s (%s);" % (
-			tablename, ", ".join(struct_type.field_names()),
+			tablename, ", ".join(columns),
 		)
 		return create_sql, table
 
@@ -246,6 +293,35 @@ class TestSqlite(unittest.TestCase):
 		self.assertEqual(self.dehfile.states[S_PISTOL].action, None)
 		for row in cursor.execute(query):
 			self.assertEqual(row[0], None)
+
+	def test_metadata_fields(self):
+		cursor = self.conn.cursor()
+		query = """
+			SELECT id, enum_name, object_name
+			FROM mobjinfo
+			WHERE rowid=0
+		"""
+		rows = list(cursor.execute(query))
+		self.assertEqual(rows, [(0, "MT_PLAYER", "Player")])
+
+		# object_name can be changed, other metadata fields can't:
+		cursor.execute("""
+			UPDATE mobjinfo SET object_name="Doomguy"
+			WHERE rowid=0
+		""")
+		self.assertEqual(self.dehfile.mobjinfo[0].object_name,
+		                 "Doomguy")
+
+		with self.assertRaises(IndexError):
+			cursor.execute("""
+				UPDATE mobjinfo SET id=1231424
+				WHERE rowid=0
+			""")
+		with self.assertRaises(IndexError):
+			cursor.execute("""
+				UPDATE mobjinfo SET enum_name="asgkhjalsgk"
+				WHERE rowid=0
+			""")
 
 
 if __name__ == "__main__":
