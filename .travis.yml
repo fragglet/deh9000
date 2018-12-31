@@ -12,4 +12,5 @@ addons:
   apt:
     packages:
     - python-apsw
+    - python3-apsw
 
