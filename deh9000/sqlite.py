@@ -9,10 +9,15 @@ is a subclass of the apsw.Shell class that implements DEH9000-related
 subcommands to load and save Dehacked files.
 """
 
+from __future__ import absolute_import
+from __future__ import print_function
+
 import apsw
 import sys
 
+from deh9000 import actions
 from deh9000 import c
+from deh9000.states import state_t
 
 TABLES = [
 	"ammodata",
@@ -43,7 +48,11 @@ class Cursor(object):
 		if number == -1:
 			return self.position
 		colname = self.columns[number]
-		return getattr(self.struct_array[self.position], colname)
+		result = getattr(self.struct_array[self.position], colname)
+		# We represent action pointers by their string name:
+		if isinstance(result, actions.Action):
+			result = result.name
+		return result
 
 	def Eof(self):
 		return self.position >= len(self.struct_array)
@@ -80,10 +89,21 @@ class Table(object):
 
 	Destroy = Disconnect
 
+	def _convert_from_sql_value(self, field, value):
+		if field == state_t.action:
+			if not hasattr(actions, value):
+				raise NameError("Unknown action pointer %r" % (
+					value))
+			return getattr(actions, value)
+
+		return value
+
 	def UpdateChangeRow(self, rowid, newrowid, fields):
 		s = self.struct_array[rowid]
 		for field_id, column in enumerate(self.columns):
 			value = fields[field_id]
+			field = getattr(type(s), column)
+			value = self._convert_from_sql_value(field, value)
 			setattr(s, column, value)
 
 	def UpdateDeleteRow(self, rowid):
