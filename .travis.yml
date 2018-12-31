@@ -13,4 +13,6 @@ addons:
     packages:
     - python-apsw
     - python3-apsw
+virtualenv:
+  system_site_packages: true
 
