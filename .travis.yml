@@ -7,10 +7,6 @@ python:
   - "3.6"
 install:
   - python setup.py -q install
+  - pip install apsw
 script: ./.travis.sh
-addons:
-  apt:
-    packages:
-    - python-apsw
-    - python3-apsw
 
