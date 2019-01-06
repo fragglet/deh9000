@@ -33,7 +33,14 @@ COMMENT_LINE_RE = re.compile("\s*#")
 
 class DehackedParseException(Exception):
 	"""An error caused by a failure to parse a Dehacked file."""
-	pass
+
+	def __init__(self, filename, lineno, message):
+		self.filename = filename
+		self.lineno = lineno
+		self.message = message
+
+	def __repr__(self):
+		return "%s:%d: %s" % (self.filename, self.lineno, self.message)
 
 class DehackedInputStream(object):
 	"""Wrapper around an I/O stream for reading Dehacked files."""
@@ -66,11 +73,11 @@ class DehackedInputStream(object):
 		return line
 
 	def exception(self, message):
-		raise DehackedParseException("%s:%d: %s" % (
+		raise DehackedParseException(
 			self.stream.name,
 			self.lineno,
 			message,
-		))
+		)
 
 class TopLevelProperty(object):
 	"""Helper class that is used to parse top-level "fields".
@@ -108,7 +115,7 @@ def _parse_line(sections, stream, line):
 			obj.parse_section(stream, **params)
 			break
 	else:
-		stream.exception("syntax not recognized: %r" % line)
+		stream.exception("syntax not recognized: %r" % line.rstrip())
 
 def _parse_stream(sections, stream, strict_mode):
 	_read_header(stream)
@@ -122,7 +129,7 @@ def _parse_stream(sections, stream, strict_mode):
 		except DehackedParseException as e:
 			if strict_mode:
 				raise
-			warnings.append(e.message)
+			warnings.append(repr(e))
 
 	if not strict_mode and warnings:
 		print("Warnings loading dehacked file:", file=sys.stderr)
