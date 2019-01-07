@@ -182,35 +182,28 @@ class StringsTable(object):
 
 	def __init__(self, string_repls):
 		self.string_repls = string_repls
-		self.populate_from_module(strings)
-		self.populate_extra_strings(string_repls)
+		self._populate_table(strings)
 
-	def populate_from_module(self, mod):
+	def _populate_table(self, mod):
 		"""Add all symbolic named strings from imported module.
 
 		Module in this case is the deh9000.strings module.
 		"""
 		self.table_entries = []
-		self.index_by_key = {}
-		self.index_by_name = {}
+		used_keys = set()
 		for name in sorted(dir(mod)):
 			if name.startswith("__"):
 				continue
 			key = getattr(mod, name)
 			if not isinstance(key, str):
 				continue
-			index = len(self.table_entries)
 			self.table_entries.append((name, key))
-			self.index_by_key[key] = index
-			self.index_by_name[name] = index
+			used_keys.add(key)
 
-	def populate_extra_strings(self, string_repls):
-		for key, value in string_repls.items():
-			if key in self.index_by_key:
-				continue
-			index = len(self.table_entries)
-			self.table_entries.append(('', key))
-			self.index_by_key[key] = index
+		# Add unnamed entries:
+		for key, value in self.string_repls.items():
+			if key not in used_keys:
+				self.table_entries.append(('', key))
 
 	def column_names(self):
 		return ["name", "key", "value"]
@@ -266,7 +259,7 @@ class StringsTable(object):
 		if name:
 			raise ValueError(
 				"name must be empty when inserting new row")
-		result = len(self.string_repls)
+		result = len(self.table_entries)
 		self.string_repls[key] = value
 		self.table_entries.append((name, key))
 		return result
