@@ -44,6 +44,8 @@ class StringReplacements(object):
 		# to property name.
 		self._reverse_map = {}
 		for propname in dir(base_module):
+			if propname.startswith("__"):
+				continue
 			value = getattr(base_module, propname)
 			if isinstance(value, str):
 				self._reverse_map[value] = propname
