@@ -257,7 +257,19 @@ class StringsTable(object):
 		raise NotImplementedError()
 
 	def UpdateInsertRow(self, rowid, fields):
-		raise NotImplementedError()
+		name, key, value = fields
+		if rowid is not None:
+			raise ValueError("expecting no existing row")
+		if key in self.string_repls:
+			raise KeyError("row for key %r already present" % (
+				key,))
+		if name:
+			raise ValueError(
+				"name must be empty when inserting new row")
+		result = len(self.string_repls)
+		self.string_repls[key] = value
+		self.table_entries.append((name, key))
+		return result
 
 class Module(object):
 	"""Implementation of the apsw.VTModule interface.
@@ -457,6 +469,25 @@ class TestSqlite(unittest.TestCase):
 				WHERE rowid=0
 			""")
 
+	def test_strings_insert(self):
+		strings = self.dehfile.strings
+		cursor = self.conn.cursor()
+		cursor.execute("""
+			INSERT INTO strings VALUES('', 'foo', 'bar')
+		""")
+		self.assertEqual(strings["foo"], "bar")
+
+		# Can't conflict with existing row
+		with self.assertRaises(KeyError):
+			cursor.execute("""
+				INSERT INTO strings
+				VALUES('', 'E1M2: Nuclear Plant', 'x')
+			""")
+		# Can't specify a name:
+		with self.assertRaises(ValueError):
+			cursor.execute("""
+				INSERT INTO strings VALUES('x', 'y', 'z')
+			""")
 
 if __name__ == "__main__":
 	unittest.main()
