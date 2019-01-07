@@ -37,12 +37,6 @@ TABLES = {
 	"weaponinfo": weapontype_t,
 }
 
-METADATA_COLUMNS = [
-	"id",
-	"enum_name",
-	"object_name",
-]
-
 class Cursor(object):
 	"""Implements the apsw.VTCursor interface.
 
@@ -79,6 +73,14 @@ class Table(object):
 	This wraps a c.StructArray object as a virtual table that can be
 	queried and modified.
 	"""
+	METADATA_COLUMNS = [
+		"id",
+		"enum_name",
+		"object_name",
+	]
+	COLUMN_ROWID = 0
+	COLUMN_ENUM_NAME = 1
+	COLUMN_OBJECT_NAME = 2
 
 	def __init__(self, struct_array, enum_type):
 		self.struct_array = struct_array
@@ -86,7 +88,7 @@ class Table(object):
 		self.data_columns = type(struct_array[0]).field_names()
 
 	def column_names(self):
-		return METADATA_COLUMNS + self.data_columns
+		return Table.METADATA_COLUMNS + self.data_columns
 
 	def BestIndex(self, constraints, orderbys):
 		pass
@@ -103,20 +105,21 @@ class Table(object):
 		return len(self.struct_array)
 
 	def _metadata_cell(self, row, column):
-		if column == 0:
+		if column == Table.COLUMN_ROWID:
 			return row
-		elif column == 1 and self.enum_type:
+		elif column == Table.COLUMN_ENUM_NAME and self.enum_type:
 			return self.enum_type[row]
-		elif column == 2:
+		elif column == Table.COLUMN_OBJECT_NAME:
 			return self.struct_array[row].object_name
 
 	def __getitem__(self, key):
 		(column, row) = key
 		if column == -1:
 			return row
-		if column < len(METADATA_COLUMNS):
+		if column < len(Table.METADATA_COLUMNS):
 			return self._metadata_cell(row, column)
-		colname = self.data_columns[column - len(METADATA_COLUMNS)]
+		data_column = column - len(Table.METADATA_COLUMNS)
+		colname = self.data_columns[data_column]
 		result = getattr(self.struct_array[row], colname)
 		return self._convert_to_sql_value(result)
 
@@ -138,17 +141,18 @@ class Table(object):
 		return value
 
 	def _set_metadata_cell(self, row, column, value):
-		if column == 0 or column == 1:
-			raise IndexError("Cannot change field %r" % (
-				METADATA_COLUMNS[column]))
-		elif column == 2:
+		if column == Table.COLUMN_OBJECT_NAME:
 			self.struct_array[row].object_name = value
+		else:
+			raise IndexError("Cannot change field %r" % (
+				Table.METADATA_COLUMNS[column]))
 
 	def __setitem__(self, key, value):
 		(column, row) = key
-		if column < len(METADATA_COLUMNS):
+		if column < len(Table.METADATA_COLUMNS):
 			return self._set_metadata_cell(row, column, value)
-		colname = self.data_columns[column - len(METADATA_COLUMNS)]
+		data_column = column - len(Table.METADATA_COLUMNS)
+		colname = self.data_columns[data_column]
 		obj = self.struct_array[row]
 		field = getattr(type(obj), colname)
 		value = self._convert_from_sql_value(field, value)
@@ -172,6 +176,9 @@ class StringsTable(object):
 	This wraps a deh9000 StringReplacements object producing a table that
 	can be used to query and modify it.
 	"""
+	COLUMN_NAME = 0
+	COLUMN_KEY = 1
+	COLUMN_VALUE = 2
 
 	def __init__(self, string_repls):
 		self.string_repls = string_repls
@@ -226,19 +233,19 @@ class StringsTable(object):
 		(column, row) = key
 		if column == -1:
 			return row
-		elif column == 0 or column == 1:
-			return self.table_entries[row][column]
-		elif column == 2:
-			x = self.table_entries[row][1]
+		elif column == StringsTable.COLUMN_VALUE:
+			x = self.table_entries[row][StringsTable.COLUMN_KEY]
 			return self.string_repls[x]
+		else:
+			return self.table_entries[row][column]
 
 	def __setitem__(self, key, value):
 		(column, row) = key
-		if column == 0 or column == 1:
-			raise IndexError('cannot change name or key fields')
-		elif column == 2:
-			x = self.table_entries[row][1]
+		if column == StringsTable.COLUMN_VALUE:
+			x = self.table_entries[row][StringsTable.COLUMN_KEY]
 			self.string_repls[x] = value
+		else:
+			raise IndexError('cannot change name or key fields')
 
 	def UpdateChangeRow(self, rowid, newrowid, fields):
 		for column, value in enumerate(fields):
