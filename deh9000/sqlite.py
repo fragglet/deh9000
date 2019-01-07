@@ -18,6 +18,7 @@ import unittest
 
 from deh9000 import actions
 from deh9000 import c
+from deh9000 import strings
 from deh9000.ammo import ammotype_t
 from deh9000.file import DehackedFile
 from deh9000.mobjs import mobjtype_t
@@ -31,9 +32,9 @@ TABLES = {
 	"miscdata":   None,
 	"mobjinfo":   mobjtype_t,
 	"states":     statenum_t,
+	"strings":    None,
 	"S_sfx":      sfxenum_t,
 	"weaponinfo": weapontype_t,
-	# TODO "strings",
 }
 
 METADATA_COLUMNS = [
@@ -83,6 +84,9 @@ class Table(object):
 		self.struct_array = struct_array
 		self.enum_type = enum_type
 		self.data_columns = type(struct_array[0]).field_names()
+
+	def column_names(self):
+		return METADATA_COLUMNS + self.data_columns
 
 	def BestIndex(self, constraints, orderbys):
 		pass
@@ -162,6 +166,92 @@ class Table(object):
 		raise NotImplementedError()
 
 
+class StringsTable(object):
+	"""Implementation of the apsw.VTTable interface.
+
+	This wraps a deh9000 StringReplacements object producing a table that
+	can be used to query and modify it.
+	"""
+
+	def __init__(self, string_repls):
+		self.string_repls = string_repls
+		self.populate_from_module(strings)
+		self.populate_extra_strings(string_repls)
+
+	def populate_from_module(self, mod):
+		"""Add all symbolic named strings from imported module.
+
+		Module in this case is the deh9000.strings module.
+		"""
+		self.table_entries = []
+		self.index_by_key = {}
+		self.index_by_name = {}
+		for name in sorted(dir(mod)):
+			if name.startswith("__"):
+				continue
+			key = getattr(mod, name)
+			if not isinstance(key, str):
+				continue
+			index = len(self.table_entries)
+			self.table_entries.append((name, key))
+			self.index_by_key[key] = index
+			self.index_by_name[name] = index
+
+	def populate_extra_strings(self, string_repls):
+		for key, value in string_repls.items():
+			if key in self.index_by_key:
+				continue
+			index = len(self.table_entries)
+			self.table_entries.append(('', key))
+			self.index_by_key[key] = index
+
+	def column_names(self):
+		return ["name", "key", "value"]
+
+	def BestIndex(self, constraints, orderbys):
+		pass
+
+	def Open(self):
+		return Cursor(self)
+
+	def Disconnect(self):
+		pass
+
+	Destroy = Disconnect
+
+	def __len__(self):
+		return len(self.table_entries)
+
+	def __getitem__(self, key):
+		(column, row) = key
+		if column == -1:
+			return row
+		elif column == 0 or column == 1:
+			return self.table_entries[row][column]
+		elif column == 2:
+			x = self.table_entries[row][1]
+			return self.string_repls[x]
+
+	def __setitem__(self, key, value):
+		(column, row) = key
+		if column == 0 or column == 1:
+			raise IndexError('cannot change name or key fields')
+		elif column == 2:
+			x = self.table_entries[row][1]
+			self.string_repls[x] = value
+
+	def UpdateChangeRow(self, rowid, newrowid, fields):
+		for column, value in enumerate(fields):
+			if self[column, rowid] != value:
+				self[column, rowid] = value
+
+	def UpdateDeleteRow(self, rowid):
+		# TODO
+		raise NotImplementedError()
+
+	def UpdateInsertRow(self, rowid, fields):
+		raise NotImplementedError()
+
 class Module(object):
 	"""Implementation of the apsw.VTModule interface.
 
@@ -180,14 +270,16 @@ class Module(object):
 			raise ValueError("valid tables: %s" % (
 				"; ".join(TABLES.keys())))
 		array = getattr(self.dehfile, tablename)
-		enum_type = TABLES[tablename]
+		# Hack for miscdata
 		if isinstance(array, c.Struct):
 			array = c.StructArray(type(array), [array])
-		table = Table(array, enum_type)
-		struct_type = type(array[0])
-		columns = METADATA_COLUMNS + struct_type.field_names()
+		if tablename == "strings":
+			table = StringsTable(array)
+		else:
+			table = Table(array, TABLES[tablename])
+
 		create_sql = "CREATE TABLE %s (%s);" % (
-			tablename, ", ".join(columns),
+			tablename, ", ".join(table.column_names()),
 		)
 		return create_sql, table
 
@@ -320,6 +412,41 @@ class TestSqlite(unittest.TestCase):
 		with self.assertRaises(IndexError):
 			cursor.execute("""
 				UPDATE mobjinfo SET enum_name="asgkhjalsgk"
+				WHERE rowid=0
+			""")
+
+	def test_strings_query(self):
+		strings = self.dehfile.strings
+		cursor = self.conn.cursor()
+		rows = list(cursor.execute("""
+			SELECT value FROM strings
+			WHERE key="E1M2: Nuclear Plant"
+		"""))
+		self.assertEqual(rows, [("E1M2: Nuclear Plant",)])
+		strings.HUSTR_E1M2 = "E1M2: Qux Refinery"
+		rows = list(cursor.execute("""
+			SELECT value FROM strings
+			WHERE key="E1M2: Nuclear Plant"
+		"""))
+		self.assertEqual(rows, [("E1M2: Qux Refinery",)])
+
+	def test_strings_update(self):
+		strings = self.dehfile.strings
+		cursor = self.conn.cursor()
+		cursor.execute("""
+			UPDATE strings SET value="E1M1: Foobar"
+			WHERE name="HUSTR_E1M1"
+		""")
+		self.assertEqual(strings.HUSTR_E1M1, "E1M1: Foobar")
+
+		with self.assertRaises(IndexError):
+			cursor.execute("""
+				UPDATE strings SET name="asfasf"
+				WHERE rowid=0
+			""")
+		with self.assertRaises(IndexError):
+			cursor.execute("""
+				UPDATE strings SET key="asfasf"
 				WHERE rowid=0
 			""")
 
