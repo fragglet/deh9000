@@ -61,6 +61,19 @@ def simpler_bfg_hit(file):
 	"""Removes the last two frames of the BFG ball hit animation."""
 	file.states[S_BFGLAND5].nextstate = S_NULL
 
+def squash_pain_sound_delay(file, mobj_id):
+	"""Removes the delay frames before playing the pain sound."""
+	orig_mobj = file.mobjinfo[mobj_id].original
+	state1_id = orig_mobj.painstate
+	state2_id = state1_id + 1  # this is always true
+	# Point painstate to state2.
+	file.mobjinfo[mobj_id].painstate = state2_id
+	if mobj_id == MT_SERGEANT:
+		file.mobjinfo[MT_SHADOWS].painstate = state2_id
+	# and state2 absorbs state1's tics.
+	file.states[state2_id].tics = (file.states[state1_id].original.tics
+	                             + file.states[state2_id].original.tics)
+
 def teleport_fog_item_respawn(file):
 	"""Replaces the item respawn fog with teleport fog."""
 	file.mobjinfo[MT_IFOG].spawnstate = S_TFOG4
@@ -281,6 +294,25 @@ strategies = [
 	(reuse_trooper_gib_animation,     S_SPOS_XDIE1),
 	(reuse_trooper_gib_animation,     S_TROO_XDIE4),
 	(reuse_trooper_gib_animation,     S_CPOS_XDIE3),
+	(squash_pain_sound_delay,         MT_WOLFSS),
+	(squash_pain_sound_delay,         MT_KEEN),
+	(squash_pain_sound_delay,         MT_SPIDER),
+	(squash_pain_sound_delay,         MT_CYBORG),
+	(squash_pain_sound_delay,         MT_BABY),
+	(squash_pain_sound_delay,         MT_VILE),
+	(squash_pain_sound_delay,         MT_UNDEAD),
+	(squash_pain_sound_delay,         MT_FATSO),
+	(squash_pain_sound_delay,         MT_PAIN),
+	(squash_pain_sound_delay,         MT_BRUISER),
+	(squash_pain_sound_delay,         MT_POSSESSED),
+	(squash_pain_sound_delay,         MT_SHOTGUY),
+	(squash_pain_sound_delay,         MT_CHAINGUY),
+	(squash_pain_sound_delay,         MT_TROOP),
+	(squash_pain_sound_delay,         MT_SERGEANT),
+	(squash_pain_sound_delay,         MT_HEAD),
+	(squash_pain_sound_delay,         MT_KNIGHT),
+	(squash_pain_sound_delay,         MT_SKULL),
+	(squash_pain_sound_delay,         MT_PLAYER),
 	(combine_blood_pools,             MT_MISC84),
 	(combine_blood_pools,             MT_MISC85),
 	(combine_blood_pools,             MT_MISC86),
