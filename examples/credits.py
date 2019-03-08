@@ -1,6 +1,10 @@
 import deh9000
 
 # add mapper credits to all Ultimate Doom and Doom levels
+#
+# Note: this is not strictly Vanilla compatible; if you attempt to apply
+# the resulting patch with DEHACKED the strings will overflow and the
+# game will crash
 
 f = deh9000.DehackedFile()
 
