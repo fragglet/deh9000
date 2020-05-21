@@ -52,6 +52,21 @@ class mobjinfo_t(c.Struct):
 	sound_fields = ("seesound", "attacksound", "painsound", "deathsound",
 	                "activesound")
 
+	def clear_states(self):
+		"""Clear all the fields in the state_fields array.
+
+		This is useful before calling states.parse() as it will
+		free back all states being used by a mobj before redefining
+		its states.
+		"""
+		for f in mobjinfo_t.state_fields:
+			setattr(self, f, 0)
+
+	def clear_sounds(self):
+		"""Clear all the fields in the sound_fields array."""
+		for f in mobjinfo_t.sound_fields:
+			setattr(self, f, 0)
+
 
 FRACUNIT = 1 << 16
 

@@ -28,6 +28,16 @@ class weaponinfo_t(c.Struct):
 	state_fields = ("upstate", "downstate", "readystate", "atkstate",
 	                "flashstate")
 
+	def clear_states(self):
+		"""Clear all the fields in the state_fields array.
+
+		This is useful before calling states.parse() as it will
+		free back all states being used by a weapon before redefining
+		its states.
+		"""
+		for f in weaponinfo_t.state_fields:
+			setattr(self, f, 0)
+
 
 weapontype_t = c.Enum([
 	"wp_fist",

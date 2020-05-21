@@ -14,8 +14,7 @@ dehfile.reclaim_states(73)
 dehfile.reclaim_sprites(8)
 
 # Rebuild weapons from scratch.
-weaponinfo[wp_fist].clear()
-weaponinfo[wp_fist].ammo = am_noammo
+weaponinfo[wp_fist].clear_states()
 weaponinfo[wp_fist].update(states.parse("""
         Ready:
                 PUNG A 1 A_WeaponReady
@@ -35,8 +34,7 @@ weaponinfo[wp_fist].update(states.parse("""
                 Goto Ready
 """))
 
-weaponinfo[wp_pistol].clear()
-weaponinfo[wp_pistol].ammo = am_clip
+weaponinfo[wp_pistol].clear_states()
 weaponinfo[wp_pistol].update(states.parse("""
         Ready:
                 PKPI A 1 A_WeaponReady
@@ -59,8 +57,7 @@ weaponinfo[wp_pistol].update(states.parse("""
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_shotgun].clear()
-weaponinfo[wp_shotgun].ammo = am_shell
+weaponinfo[wp_shotgun].clear_states()
 weaponinfo[wp_shotgun].update(states.parse("""
         Ready:
                 SHTG A 1 A_WeaponReady
@@ -91,8 +88,7 @@ weaponinfo[wp_shotgun].update(states.parse("""
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_supershotgun].clear()
-weaponinfo[wp_supershotgun].ammo = am_shell
+weaponinfo[wp_supershotgun].clear_states()
 weaponinfo[wp_supershotgun].update(states.parse("""
         Ready:
                 PKS2 A 1 A_WeaponReady
@@ -127,8 +123,7 @@ weaponinfo[wp_supershotgun].update(states.parse("""
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_chaingun].clear()
-weaponinfo[wp_chaingun].ammo = am_clip
+weaponinfo[wp_chaingun].clear_states()
 weaponinfo[wp_chaingun].update(states.parse("""
         Ready:
                 CHGG A 1 A_WeaponReady
@@ -162,8 +157,7 @@ weaponinfo[wp_chaingun].update(states.parse("""
 
 """))
 
-weaponinfo[wp_plasma].clear()
-weaponinfo[wp_plasma].ammo = am_cell
+weaponinfo[wp_plasma].clear_states()
 weaponinfo[wp_plasma].update(states.parse("""
         Ready:
                 PLSG A 1 A_WeaponReady
@@ -191,8 +185,7 @@ weaponinfo[wp_plasma].update(states.parse("""
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_chainsaw].clear()
-weaponinfo[wp_chainsaw].ammo = am_noammo
+weaponinfo[wp_chainsaw].clear_states()
 weaponinfo[wp_chainsaw].update(states.parse("""
         Deselect:
                 SAWG C 1 A_Lower
@@ -217,8 +210,7 @@ weaponinfo[wp_chainsaw].update(states.parse("""
                 Goto Ready
 """))
 
-weaponinfo[wp_missile].clear()
-weaponinfo[wp_missile].ammo = am_misl
+weaponinfo[wp_missile].clear_states()
 weaponinfo[wp_missile].update(states.parse("""
         Ready:
                 MISG A 1 A_WeaponReady
@@ -247,8 +239,7 @@ weaponinfo[wp_missile].update(states.parse("""
                 Goto S_LIGHTDONE
 """))
 
-weaponinfo[wp_bfg].clear()
-weaponinfo[wp_bfg].ammo = am_cell
+weaponinfo[wp_bfg].clear_states()
 weaponinfo[wp_bfg].update(states.parse("""
         Ready:
                 BFGG A 1 A_WeaponReady
