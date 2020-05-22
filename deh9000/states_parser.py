@@ -109,7 +109,7 @@ PIN_STATE_RE = re.compile(r"\s*Pin\s*"
 # BOSF BCD 3 BRIGHT A_SpawnFly
 
 FRAME_DEF_RE = re.compile(r"\s*(?P<sprname>\w\w\w\w)"
-                          r"\s+(?P<frame>[a-z]+)"
+                          r"\s+(?P<frame>[a-z\[\\\]]+)"
                           r"\s+(?P<tics>\-?\d+)"
                           r"\s*(?P<bright>bright)?"
                           r"\s*(?P<action>A_\w+)?"
@@ -256,7 +256,7 @@ class _Parser(object):
 		action = action_pointer_for_name(params.get("action"))
 
 		for fr in params["frame"]:
-			frame = ord(fr.lower()) - ord('a')
+			frame = ord(fr.upper()) - ord('A')
 			if is_bright:
 				frame |= 32768
 			yield state_t(
@@ -546,6 +546,7 @@ class TestParser(unittest.TestCase):
 			TROO P 5
 			TROO Q 5 A_Fall
 			TROO RST 5
+			TROO [\] 5
 			TROO U -1
 			Stop
 		Raise:
@@ -591,14 +592,17 @@ class TestParser(unittest.TestCase):
 		(0, 17,  5, None,           26),  # 25
 		(0, 18,  5, None,           27),  # 26
 		(0, 19,  5, None,           28),  # 27
-		(0, 20, -1, None,            0),  # 28 Stop
+		(0, 26,  5, None,           29),  # 28
+		(0, 27,  5, None,           30),  # 29
+		(0, 28,  5, None,           31),  # 30
+		(0, 20, -1, None,            0),  # 31 Stop
 
 		# Sprite number here is different (ASDF)
-		(1, 12,  8, None,           30),  # 29 Raise:
-		(1, 11,  8, None,           31),  # 30
-		(1, 10,  8, None,           32),  # 31
-		(1,  9,  8, None,           33),  # 32
-		(1,  8,  8, None,            3),  # 33 Goto See
+		(1, 12,  8, None,           33),  # 32 Raise:
+		(1, 11,  8, None,           34),  # 33
+		(1, 10,  8, None,           35),  # 34
+		(1,  9,  8, None,           36),  # 35
+		(1,  8,  8, None,            3),  # 36 Goto See
 		])
 
 		states, _, sprnames = parse(TestParser.TEST_INPUT)
@@ -624,7 +628,7 @@ class TestParser(unittest.TestCase):
 			"Pain":    14,
 			"Death":   16,
 			"XDeath":  21,
-			"Raise":   29,
+			"Raise":   32,
 
 			"spawnstate":    1,
 			"seestate":      3,
@@ -633,7 +637,7 @@ class TestParser(unittest.TestCase):
 			"painstate":    14,
 			"deathstate":   16,
 			"xdeathstate":  21,
-			"raisestate":   29,
+			"raisestate":   32,
 		}
 		_, labels, _ = parse(TestParser.TEST_INPUT)
 		self.assertEqual(labels, expected)
