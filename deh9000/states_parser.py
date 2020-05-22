@@ -315,7 +315,6 @@ class _Parser(object):
 		if self.previous_state_id == -1:
 			self.exception("Stop without a preceding state")
 		state = self.states[self.previous_state_id]
-		state.tics = -1
 		state.nextstate = 0
 		self.previous_state_id = -1
 		self.loop_start_id = -1
@@ -538,7 +537,7 @@ class TestParser(unittest.TestCase):
 			TROO K 6
 		Pin(199):
 			TROO L 6 A_Fall
-			TROO M -1
+			TROO M 3
 			Stop
 		XDeath:
 			TROO N 5
@@ -583,7 +582,7 @@ class TestParser(unittest.TestCase):
 		(0, 9|32768,  8, A_Scream,  18),  # 17
 		(0,      10,  6, None,      19),  # 18
 		(0,      11,  6, A_Fall,    20),  # 19
-		(0,      12, -1, None,       0),  # 20 Stop
+		(0,      12,  3, None,       0),  # 20 Stop
 
 		(0, 13,  5, None,           22),  # 21 XDeath:
 		(0, 14,  5, A_XScream,      23),  # 22
