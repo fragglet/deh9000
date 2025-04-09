@@ -10,6 +10,10 @@ jobs:
     - uses: actions/checkout@v4
       with:
         submodules: true
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt -q install python3-apsw
     - name: run tests
       run: |
         IGNORE_FILES="examples/guide/merge.py"
