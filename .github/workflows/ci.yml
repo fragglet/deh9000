@@ -1,0 +1,20 @@
+name: Continuous Integration
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: run tests
+      run: |
+        IGNORE_FILES="examples/guide/merge.py"
+        for src in deh9000/*.py examples/*.py examples/guide/*.py; do
+          if echo "$IGNORE_FILES" | grep -vqw "$src"; then
+            python3 "$src"
+          fi
+        done
