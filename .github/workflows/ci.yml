@@ -13,6 +13,7 @@ jobs:
     - name: run tests
       run: |
         IGNORE_FILES="examples/guide/merge.py"
+        export PYTHONPATH=$PWD
         for src in deh9000/*.py examples/*.py examples/guide/*.py; do
           if echo "$IGNORE_FILES" | grep -vqw "$src"; then
             python3 "$src"
