@@ -10,7 +10,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {% for ammo in form.ammodata %}
             <div class="border p-4 rounded-lg">
-                <h3 class="font-bold mb-2">{{ ammodata.names[loop.index0] }}</h3>
+                <h3 class="font-bold mb-2">{{ ammodata.get_object_names()[loop.index0] }}</h3>
                 <div class="mb-2">
                     {{ ammo.max_ammo.label(class="block text-gray-700 text-sm font-bold mb-1") }}
                     {{ ammo.max_ammo(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", placeholder=ammodata[loop.index0].maxammo) }}
