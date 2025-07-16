@@ -398,6 +398,10 @@ class StructArray(object):
 				break
 			self[idx].object_name = name
 
+	def get_object_names(self):
+		"""Get the object_name properties of elements of this array."""
+		return [el.object_name for el in self]
+
 
 class TestStruct(unittest.TestCase):
 	class Coordinate(Struct):

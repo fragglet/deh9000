@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="text-2xl font-bold mb-5 text-center">Dehacked Patch Generator</h1>
+<form method="POST" action="/" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-10">
+        <h2 class="text-xl font-semibold mb-3">Ammo</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for ammo in form.ammodata %}
+            <div class="border p-4 rounded-lg">
+                <h3 class="font-bold mb-2">{{ ammodata.names[loop.index0] }}</h3>
+                <div class="mb-2">
+                    {{ ammo.max_ammo.label(class="block text-gray-700 text-sm font-bold mb-1") }}
+                    {{ ammo.max_ammo(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", placeholder=ammodata[loop.index0].maxammo) }}
+                </div>
+                <div>
+                    {{ ammo.per_ammo.label(class="block text-gray-700 text-sm font-bold mb-1") }}
+                    {{ ammo.per_ammo(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", placeholder=ammodata[loop.index0].perammo) }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mb-10">
+        <h2 class="text-xl font-semibold mb-3">Misc</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {% for field_name, field in form.miscdata._fields.items() %}
+            {% if field.type != 'CSRFTokenField' %}
+            <div class="mb-2">
+                {{ field.label(class="block text-gray-700 text-sm font-bold mb-1") }}
+                {{ field(class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline", placeholder=miscdata[field_name]) }}
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="mt-5">
+        {{ form.submit(class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline") }}
+    </div>
+</form>
+
+{% if patch_text %}
+<div class="mt-10 bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+    <h2 class="text-xl font-semibold mb-3">Generated Patch</h2>
+    <pre class="bg-gray-200 p-4 rounded-lg overflow-x-auto"><code class="language-ini">{{ patch_text }}</code></pre>
+</div>
+{% endif %}
+{% endblock %}
