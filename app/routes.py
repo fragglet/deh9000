@@ -11,25 +11,17 @@ def index():
     if form.validate_on_submit():
         deh = DehackedFile()
 
+        # Ammo data
         for i, ammo_form in enumerate(form.ammodata):
-            if ammo_form.max_ammo.data is not None:
+            if ammo_form.max_ammo.data:
                 deh.ammodata[i].maxammo = ammo_form.max_ammo.data
-            if ammo_form.per_ammo.data is not None:
+            if ammo_form.per_ammo.data:
                 deh.ammodata[i].perammo = ammo_form.per_ammo.data
 
-        if form.miscdata.initial_health.data is not None:
-            deh.miscdata.initial_health = form.miscdata.initial_health.data
-        if form.miscdata.initial_bullets.data is not None:
-            deh.miscdata.initial_bullets = form.miscdata.initial_bullets.data
-        # ... and so on for all miscdata fields
-
-        for i, weapon_form in enumerate(form.weaponinfo):
-            if weapon_form.ammo_type.data:
-                deh.weaponinfo[i].ammo = int(weapon_form.ammo_type.data)
-            # ... and so on for all weaponinfo fields
-
-        # States and Mobjinfo are more complex and will be handled similarly.
-        # For now, this is a proof of concept.
+        # Misc data
+        for field_name, field in form.miscdata._fields.items():
+            if field.type != 'CSRFTokenField' and field.data is not None:
+                setattr(deh.miscdata, field_name, field.data)
 
         patch_text = "\n\n".join(deh.dehacked_diffs())
 
