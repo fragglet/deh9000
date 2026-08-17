@@ -26,7 +26,7 @@ HEADER_LINES = [
 
 # Lines which match this regexp are comment lines and will be stripped out of
 # the input stream.
-COMMENT_LINE_RE = re.compile("\s*#")
+COMMENT_LINE_RE = re.compile(r"\s*#")
 
 class DehackedParseException(Exception):
 	"""An error caused by a failure to parse a Dehacked file."""

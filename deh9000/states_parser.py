@@ -542,7 +542,7 @@ class TestParser(unittest.TestCase):
 			TROO P 5
 			TROO Q 5 A_Fall
 			TROO RST 5
-			TROO [\] 5
+			TROO [\\] 5
 			TROO U -1
 			Stop
 		Raise:
