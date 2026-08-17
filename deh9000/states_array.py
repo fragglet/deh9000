@@ -4,8 +4,6 @@ This is really only defined in its own module to avoid a circular
 import dependency.
 """
 
-from __future__ import absolute_import
-
 import re
 
 from deh9000 import c

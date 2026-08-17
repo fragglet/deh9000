@@ -4,8 +4,6 @@ The S_sfx array lists the different sound effects which play within the game.
 In the Doom source code the equivalent definitions are found in sounds.h.
 """
 
-from __future__ import absolute_import
-
 from deh9000 import c
 
 class sfxinfo_t(c.Struct):

@@ -5,8 +5,6 @@ game. In the Doom source code the definitions from this file are found
 in doomdef.h.
 """
 
-from __future__ import absolute_import
-
 from deh9000 import c
 
 # No such type "ammodata_t" really exists in the Doom source; this is

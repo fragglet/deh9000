@@ -6,9 +6,6 @@ in this file are designed to change Doom's states table - usually in subtle
 and hard to notice ways - so that states are freed up for other purposes.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import sys
 
 from deh9000.mobjs import *

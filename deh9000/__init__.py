@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 
 from deh9000.actions import *
 from deh9000.ammo import *

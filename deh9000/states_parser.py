@@ -79,9 +79,6 @@ alloc_states collection provided, otherwise it is not possible to apply the
 pins.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import copy
 import re
 import unittest

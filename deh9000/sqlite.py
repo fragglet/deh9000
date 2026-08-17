@@ -9,9 +9,6 @@ is a subclass of the apsw.Shell class that implements DEH9000-related
 subcommands to load and save Dehacked files.
 """
 
-from __future__ import absolute_import
-from __future__ import print_function
-
 import apsw
 import sys
 import unittest

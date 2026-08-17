@@ -5,8 +5,6 @@ play. In the Doom source code the equivalent definitions are found in
 d_items.h.
 """
 
-from __future__ import absolute_import
-
 from deh9000 import c
 
 class weaponinfo_t(c.Struct):

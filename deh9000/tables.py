@@ -7,8 +7,6 @@ copy of this file, edit it and then use the built-in functions to compare the
 modified version against the original "clean" copy.
 """
 
-from __future__ import absolute_import
-
 from deh9000 import c
 
 from deh9000.actions import *
